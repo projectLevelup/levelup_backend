@@ -5,8 +5,10 @@ import com.sparta.levelup_backend.utill.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor( access = AccessLevel.PROTECTED)

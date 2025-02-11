@@ -3,6 +3,7 @@ package com.sparta.levelup_backend.domain.product.entity;
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
+import com.sparta.levelup_backend.exception.common.ProductOutOfAmount;
 import com.sparta.levelup_backend.utill.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,4 +50,14 @@ public class ProductEntity extends BaseEntity {
     @Column(nullable = true)
     private String imgUrl;  // ✅ BLOB 대신 URL 저장 방식 (AWS S3 사용 고려)
 
+    public void decreaseAmount() {
+        if (this.amount <= 0) {
+            throw new ProductOutOfAmount();
+        }
+        this.amount = this.amount - 1;
+    }
+
+    public void increaseAmount() {
+        this.amount = this.amount + 1;
+    }
 }
