@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "review")
 @NoArgsConstructor
 @AllArgsConstructor( access = AccessLevel.PROTECTED )
 public class ReviewEntity extends BaseEntity {
