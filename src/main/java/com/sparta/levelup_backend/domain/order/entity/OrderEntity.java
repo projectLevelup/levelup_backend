@@ -5,12 +5,12 @@ import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
+@Getter
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,6 +25,7 @@ public class OrderEntity extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    @Setter
     @Column(name = "total_price", nullable = false)
     private Long totalPrice;
 
@@ -32,7 +33,9 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
+
 }
