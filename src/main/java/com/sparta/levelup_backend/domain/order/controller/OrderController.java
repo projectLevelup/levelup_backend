@@ -20,6 +20,7 @@ public class OrderController {
 
     private final OrderServiceImpl orderService;
 
+    // 주문 생성
     @PostMapping
     public ResponseEntity<ApiResponse<OrderCreateResponseDto>> orderCreate(
             @RequestBody OrderCreateRequestDto dto
