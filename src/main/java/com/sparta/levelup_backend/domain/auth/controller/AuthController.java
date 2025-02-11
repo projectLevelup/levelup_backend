@@ -22,8 +22,8 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/signup")
-	public ResponseEntity<ApiResponse<String>> signUpUser(@RequestBody SignUpUserRequestDto createUserRequestDto){
-		authService.signUpUser(createUserRequestDto);
+	public ResponseEntity<ApiResponse<String>> signUpUser(@RequestBody SignUpUserRequestDto dto){
+		authService.signUpUser(dto);
 		return new ResponseEntity (ApiResponse.success (SIGNUP_SUCCESS), HttpStatus.CREATED);
 	}
 }

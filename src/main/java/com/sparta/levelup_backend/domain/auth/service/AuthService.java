@@ -4,6 +4,6 @@ import com.sparta.levelup_backend.domain.auth.dto.request.SignUpUserRequestDto;
 
 public interface AuthService {
 
-	void signUpUser(SignUpUserRequestDto signUpUserRequestDto);
+	void signUpUser(SignUpUserRequestDto dto);
 
 }
