@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.order.controller;
 
 import com.sparta.levelup_backend.common.ApiResMessage;
+
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderCreateResponseDto;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.sparta.levelup_backend.common.ApiResMessage.*;
 
 @RestController
 @RequestMapping("/v1/orders")
@@ -28,7 +31,7 @@ public class OrderController {
         OrderCreateResponseDto orderCreateResponseDto = orderService.orderCreate(dto);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
-                        ApiResMessage.ORDER_CREATE,
+                        ORDER_CREATE,
                         orderCreateResponseDto
                 ));
     }
