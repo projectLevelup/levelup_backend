@@ -3,13 +3,16 @@ package com.sparta.levelup_backend.domain.user.entity;
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.utill.UserRole;
 import jakarta.persistence.*;
+import jdk.jshell.Snippet;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Builder;
 
 @Getter
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor( access = AccessLevel.PROTECTED)
 @Table( name = "user")
@@ -34,9 +37,5 @@ public class UserEntity extends BaseEntity {
     private UserRole role;
 
     private String phoneNumber;
-
-
-
-
 
 }

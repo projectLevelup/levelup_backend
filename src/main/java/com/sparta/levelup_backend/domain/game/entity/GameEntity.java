@@ -8,10 +8,11 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
+import lombok.Builder;
 
 @Entity
 @Getter
+@Builder
 @Table(name = "game")
 @NoArgsConstructor
 @AllArgsConstructor( access = AccessLevel.PROTECTED)
