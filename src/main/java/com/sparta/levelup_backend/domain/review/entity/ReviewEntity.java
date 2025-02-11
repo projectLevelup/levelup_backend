@@ -6,6 +6,7 @@ import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Table(name = "review")
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor( access = AccessLevel.PROTECTED )
 public class ReviewEntity extends BaseEntity {
 
