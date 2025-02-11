@@ -8,12 +8,12 @@ import com.sparta.levelup_backend.utill.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
 @Builder
+@Getter
 @Entity
-@Table(name = "product")
 @NoArgsConstructor  // 기본 생성자 자동 생성
 @AllArgsConstructor(access = AccessLevel.PROTECTED)  // 객체 생성을 제한 (생성자는 Builder 패턴 활용)
+@Table(name = "product")
 public class ProductEntity extends BaseEntity {
 
     @Id
