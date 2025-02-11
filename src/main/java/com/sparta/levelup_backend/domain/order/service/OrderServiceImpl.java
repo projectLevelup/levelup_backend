@@ -22,6 +22,11 @@ public class OrderServiceImpl implements OrderService {
     private final ProductServiceImpl productServiceImpl;
 
 
+    /**
+     * 주문생성
+     * @param dto productId
+     * @return orderId, productId, productName, status, price
+     */
     @Override
     @Transactional
     public OrderCreateResponseDto orderCreate(OrderCreateRequestDto dto) {
