@@ -6,10 +6,12 @@ import jakarta.persistence.*;
 import jdk.jshell.Snippet;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 
+@Builder
 @Getter
 @Entity
 @Builder
