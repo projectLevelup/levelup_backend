@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public OrderResponseDto orderCreate(Long userId, OrderCreateRequestDto dto) {
+    public OrderResponseDto createOrder(Long userId, OrderCreateRequestDto dto) {
 
         UserEntity user = userService.findById(userId);
 
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
      * @return orderId, productId, productName, status, price
      */
     @Override
-    public OrderResponseDto orderUpdate(Long userId, Long orderId) {
+    public OrderResponseDto updateOrder(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
@@ -106,7 +106,7 @@ public class OrderServiceImpl implements OrderService {
      * @return orderId, productId, productName, status, price
      */
     @Override
-    public OrderResponseDto orderComplete(Long userId, Long orderId) {
+    public OrderResponseDto completeOrder(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 

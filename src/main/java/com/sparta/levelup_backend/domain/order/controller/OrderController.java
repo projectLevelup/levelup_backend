@@ -30,12 +30,12 @@ public class OrderController {
 
     // 주문 생성
     @PostMapping
-    public ApiResponse<OrderResponseDto> orderCreate(
+    public ApiResponse<OrderResponseDto> createOrder(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody OrderCreateRequestDto dto
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto orderResponseDto = orderService.orderCreate(userId, dto);
+        OrderResponseDto orderResponseDto = orderService.createOrder(userId, dto);
         return success(OK, ORDER_CREATE, orderResponseDto);
     }
 
@@ -52,23 +52,23 @@ public class OrderController {
 
     // 주문 결제 완료
     @PatchMapping("/{orderId}")
-    public ApiResponse<OrderResponseDto> orderUpdate(
+    public ApiResponse<OrderResponseDto> updateOrder(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto order = orderService.orderUpdate(userId, orderId);
+        OrderResponseDto order = orderService.updateOrder(userId, orderId);
         return success(OK, ORDER_UPDATE, order);
     }
 
     // 결제 완료
     @PatchMapping("/student/{orderId}")
-    public ApiResponse<OrderResponseDto> orderComplete(
+    public ApiResponse<OrderResponseDto> completeOrder(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto order = orderService.orderComplete(userId, orderId);
+        OrderResponseDto order = orderService.completOrder(userId, orderId);
         return success(OK, ORDER_COMPLETE, order);
     }
 
