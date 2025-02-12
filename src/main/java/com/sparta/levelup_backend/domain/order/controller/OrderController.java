@@ -22,36 +22,28 @@ public class OrderController {
 
     // 주문 생성
     @PostMapping
-    public ResponseEntity<ApiResponse<OrderResponseDto>> orderCreate(
+    public ApiResponse<OrderResponseDto> orderCreate(
             @RequestBody OrderCreateRequestDto dto
     ) {
         OrderResponseDto orderResponseDto = orderService.orderCreate(dto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(success(
-                        ORDER_CREATE,
-                        orderResponseDto
-                ));
+        return success(HttpStatus.OK, ORDER_CREATE, orderResponseDto);
     }
 
     // 주문 조회
     @GetMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<OrderResponseDto>> findOrder(
+    public ApiResponse<OrderResponseDto> findOrder(
             @PathVariable Long orderId
     ) {
         OrderResponseDto orderById = orderService.findOrder(orderId);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(success(
-                        ORDER_FIND,
-                        orderById
-                ));
+        return success(HttpStatus.OK, ORDER_FIND, orderById);
     }
 
-    // 주문 수정
-    @PatchMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<OrderResponseDto>> orderUpdate(
-            @PathVariable Long orderId,
-            @RequestParam OrderStatus status
-    ) {
-        OrderResponseDto order = orderService.orderUpdate(orderId, status);
-    }
+//    // 주문 수정
+//    @PatchMapping("/{orderId}")
+//    public ApiResponse<OrderResponseDto> orderUpdate(
+//            @PathVariable Long orderId,
+//            @RequestParam OrderStatus status
+//    ) {
+//        OrderResponseDto order = orderService.orderUpdate(orderId, status);
+//    }
 }

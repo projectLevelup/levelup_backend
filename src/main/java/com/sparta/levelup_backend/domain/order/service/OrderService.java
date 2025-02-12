@@ -8,4 +8,6 @@ public interface OrderService {
     OrderResponseDto orderCreate(OrderCreateRequestDto dto);
 
     OrderResponseDto findOrder(Long orderId);
+
+//    OrderResponseDto orderUpdate(Long orderId, OrderStatus status);
 }

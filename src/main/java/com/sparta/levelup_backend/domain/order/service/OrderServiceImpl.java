@@ -8,10 +8,15 @@ import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.userservice.UserServiceImpl;
+import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.common.OrderException;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 
 @Service
@@ -56,10 +61,28 @@ public class OrderServiceImpl implements OrderService {
      * @param orderId 조회 주문 id
      * @return orderId, productId, productName, status, price
      */
-    @Override
-    public OrderResponseDto findOrder(Long orderId) {
-        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
-
-        return new OrderResponseDto(order);
-    }
+//    @Override
+//    public OrderResponseDto findOrder(Long orderId) {
+//        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+//
+//        return new OrderResponseDto(order);
+//    }
+//
+//    @Override
+//    public OrderResponseDto orderUpdate(Long orderId, OrderStatus status) {
+//        Long userId = 2L;
+//
+//        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+//
+//        if (!order.getUser().getId().equals(userId)) {
+//            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+//        }
+//
+//        if (order.getIsDeleted()) {
+//            throw new OrderException(ErrorCode.DUPLICATE_CANCELED_ORDER);
+//        }
+//
+//
+//        return null;
+//    }
 }
