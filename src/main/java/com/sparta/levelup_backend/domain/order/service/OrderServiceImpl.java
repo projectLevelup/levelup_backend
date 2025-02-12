@@ -14,10 +14,12 @@ import com.sparta.levelup_backend.exception.common.OrderException;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -93,6 +95,32 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setStatus(OrderStatus.TRADING);
+        orderRepository.save(order);
+        return new OrderResponseDto(order);
+    }
+
+    /**
+     * 거래 완료
+     * @param userId 사용자 id
+     * @param orderId 변경할 주문 id
+     * @return orderId, productId, productName, status, price
+     */
+    @Override
+    public OrderResponseDto orderComplete(Long userId, Long orderId) {
+
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        // 구매자인지 확인
+        if (!order.getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 거래중 상태가 아니라면 변경 불가
+        if (order.getStatus() != OrderStatus.TRADING) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        order.setStatus(OrderStatus.COMPLETED);
         orderRepository.save(order);
         return new OrderResponseDto(order);
     }
