@@ -68,7 +68,7 @@ public class OrderController {
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto order = orderService.completOrder(userId, orderId);
+        OrderResponseDto order = orderService.completeOrder(userId, orderId);
         return success(OK, ORDER_COMPLETE, order);
     }
 
