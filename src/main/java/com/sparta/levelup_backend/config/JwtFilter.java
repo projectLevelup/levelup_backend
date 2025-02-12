@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.config;
 
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 import java.io.IOException;
 
 import io.jsonwebtoken.Claims;
@@ -35,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-		FilterChain filterChain) throws ServletException, IOException {
+		FilterChain filterChain) throws ServletException, IOException,NotFoundException {
 			if(WHITE_LIST.matches(request)) {
 				filterChain.doFilter(request, response);
 				return;
@@ -44,14 +45,15 @@ public class JwtFilter extends OncePerRequestFilter {
 			String jwt = request.getHeader("Authorization");
 
 
-			if(jwt.isBlank()){
-				throw new BusinessException(ErrorCode.TOKEN_NOT_FOUND);
-			}
+
 
 			try{
+				if(jwt==null||jwt.isBlank()){
+					throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
+				}
 				Claims claims = jwtUtils.extractClaims(jwtUtils.substringToken(jwt));
 				if(claims == null){
-					throw new BusinessException(ErrorCode.TOKEN_NOT_FOUND);
+					throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
 				}
 
 				String email = claims.getSubject();
@@ -69,7 +71,10 @@ public class JwtFilter extends OncePerRequestFilter {
 				sendError(response, HttpServletResponse.SC_UNAUTHORIZED, "만료된 JWT 토큰입니다.");
 			} catch (UnsupportedJwtException e) {
 				sendError(response, HttpServletResponse.SC_BAD_REQUEST, "지원되지 않는 JWT 토큰입니다.");
-			} catch (Exception e) {
+			} catch (NotFoundException e){
+				sendError(response,HttpServletResponse.SC_NOT_FOUND,ErrorCode.TOKEN_NOT_FOUND.getMessage());
+			}
+			catch (Exception e) {
 				sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "그 외의 오류입니다..");
 			}
 	}
