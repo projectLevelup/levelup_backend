@@ -36,4 +36,8 @@ public class GameEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    public void deleteGame(){
+        this.delete();
+    }
+
 }

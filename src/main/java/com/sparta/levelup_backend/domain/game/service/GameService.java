@@ -6,4 +6,6 @@ public interface GameService {
 	GameEntity saveGame(String name, String imgUrl, String genre, Long userId);
 
 	GameEntity findGame(Long gameId);
+
+	void deleteGame(Long gameId);
 }

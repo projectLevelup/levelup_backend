@@ -3,16 +3,19 @@ package com.sparta.levelup_backend.domain.game.service;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repsitory.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.utill.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class GameServiceImpl implements GameService{
@@ -37,8 +40,19 @@ public class GameServiceImpl implements GameService{
 				.build());
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public GameEntity findGame(Long gameId) {
-		return gameRepository.findByIdOrElseThrow(gameId);
+		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
+		if(game.getIsDeleted() == true){
+			throw new NotFoundException(GAME_NOT_FOUND);
+		}
+		return game;
+	}
+
+	@Override
+	public void deleteGame(Long gameId) {
+		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
+		game.deleteGame();
 	}
 }

@@ -5,6 +5,7 @@ import static com.sparta.levelup_backend.common.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,11 +35,12 @@ public class GameController {
 	 * @return
 	 */
 	@PostMapping
-	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CreateGameRequestDto dto) {
+	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@RequestBody CreateGameRequestDto dto) {
 		Long userId = customUserDetails.getId();
-
 		GameEntity game = gameService.saveGame(dto.getName(), dto.getImgUrl(), dto.getGenre(), userId);
-		return success(CREATED,GAME_SAVE_SUCCESS, GameResponseDto.from(game));
+
+		return success(CREATED, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
 	}
 
 	/**
@@ -47,10 +49,17 @@ public class GameController {
 	 * @return
 	 */
 	@GetMapping("/{gameId}")
-	public ApiResponse<GameResponseDto> findGame(@PathVariable Long gameId){
-
+	public ApiResponse<GameResponseDto> findGame(@PathVariable Long gameId) {
 		GameEntity game = gameService.findGame(gameId);
-		return success(OK,GAME_FOUND_SUCCESS, GameResponseDto.from(game));
+
+		return success(OK, GAME_FOUND_SUCCESS, GameResponseDto.from(game));
+	}
+
+	@DeleteMapping("/{gameId}")
+	public ApiResponse<Void> deleteGame(@PathVariable Long gameId) {
+		gameService.deleteGame(gameId);
+
+		return success(OK, GAME_DELETE_SUCCESS);
 	}
 }
 
