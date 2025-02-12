@@ -27,7 +27,7 @@ public class GameEntity extends BaseEntity {
 
     @Lob
     @Column(nullable = false)
-    private String gameImageUrl;
+    private String imgUrl;
 
     @Column(nullable = false)
     private String genre;
