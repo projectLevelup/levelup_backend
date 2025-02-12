@@ -15,6 +15,7 @@ import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.UserRole;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,20 +38,41 @@ class ReviewServiceImplTest {
     @Mock
     private ProductRepository productRepository;
 
-    @Test
-    void 리뷰_관리자_권한이_없을때_예외발생() {
-        //given
-        Long userId = 1L;
-        Long productId = 1L;
-        Long reviewId = 1L;
+    // 테스트별 공통으로 사용할 데이터
+    private Long userId = 1L;
+    private Long productId = 1L;
+    private Long reviewId = 1L;
+    private UserEntity normalUser;
+    private UserEntity adminUser;
+    private ProductEntity product;
+    private ReviewEntity review;
 
-        UserEntity nomalUser = UserEntity.builder()
+    @BeforeEach
+    void setUp() {
+        normalUser = UserEntity.builder()
             .id(userId)
             .role(UserRole.USER)
             .build();
 
+        adminUser = UserEntity.builder()
+            .id(userId)
+            .role(UserRole.ADMIN)
+            .build();
+
+        product = ProductEntity.builder()
+            .id(productId)
+            .build();
+
+        review = ReviewEntity.builder()
+            .id(reviewId)
+            .product(product)
+            .build();
+    }
+
+    @Test
+    void 리뷰_관리자_권한이_없을때_예외발생() {
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(nomalUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(normalUser));
 
         //then
         assertThatThrownBy(() -> {
@@ -63,32 +85,19 @@ class ReviewServiceImplTest {
     @Test
     void 리뷰와_상품의_매칭_확인() {
         //given
-        Long userId = 1L;
-        Long productId = 1L;
         Long otherProductId = 2L;
-        Long reviewId = 1L;
-
-        // 관리자 계정
-        UserEntity user = UserEntity.builder()
-            .id(userId)
-            .role(UserRole.ADMIN)
-            .build();
-
-        ProductEntity product1 = ProductEntity.builder()
-            .id(productId)
-            .build();
 
         ProductEntity product2 = ProductEntity.builder()
             .id(otherProductId)
             .build();
 
-        ReviewEntity review = ReviewEntity.builder()
+        review = ReviewEntity.builder()
             .id(reviewId)
             .product(product2)
             .build();
 
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
 
         //then
@@ -101,27 +110,8 @@ class ReviewServiceImplTest {
     @Test
     @Transactional
     void 리뷰_삭제_테스트() {
-        //given
-        Long userId = 1L;
-        Long productId = 1L;
-        Long reviewId = 1L;
-
-        UserEntity nomalUser = UserEntity.builder()
-            .id(userId)
-            .role(UserRole.ADMIN)
-            .build();
-
-        ProductEntity product = ProductEntity.builder()
-            .id(productId)
-            .build();
-
-        ReviewEntity review = ReviewEntity.builder()
-            .id(reviewId)
-            .product(product)
-            .build();
-
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(nomalUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
         reviewService.reviewDelete(userId, productId, reviewId);
 
