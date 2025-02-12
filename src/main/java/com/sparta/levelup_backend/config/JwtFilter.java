@@ -55,7 +55,7 @@ public class JwtFilter extends OncePerRequestFilter {
 				}
 
 				String email = claims.getSubject();
-				System.out.println(email);
+				
 				CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService
 																.loadUserByUsername(email);
 
