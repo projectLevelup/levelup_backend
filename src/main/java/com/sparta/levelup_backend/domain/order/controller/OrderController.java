@@ -26,7 +26,6 @@ import static org.springframework.http.HttpStatus.*;
 public class OrderController {
 
     private final OrderServiceImpl orderService;
-    private final AuthController authController;
 
     // 주문 생성
     @PostMapping
