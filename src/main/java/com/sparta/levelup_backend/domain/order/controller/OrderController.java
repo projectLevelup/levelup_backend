@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static com.sparta.levelup_backend.common.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/v1/orders")
@@ -23,16 +25,13 @@ public class OrderController {
 
     private final OrderServiceImpl orderService;
 
-    // 주문 생성
+
+
     @PostMapping
-    public ResponseEntity<ApiResponse<OrderCreateResponseDto>> orderCreate(
-            @RequestBody OrderCreateRequestDto dto
+    public ApiResponse<OrderCreateResponseDto> orderCreate(
+        @RequestBody OrderCreateRequestDto dto
     ) {
         OrderCreateResponseDto orderCreateResponseDto = orderService.orderCreate(dto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success(
-                        ORDER_CREATE,
-                        orderCreateResponseDto
-                ));
+        return success(OK, ORDER_CREATE, orderCreateResponseDto);
     }
 }

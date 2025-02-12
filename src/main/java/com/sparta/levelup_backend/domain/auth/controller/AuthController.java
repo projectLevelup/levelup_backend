@@ -3,7 +3,6 @@ package com.sparta.levelup_backend.domain.auth.controller;
 import static com.sparta.levelup_backend.common.ApiResMessage.*;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +21,10 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/signup")
-	public ResponseEntity<ApiResponse<String>> signUpUser(@RequestBody SignUpUserRequestDto dto){
+	public ApiResponse<Void> signUpUser(@RequestBody SignUpUserRequestDto dto){
 		authService.signUpUser(dto);
-		return new ResponseEntity (ApiResponse.success (SIGNUP_SUCCESS), HttpStatus.CREATED);
+		return ApiResponse.success(HttpStatus.CREATED,SIGNUP_SUCCESS);
 	}
+
+
 }
