@@ -1,7 +1,8 @@
 package com.sparta.levelup_backend.domain.review.controller;
 
 import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_SUCCESS;
-import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static com.sparta.levelup_backend.common.ApiResponse.success;
+import static org.springframework.http.HttpStatus.OK;
 
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.domain.review.dto.request.ReviewRequestDto;
@@ -33,6 +34,6 @@ public class ReviewController {
 
         Long userId = 1L; // 임시 사용자 ID 값 - 추후 JWT 토큰값에서 ID값 가져오는 것으로 변경
         ReviewResponseDto result = reviewService.reviewSave(dto, userId, productId);
-        return success(REVIEW_SUCCESS, result);
+        return success(OK ,REVIEW_SUCCESS, result);
     }
 }
