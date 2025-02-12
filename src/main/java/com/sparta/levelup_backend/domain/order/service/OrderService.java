@@ -12,4 +12,6 @@ public interface OrderService {
     OrderResponseDto orderUpdate(Long userId, Long orderId);
 
     OrderResponseDto orderComplete(Long userId, Long orderId);
+
+    Void deleteOrderByPending(Long userId, Long orderId);
 }

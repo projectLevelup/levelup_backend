@@ -70,4 +70,14 @@ public class OrderController {
         return success(OK, ORDER_COMPLETE, order);
     }
 
+    // 결제 취소
+    @DeleteMapping("/{orderId}")
+    public ApiResponse<Void> deleteOrderByPending(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long orderId
+    ) {
+        Long userId = authUser.getId();
+        Void order = orderService.deleteOrderByPending(userId, orderId);
+        return success(OK, ORDER_CANCLED, order);
+    }
 }
