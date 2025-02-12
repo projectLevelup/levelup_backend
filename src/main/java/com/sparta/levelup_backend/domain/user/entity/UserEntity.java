@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Builder;
 
 @Getter
 @Entity
@@ -28,9 +27,8 @@ public class UserEntity extends BaseEntity {
 
     private String nickName;
 
-    @Lob
     @Column(nullable = true)
-    private String img;
+    private String imgUrl;
 
     private String password;
 

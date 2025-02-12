@@ -7,4 +7,5 @@ public interface ReviewService {
 
     ReviewResponseDto reviewSave(ReviewRequestDto dto, Long userId, Long productId);
 
+    void reviewDelete(Long userId, Long productId, Long reviewId);
 }
