@@ -29,4 +29,10 @@ public class UserServiceImpl implements UserService {
         }
         throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
     }
+
+    @Override
+    public UserResponseDto findUser(Long id) {
+        UserEntity user = userRepository.findByIdOrElseThrow(id);
+        return UserResponseDto.of(user);
+    }
 }

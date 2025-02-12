@@ -7,5 +7,5 @@ public interface UserService {
     UserResponseDto findUserById(String role, Long id);
 
 
-
+    UserResponseDto findUser(Long id);
 }

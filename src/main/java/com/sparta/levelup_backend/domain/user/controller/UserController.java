@@ -34,5 +34,13 @@ public class UserController {
         return ApiResponse.success(HttpStatus.OK, ApiResMessage.FIND_SUCCESS, responseDto);
     }
 
+    @GetMapping("/users")
+    public ApiResponse<UserResponseDto> findUser(
+        @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ){
+        UserResponseDto responseDto = userService.findUser(customUserDetails.getId());
+        return ApiResponse.success(HttpStatus.OK, ApiResMessage.FIND_SUCCESS, responseDto);
+    }
+
 
 }
