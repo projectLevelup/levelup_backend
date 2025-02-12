@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.review.service;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
@@ -13,11 +14,13 @@ import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.UserRole;
 import java.util.Optional;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewServiceImplTest {
@@ -48,10 +51,6 @@ class ReviewServiceImplTest {
 
         //when
         when(userRepository.findById(userId)).thenReturn(Optional.of(nomalUser));
-
-        ReviewEntity review = ReviewEntity.builder()
-            .id(reviewId)
-            .build();
 
         //then
         assertThatThrownBy(() -> {
@@ -97,6 +96,37 @@ class ReviewServiceImplTest {
             reviewService.reviewDelete(userId, productId, reviewId);
         }).isInstanceOf(BusinessException.class)
             .hasMessageContaining(ErrorCode.MISMATCH_REVIEW_PRODUCT.getMessage());
+    }
+
+    @Test
+    @Transactional
+    void 리뷰_삭제_테스트() {
+        //given
+        Long userId = 1L;
+        Long productId = 1L;
+        Long reviewId = 1L;
+
+        UserEntity nomalUser = UserEntity.builder()
+            .id(userId)
+            .role(UserRole.ADMIN)
+            .build();
+
+        ProductEntity product = ProductEntity.builder()
+            .id(productId)
+            .build();
+
+        ReviewEntity review = ReviewEntity.builder()
+            .id(reviewId)
+            .product(product)
+            .build();
+
+        //when
+        when(userRepository.findById(userId)).thenReturn(Optional.of(nomalUser));
+        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+        reviewService.reviewDelete(userId, productId, reviewId);
+
+        // then
+        assertThat(review.getIsDeleted()).isTrue();
     }
 
 
