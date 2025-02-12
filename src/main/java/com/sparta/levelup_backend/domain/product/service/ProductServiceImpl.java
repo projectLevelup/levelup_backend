@@ -68,6 +68,8 @@ public class ProductServiceImpl implements ProductService{
         ProductEntity product = productRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "상품 ID: " + id));
         product.update(requestDto);
+        product.update(requestDto);
+        product.update(requestDto);
         productRepository.save(product);
         return new ProductUpdateResponseDto(product);
     }
