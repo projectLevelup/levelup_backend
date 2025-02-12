@@ -7,7 +7,6 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 
