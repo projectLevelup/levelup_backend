@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
@@ -118,7 +119,7 @@ class ReviewControllerTest {
             request.getContents(),
             request.getStarScore());
 
-        ApiResponse<ReviewResponseDto> expectedResult = ApiResponse.success(ApiResMessage.REVIEW_SUCCESS, expectedDto);
+        ApiResponse<ReviewResponseDto> expectedResult = ApiResponse.success(HttpStatus.OK, ApiResMessage.REVIEW_SUCCESS, expectedDto);
 
         assertThat(actualApiResponse).usingRecursiveComparison().isEqualTo(expectedResult);
 
