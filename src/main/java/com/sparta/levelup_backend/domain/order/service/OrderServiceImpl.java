@@ -7,17 +7,13 @@ import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.domain.user.userservice.UserServiceImpl;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
-import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.domain.user.service.UserServiceImpl;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.OrderException;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Or;
-import org.hibernate.query.Order;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
