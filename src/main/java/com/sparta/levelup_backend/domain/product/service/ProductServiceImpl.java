@@ -68,6 +68,8 @@ public class ProductServiceImpl implements ProductService{
         ProductEntity product = productRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "상품 ID: " + id));
         product.update(requestDto);
+        product.update(requestDto);
+        product.update(requestDto);
         productRepository.save(product);
         return new ProductUpdateResponseDto(product);
     }
@@ -79,12 +81,6 @@ public class ProductServiceImpl implements ProductService{
         productRepository.delete(product);
         return new ProductDeleteResponseDto(id, "상품이 삭제되었습니다.");
     }
-
-
-
-
-
-
 
     @Override
     public List<ProductEntity> getProductsByGameId(Long gameId) {
