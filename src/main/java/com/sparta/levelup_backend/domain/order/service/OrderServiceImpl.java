@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.order.service;
 
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
-import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderCreateResponseDto;
+import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
@@ -12,6 +12,7 @@ import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public OrderCreateResponseDto orderCreate(OrderCreateRequestDto dto) {
+    public OrderResponseDto orderCreate(OrderCreateRequestDto dto) {
         Long userId = 2L;
 
         UserEntity user = userService.findById(userId);
@@ -48,7 +49,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity saveOrder = orderRepository.save(order);
 
-        return new OrderCreateResponseDto(
+        return new OrderResponseDto(
                 saveOrder.getId(),
                 saveOrder.getProduct().getId(),
                 saveOrder.getProduct().getProductName(),
