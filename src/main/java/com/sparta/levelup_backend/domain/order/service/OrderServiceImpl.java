@@ -1,12 +1,15 @@
 package com.sparta.levelup_backend.domain.order.service;
 
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
-import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderCreateResponseDto;
+import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
+import com.sparta.levelup_backend.domain.user.userservice.UserServiceImpl;
+import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.domain.user.service.UserServiceImpl;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +24,6 @@ public class OrderServiceImpl implements OrderService {
     private final UserServiceImpl userService;
     private final ProductServiceImpl productServiceImpl;
 
-
     /**
      * 주문생성
      * @param dto productId
@@ -29,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public OrderCreateResponseDto orderCreate(OrderCreateRequestDto dto) {
+    public OrderResponseDto orderCreate(OrderCreateRequestDto dto) {
         Long userId = 2L;
 
         UserEntity user = userService.findById(userId);
@@ -48,12 +50,25 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity saveOrder = orderRepository.save(order);
 
-        return new OrderCreateResponseDto(
-                saveOrder.getId(),
-                saveOrder.getProduct().getId(),
-                saveOrder.getProduct().getProductName(),
-                saveOrder.getStatus(),
-                saveOrder.getTotalPrice()
-        );
+        return new OrderResponseDto(saveOrder);
+    }
+
+    /**
+     * 주문 조회
+     * @param orderId 조회 주문 id
+     * @return orderId, productId, productName, status, price
+     */
+    @Override
+    public OrderResponseDto findOrder(Long orderId) {
+        Long userId = 2L;
+
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        // 구매자와 판매자만 조회 가능
+        if (!order.getUser().getId().equals(userId) && !order.getProduct().getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        return new OrderResponseDto(order);
     }
 }
