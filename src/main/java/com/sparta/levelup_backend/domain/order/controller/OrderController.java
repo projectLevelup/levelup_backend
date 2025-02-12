@@ -41,10 +41,9 @@ public class OrderController {
     // 주문 수정
     @PatchMapping("/{orderId}")
     public ApiResponse<OrderResponseDto> orderUpdate(
-            @PathVariable Long orderId,
-            @RequestParam OrderStatus status
+            @PathVariable Long orderId
     ) {
-        OrderResponseDto order = orderService.orderUpdate(orderId, status);
+        OrderResponseDto order = orderService.orderUpdate(orderId);
         return success(OK, ORDER_UPDATE, order);
     }
 }

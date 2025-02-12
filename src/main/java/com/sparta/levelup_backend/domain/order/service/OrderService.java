@@ -9,5 +9,5 @@ public interface OrderService {
 
     OrderResponseDto findOrder(Long orderId);
 
-    OrderResponseDto orderUpdate(Long orderId, OrderStatus status);
+    OrderResponseDto orderUpdate(Long orderId);
 }
