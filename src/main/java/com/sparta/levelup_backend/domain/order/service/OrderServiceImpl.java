@@ -34,8 +34,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public OrderResponseDto orderCreate(OrderCreateRequestDto dto) {
-        Long userId = 2L;
+    public OrderResponseDto orderCreate(Long userId, OrderCreateRequestDto dto) {
 
         UserEntity user = userService.findById(userId);
 
@@ -62,8 +61,14 @@ public class OrderServiceImpl implements OrderService {
      * @return orderId, productId, productName, status, price
      */
     @Override
-    public OrderResponseDto findOrder(Long orderId) {
+    public OrderResponseDto findOrder(Long userId, Long orderId) {
+
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        // 구매자와 판매자만 조회 가능
+        if (!order.getUser().getId().equals(userId) && !order.getProduct().getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
 
         return new OrderResponseDto(order);
     }
@@ -74,8 +79,7 @@ public class OrderServiceImpl implements OrderService {
      * @return orderId, productId, productName, status, price
      */
     @Override
-    public OrderResponseDto orderUpdate(Long orderId) {
-        Long userId = 1L;
+    public OrderResponseDto orderUpdate(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
