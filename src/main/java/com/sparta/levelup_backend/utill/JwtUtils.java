@@ -1,19 +1,16 @@
 package com.sparta.levelup_backend.utill;
 
-import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
-
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Base64;
+import java.util.Date;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtils {
@@ -54,7 +51,7 @@ public class JwtUtils {
 		if(token.startsWith(BEARER_PREFIX)){
 			return token.substring(7);
 		}
-		throw new BusinessException(ErrorCode.TOKEN_NOT_FOUND);
+		throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
 	}
 
 	public Claims extractClaims(String token){

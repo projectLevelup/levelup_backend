@@ -23,6 +23,7 @@ public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JwtUtils jwtUtils;
 	private final CustomUserDetailsService userDetailsService;
+	private final FilterResponse filterResponse;
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -45,14 +46,14 @@ public class SecurityConfig {
 		http.
 			authorizeHttpRequests((auth) -> auth
 				.requestMatchers("/","/v1/signin","v1/signup").permitAll()
-				.requestMatchers("/v1/admin").hasRole("ADMIN")
+				.requestMatchers("/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated());
 
 		http.
-			addFilterBefore(new JwtFilter(jwtUtils, userDetailsService), CustomUsernamePasswordAuthenticationFilter.class);
+			addFilterBefore(new JwtFilter(jwtUtils, userDetailsService, filterResponse), CustomUsernamePasswordAuthenticationFilter.class);
 
 		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
-			authenticationManager(authenticationConfiguration), jwtUtils);
+			authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
 		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/signin");
 
 		http.
