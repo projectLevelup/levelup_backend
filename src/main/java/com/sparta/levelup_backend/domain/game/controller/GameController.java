@@ -33,9 +33,20 @@ public class GameController {
 	@PostMapping
 	public ResponseEntity<ApiResponse<GameResponseDto>> saveGame(@RequestBody CreateGameRequestDto dto) {
 		//TODO: Token 도입이 되면 Token에서 User의 정보를 가져오는 코드로 리펙토링 필요
-		Long userId = 1l;
+		Long userId = 1L;
 		GameEntity game = gameService.saveGame(dto.getName(), dto.getImgUrl(), dto.getGenre(), userId);
-		return ResponseEntity.ok(ApiResponse.success(GAEM_SAVE_SUCCESS, GameResponseDto.from(game)));
+		return ResponseEntity.ok(ApiResponse.success(GAME_SAVE_SUCCESS, GameResponseDto.from(game)));
+	}
+
+	/**
+	 * 단일 게임 조회(By ID)
+	 * @param dto
+	 * @return
+	 */
+	@GetMapping("/{gameID}")
+	public ResponseEntity<ApiResponse<GameResponseDto>> findGame(@RequestBody FindGameRequestDto dto){
+		GameEntity game = gameService.findGame(dto.getGameId());
+		return ResponseEntity.ok(ApiResponse.success(""));
 	}
 }
 

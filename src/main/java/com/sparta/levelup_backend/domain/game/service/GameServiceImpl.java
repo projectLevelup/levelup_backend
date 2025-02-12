@@ -20,6 +20,7 @@ public class GameServiceImpl implements GameService{
 	@Override
 	public GameEntity saveGame(String name, String imgUrl, String genre, Long userId) {
 
+		System.out.println("nnnnn "+ name + " img " + imgUrl + " genre  " + genre + " userId " + userId);
 		//TODO: orElseThrow()처리 다시 할 것
 		UserEntity user = userRepository.findById(userId).orElseThrow();
 
@@ -34,5 +35,10 @@ public class GameServiceImpl implements GameService{
 				.genre(genre)
 				.user(user)
 				.build());
+	}
+
+	@Override
+	public GameEntity findGame(Long gameId) {
+		return gameRepository.findByIdOrElseThrow(gameId);
 	}
 }
