@@ -3,6 +3,7 @@ package com.sparta.levelup_backend.domain.user.controller;
 import com.sparta.levelup_backend.common.ApiResMessage;
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.service.UserService;
 import java.util.Collection;
@@ -10,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,6 +43,15 @@ public class UserController {
     ){
         UserResponseDto responseDto = userService.findUser(customUserDetails.getId());
         return ApiResponse.success(HttpStatus.OK, ApiResMessage.FIND_SUCCESS, responseDto);
+    }
+
+    @PatchMapping("/users")
+    public ApiResponse<UserResponseDto> updateUser(
+        @AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody UpdateUserRequestDto dto
+    ){
+
+        UserResponseDto responseDto = userService.updateUser(customUserDetails.getId(), dto);
+        return ApiResponse.success(HttpStatus.OK, ApiResMessage.UPDATE_SUCCESS, responseDto);
     }
 
 
