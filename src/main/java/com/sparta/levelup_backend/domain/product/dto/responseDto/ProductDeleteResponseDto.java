@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class ProductDeleteResponseDto {
 
 	private Long id; // 수정된 상품의 ID
-	private String name; // 수정된 상품 이름
+	private String productName; // 수정된 상품 이름
 }

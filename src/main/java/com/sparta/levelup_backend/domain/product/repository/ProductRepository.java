@@ -1,6 +1,11 @@
 package com.sparta.levelup_backend.domain.product.repository;
 
+import static com.sparta.levelup_backend.domain.product.service.ProductmakedataService.*;
+
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity; // ✅ ProductEntity import
+import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
+
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;

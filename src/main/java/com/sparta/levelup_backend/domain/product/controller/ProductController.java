@@ -1,6 +1,8 @@
 package com.sparta.levelup_backend.domain.product.controller;
 
 import static com.sparta.levelup_backend.common.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteResponseDto;
@@ -19,8 +20,10 @@ import com.sparta.levelup_backend.domain.product.service.ProductmakedataService;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import java.util.List;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/v1/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -36,24 +39,18 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductCreateResponseDto>> productCreate(
-        @RequestBody ProductCreateRequestDto dto
+        @Valid @RequestBody ProductCreateRequestDto dto
     ) {
         ProductCreateResponseDto productCreateResponseDto = productService.productCreate(dto);
         return ResponseEntity.status(HttpStatus.OK)
-            .body(ApiResponse.success(
-                PRODUCT_CREATE,
-                productCreateResponseDto
-            ));
+            .body(success(OK, PRODUCT_CREATE, productCreateResponseDto));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProductResponseDto>>> getAllProducts() {
         List<ProductResponseDto> productList = productService.getAllProducts();
         return ResponseEntity.status(HttpStatus.OK)
-            .body(ApiResponse.success(
-                PRODUCT_READ,
-                productList
-            ));
+            .body(success(OK, PRODUCT_READ, productList));
     }
 
     // ✅ 상품 ID로 조회
@@ -61,23 +58,17 @@ public class ProductController {
     public ResponseEntity<ApiResponse<ProductResponseDto>> getProductById(@PathVariable Long id) {
         ProductResponseDto responseDto = productService.getProductById(id);
         return ResponseEntity.status(HttpStatus.OK)
-            .body(ApiResponse.success(
-                PRODUCT_READ,
-                responseDto
-            ));
+            .body(success(OK, PRODUCT_READ, responseDto));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductUpdateResponseDto>> updateProduct(
         @PathVariable Long id,
-        @RequestBody ProductUpdateRequestDto requestDto
+        @Valid @RequestBody ProductUpdateRequestDto requestDto
     ) {
         ProductUpdateResponseDto responseDto = productService.updateProduct(id, requestDto);
         return ResponseEntity.status(HttpStatus.OK)
-            .body(ApiResponse.success(
-                PRODUCT_UPDATE,
-                responseDto
-            ));
+            .body(success(OK, PRODUCT_UPDATE, responseDto));
     }
 
     @DeleteMapping("/{id}")
@@ -85,10 +76,7 @@ public class ProductController {
         // delete 후 삭제된 상품 id나 메시지를 담을 수 있는 DTO 반환
         ProductDeleteResponseDto responseDto = productService.deleteProduct(id);
         return ResponseEntity.status(HttpStatus.OK)
-            .body(ApiResponse.success(
-                PRODUCT_DELETE,
-                responseDto
-            ));
+            .body(success(OK, PRODUCT_DELETE, responseDto));
     }
 
 
