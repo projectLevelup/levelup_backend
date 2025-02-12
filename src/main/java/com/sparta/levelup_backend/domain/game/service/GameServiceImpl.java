@@ -44,7 +44,7 @@ public class GameServiceImpl implements GameService{
 	@Override
 	public GameEntity findGame(Long gameId) {
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
-		if(game.getIsDeleted() == true){
+		if(game.getIsDeleted()){
 			throw new NotFoundException(GAME_NOT_FOUND);
 		}
 		return game;
