@@ -9,21 +9,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import jakarta.validation.constraints.NotBlank;
 
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<UserEntity,Long> {
+	boolean existsByEmail(@NotBlank String email);
 
-    boolean existsByEmail(@NotBlank String email);
+	Optional<UserEntity> findByEmail(String email);
 
-    Optional<UserEntity> findByEmail(String email);
+	default UserEntity findByEmailOrElseThrow(String email){
+		return findByEmail(email).orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+	};
 
-    default UserEntity findByEmailOrElseThrow(String email) {
-        return findByEmail(email).orElseThrow(
-            () -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-    }
-
-    ;
-
-    default UserEntity findByIdOrElseThrow(Long userId) {
-        return findById(userId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-    }
+	default UserEntity findByIdOrElseThrow(Long userId) {
+		return findById(userId)
+			.orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+	}
 }
