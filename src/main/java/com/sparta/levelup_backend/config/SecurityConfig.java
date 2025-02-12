@@ -2,14 +2,32 @@ package com.sparta.levelup_backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.sparta.levelup_backend.domain.auth.service.CustomUserDetailsService;
+import com.sparta.levelup_backend.utill.JwtUtils;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+	private final AuthenticationConfiguration authenticationConfiguration;
+	private final JwtUtils jwtUtils;
+	private final CustomUserDetailsService userDetailsService;
 
-
+	@Bean
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+		return configuration.getAuthenticationManager();
+	}
 
 	/**
 	 * 입력받은 비밀번호의 암호화를 위해 bCryptPasswordEncoder
@@ -20,4 +38,36 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+		http
+			.csrf((csrf) -> csrf.disable())
+			.formLogin((form) -> form.disable())
+			.httpBasic((basic) -> basic.disable());
+
+		http.
+			authorizeHttpRequests((auth) -> auth
+				.requestMatchers("/","/v1/signin","v1/signup").permitAll()
+				.requestMatchers("/v1/admin").hasRole("ADMIN")
+				.anyRequest().authenticated());
+
+		http.
+			addFilterBefore(new JwtFilter(jwtUtils, userDetailsService), CustomUsernamePasswordAuthenticationFilter.class);
+
+		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
+			authenticationManager(authenticationConfiguration), jwtUtils);
+		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/signin");
+
+		http.
+			addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+		http.sessionManagement((session) -> session
+			.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+		return http.build();
+
+
+
+	}
 }

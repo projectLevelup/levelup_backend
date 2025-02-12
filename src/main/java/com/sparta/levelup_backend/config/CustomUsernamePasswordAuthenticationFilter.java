@@ -1,6 +1,8 @@
 package com.sparta.levelup_backend.config;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
@@ -9,11 +11,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
+import com.sparta.levelup_backend.utill.JwtUtils;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +30,9 @@ import lombok.RequiredArgsConstructor;
 public class CustomUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
+	private final JwtUtils jwtUtils;
 	private final ObjectMapper objectMapper = new ObjectMapper();
+
 
 	/**
 	 * json과 requestParam방식을 모두 지원하도록 작성하였습니다.
@@ -66,7 +72,24 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-		Authentication authentication) {
+		Authentication authentication) throws IOException {
+		CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+		String username = customUserDetails.getUsername();
+
+		Collection<? extends GrantedAuthority> authorites = authentication.getAuthorities();
+		Iterator<? extends GrantedAuthority> iterator = authorites.iterator();
+		GrantedAuthority auth =  iterator.next();
+		String role = auth.getAuthority();
+
+		String token = jwtUtils.createToken(username, role);
+
+		response.addHeader("Authorization", token);
+		response.setStatus(HttpStatus.OK.value());
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(token);
+		response.getWriter().flush();
+
 	}
 
 	@Override
@@ -75,5 +98,9 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 		ServletException {
 
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write("로그인에 실패하였습니다.");
+		response.getWriter().flush();
 	}
 }

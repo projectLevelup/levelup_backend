@@ -30,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
 				email(signUpUserRequestDto.getEmail())
 				.nickName(signUpUserRequestDto.getNickName())
 				.password(bCryptPasswordEncoder.encode(signUpUserRequestDto.getPassword()))
-				.img(signUpUserRequestDto.getImg())
+				.imgUrl(signUpUserRequestDto.getImgUrl())
 				.role(UserRole.USER)
 				.phoneNumber(signUpUserRequestDto.getPhoneNumber())
 				.build();
