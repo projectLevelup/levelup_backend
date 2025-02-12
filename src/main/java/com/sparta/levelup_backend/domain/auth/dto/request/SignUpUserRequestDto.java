@@ -18,8 +18,8 @@ public class SignUpUserRequestDto {
 	@NotBlank
 	private String nickName;
 
-	@JsonProperty(value = "img")
-	private String img;
+	@JsonProperty(value = "imgUrl")
+	private String imgUrl;
 
 	@JsonProperty(value = "password")
 	@NotBlank
