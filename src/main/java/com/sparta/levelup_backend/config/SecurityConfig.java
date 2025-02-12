@@ -29,10 +29,6 @@ public class SecurityConfig {
 		return configuration.getAuthenticationManager();
 	}
 
-	/**
-	 * 입력받은 비밀번호의 암호화를 위해 bCryptPasswordEncoder
-	 * 의존성이 필요하여 우선등록.
-	 */
 	@Bean
 	public BCryptPasswordEncoder bCryptPasswordEncoder(){
 		return new BCryptPasswordEncoder();

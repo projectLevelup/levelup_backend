@@ -21,7 +21,6 @@ import com.sparta.levelup_backend.utill.JwtUtils;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,15 +33,6 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 
-	/**
-	 * json과 requestParam방식을 모두 지원하도록 작성하였습니다.
-	 * requestParam으로 받을 필요 있나?
-	 *
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws AuthenticationException
-	 */
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
 		AuthenticationException {
