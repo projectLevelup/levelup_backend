@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.review.controller;
 
+import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_DELETE;
 import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_SUCCESS;
 import static com.sparta.levelup_backend.common.ApiResponse.success;
 import static org.springframework.http.HttpStatus.OK;
@@ -10,6 +11,7 @@ import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.levelup_backend.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,5 +37,13 @@ public class ReviewController {
         Long userId = 1L; // 임시 사용자 ID 값 - 추후 JWT 토큰값에서 ID값 가져오는 것으로 변경
         ReviewResponseDto result = reviewService.reviewSave(dto, userId, productId);
         return success(OK ,REVIEW_SUCCESS, result);
+    }
+
+    @DeleteMapping("/admin/products/{productId}/reviews/{reviewId}")
+    public ApiResponse<Void> reviewDelete(@PathVariable Long productId, @PathVariable Long reviewId) {
+
+        Long userId = 1L; // 임시 사용자 ID 값 - 추후 JWT 토큰값에서 ID값 가져오는 것으로 변경
+        reviewService.reviewDelete(userId, productId, reviewId);
+        return success(OK, REVIEW_DELETE);
     }
 }
