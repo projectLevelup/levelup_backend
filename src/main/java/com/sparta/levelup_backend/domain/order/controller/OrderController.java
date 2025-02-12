@@ -4,10 +4,8 @@ import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
-import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,8 +31,6 @@ public class OrderController {
     ) {
         OrderResponseDto orderResponseDto = orderService.orderCreate(dto);
         return success(OK, ORDER_CREATE, orderResponseDto);
-        OrderResponseDto orderCreateResponseDto = orderService.orderCreate(dto);
-        return success(OK, ORDER_CREATE, orderCreateResponseDto);
     }
 
     // 주문 조회
