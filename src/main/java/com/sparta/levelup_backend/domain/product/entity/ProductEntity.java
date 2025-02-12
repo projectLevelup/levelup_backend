@@ -6,7 +6,6 @@ import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateReq
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.exception.common.ProductOutOfAmount;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductRequestDto;
 import com.sparta.levelup_backend.utill.ProductStatus;
 import jakarta.persistence.*;
 import lombok.*;

@@ -86,5 +86,9 @@ public class ProductController {
         productmakedataService.generateProducts(count); // ✅ static 호출이 아니라 인스턴스 호출로 변경
         return ResponseEntity.ok(count + "개의 제품 데이터가 생성되었습니다.");
     }
+
+	public ProductServiceImpl getProductServiceImpl() {
+		return productServiceImpl;
+	}
 }
 
