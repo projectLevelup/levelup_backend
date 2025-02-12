@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 
+
 @Entity
 @Getter
 @Builder
@@ -25,9 +26,8 @@ public class GameEntity extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Lob
     @Column(nullable = false)
-    private String gameImageUrl;
+    private String imgUrl;
 
     @Column(nullable = false)
     private String genre;

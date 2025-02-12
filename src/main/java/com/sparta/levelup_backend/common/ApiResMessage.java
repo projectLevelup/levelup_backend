@@ -9,4 +9,7 @@ public class ApiResMessage {
 
     // Order
     public static final String ORDER_CREATE = "주문이 생성되었습니다";
+
+    // 게임 관련 성공 메시지
+    public static final String GAEM_SAVE_SUCCESS = "게임 등록이 성공적으로 완료되었습니다.";
 }
