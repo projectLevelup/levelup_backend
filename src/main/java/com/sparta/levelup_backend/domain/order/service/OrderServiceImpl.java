@@ -7,6 +7,9 @@ import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
+import com.sparta.levelup_backend.domain.user.userservice.UserServiceImpl;
+import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.domain.user.service.UserServiceImpl;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
@@ -63,7 +66,14 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public OrderResponseDto findOrder(Long orderId) {
+        Long userId = 2L;
+
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        // 구매자와 판매자만 조회 가능
+        if (!order.getUser().getId().equals(userId) && !order.getProduct().getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
 
         return new OrderResponseDto(order);
     }
