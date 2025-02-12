@@ -5,7 +5,7 @@ import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
 
 public interface ReviewService {
 
-    ReviewResponseDto reviewSave(ReviewRequestDto dto, Long userId, Long productId);
+    ReviewResponseDto SaveReview(ReviewRequestDto dto, Long userId, Long productId);
 
-    void reviewDelete(Long userId, Long productId, Long reviewId);
+    void DeleteReview(Long userId, Long productId, Long reviewId);
 }

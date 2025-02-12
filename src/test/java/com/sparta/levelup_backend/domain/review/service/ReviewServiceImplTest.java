@@ -14,7 +14,6 @@ import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.UserRole;
 import java.util.Optional;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,7 +75,7 @@ class ReviewServiceImplTest {
 
         //then
         assertThatThrownBy(() -> {
-                reviewService.reviewDelete(userId, productId, reviewId);
+                reviewService.DeleteReview(userId, productId, reviewId);
             }).isInstanceOf(BusinessException.class)
             .hasMessageContaining(ErrorCode.FORBIDDEN_ACCESS.getMessage());
 
@@ -102,7 +101,7 @@ class ReviewServiceImplTest {
 
         //then
         assertThatThrownBy(() -> {
-            reviewService.reviewDelete(userId, productId, reviewId);
+            reviewService.DeleteReview(userId, productId, reviewId);
         }).isInstanceOf(BusinessException.class)
             .hasMessageContaining(ErrorCode.MISMATCH_REVIEW_PRODUCT.getMessage());
     }
@@ -113,7 +112,7 @@ class ReviewServiceImplTest {
         //when
         when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
-        reviewService.reviewDelete(userId, productId, reviewId);
+        reviewService.DeleteReview(userId, productId, reviewId);
 
         // then
         assertThat(review.getIsDeleted()).isTrue();
