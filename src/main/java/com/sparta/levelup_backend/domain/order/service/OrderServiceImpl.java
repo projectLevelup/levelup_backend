@@ -8,10 +8,16 @@ import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.service.UserServiceImpl;
+import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.common.OrderException;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
+import org.hibernate.query.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +65,32 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto findOrder(Long orderId) {
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
+        return new OrderResponseDto(order);
+    }
+
+    /**
+     * 주문 상태 변경
+     * @param orderId 변경할 주문 id
+     * @return orderId, productId, productName, status, price
+     */
+    @Override
+    public OrderResponseDto orderUpdate(Long orderId) {
+        Long userId = 1L;
+
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        // 판매자인지 확인
+        if (!order.getProduct().getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 결제 대기 상태가 아니라면 변경 불가
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        order.setStatus(OrderStatus.TRADING);
+        orderRepository.save(order);
         return new OrderResponseDto(order);
     }
 }
