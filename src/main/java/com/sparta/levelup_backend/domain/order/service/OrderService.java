@@ -10,4 +10,6 @@ public interface OrderService {
     OrderResponseDto findOrder(Long userId, Long orderId);
 
     OrderResponseDto orderUpdate(Long userId, Long orderId);
+
+    OrderResponseDto orderComplete(Long userId, Long orderId);
 }

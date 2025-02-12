@@ -48,7 +48,7 @@ public class OrderController {
         return success(OK, ORDER_FIND, orderById);
     }
 
-    // 주문 수정
+    // 주문 결제 완료
     @PatchMapping("/{orderId}")
     public ApiResponse<OrderResponseDto> orderUpdate(
             @AuthenticationPrincipal CustomUserDetails authUser,
@@ -58,4 +58,16 @@ public class OrderController {
         OrderResponseDto order = orderService.orderUpdate(userId, orderId);
         return success(OK, ORDER_UPDATE, order);
     }
+
+    // 결제 완료
+    @PatchMapping("/student/{orderId}")
+    public ApiResponse<OrderResponseDto> orderComplete(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long orderId
+    ) {
+        Long userId = authUser.getId();
+        OrderResponseDto order = orderService.orderComplete(userId, orderId);
+        return success(OK, ORDER_COMPLETE, order);
+    }
+
 }
