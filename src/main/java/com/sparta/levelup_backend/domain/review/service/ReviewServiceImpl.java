@@ -59,7 +59,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BusinessException(ErrorCode.MISMATCH_REVIEW_PRODUCT);
         }
 
-        reviewRepository.delete(review);
+        review.reviewDelete();
 
     }
 }
