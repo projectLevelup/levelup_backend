@@ -22,6 +22,11 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    /**
+     * Review 생성 API
+     *
+     * @param dto contents(리뷰 내용), startScore(별점)
+     */
     @PostMapping("/products/{productId}/reviews")
     public ApiResponse<ReviewResponseDto> reviewSave(@Valid  @RequestBody ReviewRequestDto dto, @PathVariable Long productId) {
 
