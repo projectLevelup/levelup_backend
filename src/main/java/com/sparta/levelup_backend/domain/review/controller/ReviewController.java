@@ -29,7 +29,7 @@ public class ReviewController {
      * @param dto contents(리뷰 내용), startScore(별점)
      */
     @PostMapping("/products/{productId}/reviews")
-    public ApiResponse<ReviewResponseDto> reviewSave(@Valid  @RequestBody ReviewRequestDto dto, @PathVariable Long productId) {
+    public ApiResponse<ReviewResponseDto> reviewSave(@Valid @RequestBody ReviewRequestDto dto, @PathVariable Long productId) {
 
         Long userId = 1L; // 임시 사용자 ID 값 - 추후 JWT 토큰값에서 ID값 가져오는 것으로 변경
         ReviewResponseDto result = reviewService.reviewSave(dto, userId, productId);
