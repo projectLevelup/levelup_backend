@@ -47,13 +47,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity saveOrder = orderRepository.save(order);
 
-        return new OrderResponseDto(
-                saveOrder.getId(),
-                saveOrder.getProduct().getId(),
-                saveOrder.getProduct().getProductName(),
-                saveOrder.getStatus(),
-                saveOrder.getTotalPrice()
-        );
+        return new OrderResponseDto(saveOrder);
     }
 
     /**
@@ -65,12 +59,6 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDto findOrder(Long orderId) {
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
-        return new OrderResponseDto(
-                order.getId(),
-                order.getProduct().getId(),
-                order.getProduct().getProductName(),
-                order.getStatus(),
-                order.getTotalPrice()
-        );
+        return new OrderResponseDto(order);
     }
 }

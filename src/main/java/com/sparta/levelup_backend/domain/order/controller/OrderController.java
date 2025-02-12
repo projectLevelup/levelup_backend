@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.sparta.levelup_backend.common.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.ApiResponse.*;
 
 @RestController
 @RequestMapping("/v1/orders")
@@ -25,7 +26,7 @@ public class OrderController {
     ) {
         OrderResponseDto orderResponseDto = orderService.orderCreate(dto);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success(
+                .body(success(
                         ORDER_CREATE,
                         orderResponseDto
                 ));
@@ -38,7 +39,7 @@ public class OrderController {
     ) {
         OrderResponseDto orderById = orderService.findOrder(orderId);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.success(
+                .body(success(
                         ORDER_FIND,
                         orderById
                 ));
