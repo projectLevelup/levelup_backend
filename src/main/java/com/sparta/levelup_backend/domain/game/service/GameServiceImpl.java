@@ -2,9 +2,12 @@ package com.sparta.levelup_backend.domain.game.service;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 
+import java.util.Objects;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repsitory.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -47,6 +50,17 @@ public class GameServiceImpl implements GameService{
 		if(game.getIsDeleted()){
 			throw new NotFoundException(GAME_NOT_FOUND);
 		}
+		return game;
+	}
+
+	@Override
+	public GameEntity updateGame(Long gameId, UpdateGameRequestDto dto) {
+		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
+
+		if(Objects.nonNull(dto.getName())) game.updateName(dto.getName());
+		if(Objects.nonNull(dto.getImgUrl())) game.updateImgUrl(dto.getImgUrl());
+		if(Objects.nonNull(dto.getGenre())) game.updateGenre(dto.getGenre());
+
 		return game;
 	}
 

@@ -36,6 +36,16 @@ public class GameEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    public void updateName(String name){
+        this.name = name;
+    }
+    public void updateImgUrl(String imgUrl){
+        this.imgUrl = imgUrl;
+    }
+    public void updateGenre(String genre){
+        this.genre = genre;
+    }
+
     public void deleteGame(){
         this.delete();
     }

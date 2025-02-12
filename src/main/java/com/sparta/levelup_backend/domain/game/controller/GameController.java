@@ -7,6 +7,7 @@ import static org.springframework.http.HttpStatus.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.game.dto.requestDto.CreateGameRequestDto;
+import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.service.GameService;
@@ -53,6 +55,13 @@ public class GameController {
 		GameEntity game = gameService.findGame(gameId);
 
 		return success(OK, GAME_FOUND_SUCCESS, GameResponseDto.from(game));
+	}
+
+	@PatchMapping("/{gameId}")
+	public ApiResponse<GameResponseDto> updateGame(@PathVariable Long gameId, @RequestBody UpdateGameRequestDto dto){
+		GameEntity game = gameService.updateGame(gameId, dto);
+
+		return success(OK, GAME_UPDATE_SUCCESS, GameResponseDto.from(game));
 	}
 
 	@DeleteMapping("/{gameId}")

@@ -13,5 +13,6 @@ public class ApiResMessage {
     // 게임 관련 성공 메시지
     public static final String GAME_SAVE_SUCCESS = "게임 등록이 성공적으로 완료되었습니다.";
     public static final String GAME_FOUND_SUCCESS = "게임을 성공적으로 조회되었습니다.";
+    public static final String GAME_UPDATE_SUCCESS = "게임을 성공적으로 수정되었습니다.";
     public static final String GAME_DELETE_SUCCESS = "게임이 성공적으로 삭제되었습니다.";
 }
