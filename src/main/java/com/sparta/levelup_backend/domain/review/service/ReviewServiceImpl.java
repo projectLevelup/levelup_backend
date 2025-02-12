@@ -4,7 +4,9 @@ import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
 import com.sparta.levelup_backend.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.levelup_backend.domain.review.dto.response.ReviewSliceResponseDto;
 import com.sparta.levelup_backend.domain.review.entity.ReviewEntity;
+import com.sparta.levelup_backend.domain.review.repository.ReviewQueryRepository;
 import com.sparta.levelup_backend.domain.review.repository.ReviewRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
@@ -12,6 +14,8 @@ import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ReviewQueryRepository reviewQueryRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
@@ -61,5 +66,10 @@ public class ReviewServiceImpl implements ReviewService {
 
         review.reviewDelete();
 
+    }
+
+    @Override
+    public Slice<ReviewSliceResponseDto> findReviews(Long productId, Pageable pageable) {
+        return reviewQueryRepository.findReviews(productId, pageable);
     }
 }

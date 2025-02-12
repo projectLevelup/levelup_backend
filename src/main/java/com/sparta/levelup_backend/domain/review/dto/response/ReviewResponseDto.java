@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.review.dto.response;
 
+import com.querydsl.core.annotations.QueryProjection;
 import com.sparta.levelup_backend.domain.review.entity.ReviewEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

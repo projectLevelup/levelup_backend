@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.review.controller;
 
 import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_DELETE;
+import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_LIST_SUCCESS;
 import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_SUCCESS;
 import static com.sparta.levelup_backend.common.ApiResponse.success;
 import static org.springframework.http.HttpStatus.OK;
@@ -8,10 +9,13 @@ import static org.springframework.http.HttpStatus.OK;
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
+import com.sparta.levelup_backend.domain.review.dto.response.ReviewSliceResponseDto;
 import com.sparta.levelup_backend.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,8 +56,8 @@ public class ReviewController {
         return success(OK, REVIEW_DELETE);
     }
 
-    @GetMapping("/products/{product_id}/reviews")
-    public ApiResponse<Slice<ReviewResponseDto>> getAllReviews(@PathVariable Long productId) {
-        return null;
+    @GetMapping("/products/{productId}/reviews")
+    public ApiResponse<Slice<ReviewSliceResponseDto>> findReviews(@PathVariable Long productId, @PageableDefault(size = 10) Pageable pageable) {
+        return success(OK, REVIEW_LIST_SUCCESS, reviewService.findReviews(productId, pageable));
     }
 }
