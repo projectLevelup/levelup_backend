@@ -152,4 +152,32 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         return null;
     }
+
+    /**
+     * 결제 취소(거래중 일 때 판매자만 가능)
+     * @param userId 판매자 id
+     * @param orderId 주문 id
+     * @return null
+     */
+    @Transactional
+    @Override
+    public Void deleteOrderByTrading(Long userId, Long orderId) {
+
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        // 판매자인지 확인
+        if (!order.getProduct().getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 거래중이 아닐 때 예외 발생
+        if (order.getStatus() != OrderStatus.TRADING) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+        order.orderDelete();
+        orderRepository.save(order);
+        return null;
+    }
 }

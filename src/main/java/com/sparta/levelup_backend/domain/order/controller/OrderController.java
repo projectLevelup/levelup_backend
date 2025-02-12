@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.domain.order.controller;
 
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.domain.auth.controller.AuthController;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
@@ -25,6 +26,7 @@ import static org.springframework.http.HttpStatus.*;
 public class OrderController {
 
     private final OrderServiceImpl orderService;
+    private final AuthController authController;
 
     // 주문 생성
     @PostMapping
@@ -70,7 +72,7 @@ public class OrderController {
         return success(OK, ORDER_COMPLETE, order);
     }
 
-    // 결제 취소
+    // 주문 취소
     @DeleteMapping("/{orderId}")
     public ApiResponse<Void> deleteOrderByPending(
             @AuthenticationPrincipal CustomUserDetails authUser,
@@ -78,6 +80,17 @@ public class OrderController {
     ) {
         Long userId = authUser.getId();
         Void order = orderService.deleteOrderByPending(userId, orderId);
+        return success(OK, ORDER_CANCLED, order);
+    }
+
+    // 결제 취소 (거래중 일때)
+    @DeleteMapping("/tutor/{orderId}")
+    public ApiResponse<Void> deleteOrderByTrading(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long orderId
+    ) {
+        Long userId = authUser.getId();
+        Void order = orderService.deleteOrderByTrading(userId, orderId);
         return success(OK, ORDER_CANCLED, order);
     }
 }
