@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class OrderCreateResponseDto {
+public class OrderResponseDto {
 
     private final Long orderId;
 
