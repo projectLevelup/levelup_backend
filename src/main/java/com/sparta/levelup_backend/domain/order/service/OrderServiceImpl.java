@@ -22,7 +22,6 @@ public class OrderServiceImpl implements OrderService {
     private final UserServiceImpl userService;
     private final ProductServiceImpl productServiceImpl;
 
-
     /**
      * 주문생성
      * @param dto productId
@@ -49,12 +48,18 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity saveOrder = orderRepository.save(order);
 
-        return new OrderResponseDto(
-                saveOrder.getId(),
-                saveOrder.getProduct().getId(),
-                saveOrder.getProduct().getProductName(),
-                saveOrder.getStatus(),
-                saveOrder.getTotalPrice()
-        );
+        return new OrderResponseDto(saveOrder);
+    }
+
+    /**
+     * 주문 조회
+     * @param orderId 조회 주문 id
+     * @return orderId, productId, productName, status, price
+     */
+    @Override
+    public OrderResponseDto findOrder(Long orderId) {
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        return new OrderResponseDto(order);
     }
 }

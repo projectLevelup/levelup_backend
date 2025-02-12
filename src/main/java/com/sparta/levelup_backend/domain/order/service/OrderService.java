@@ -7,5 +7,5 @@ import com.sparta.levelup_backend.utill.OrderStatus;
 public interface OrderService {
     OrderResponseDto orderCreate(OrderCreateRequestDto dto);
 
-    OrderResponseDto orderUpdate(Long orderId, OrderStatus status);
+    OrderResponseDto findOrder(Long orderId);
 }

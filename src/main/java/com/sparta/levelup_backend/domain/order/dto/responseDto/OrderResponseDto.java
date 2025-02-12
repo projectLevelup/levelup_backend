@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.order.dto.responseDto;
 
+import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,4 +18,12 @@ public class OrderResponseDto {
     private final OrderStatus status;
 
     private final Long price;
+
+    public OrderResponseDto(OrderEntity order) {
+        this.orderId = order.getId();
+        this.productId = order.getProduct().getId();
+        this.productName = order.getProduct().getProductName();
+        this.status = order.getStatus();
+        this.price = order.getTotalPrice();
+    }
 }
