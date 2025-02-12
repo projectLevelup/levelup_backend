@@ -39,6 +39,9 @@ public class ReviewController {
         return success(OK ,REVIEW_SUCCESS, result);
     }
 
+    /**
+     * Review 삭제 API
+     */
     @DeleteMapping("/admin/products/{productId}/reviews/{reviewId}")
     public ApiResponse<Void> reviewDelete(@PathVariable Long productId, @PathVariable Long reviewId) {
 
