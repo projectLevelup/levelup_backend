@@ -1,7 +1,9 @@
 package com.sparta.levelup_backend.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.levelup_backend.common.ApiResMessage;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
+import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,6 +30,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final ObjectMapper objectMapper = new ObjectMapper();
+	private final FilterResponse filterResponse;
 
 
     @Override
@@ -35,8 +38,8 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         HttpServletResponse response) throws
         AuthenticationException {
 
-        String email = " ";
-        String password = " ";
+        String email;
+        String password;
 
         if (request.getContentType() != null && request.getContentType()
             .equals(MediaType.APPLICATION_JSON_VALUE)) {
@@ -49,11 +52,12 @@ public class CustomUsernamePasswordAuthenticationFilter extends
                 password = signInUserRequestDto.getPassword();
 
             } catch (IOException e) {
-                response.setStatus(HttpStatus.OK.value());
-                response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding("UTF-8");
+				email = " ";
+				password = " ";
+				filterResponse.responseMsg(response, ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),ErrorCode.INVALID_JSON_FORMAT.getMessage());
             }
         } else {
+			filterResponse.responseMsg(response,ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),ErrorCode.INVALID_JSON_FORMAT.getMessage());
             email = " ";
             password = " ";
         }
@@ -77,12 +81,8 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 
         String token = jwtUtils.createToken(username, role);
 
+		filterResponse.responseMsg(response,HttpStatus.OK.value(), ApiResMessage.LOGIN_SUCCESS,token);
         response.addHeader("Authorization", token);
-        response.setStatus(HttpStatus.OK.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(token);
-        response.getWriter().flush();
 
     }
 
@@ -92,10 +92,10 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         IOException,
         ServletException {
 
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("로그인에 실패하였습니다.");
-        response.getWriter().flush();
+		if(response.getStatus()==200) {
+			filterResponse.responseMsg(response,ErrorCode.LOGIN_FAILED.getStatus().value(),ErrorCode.LOGIN_FAILED.getMessage());
+		}
     }
+
+
 }
