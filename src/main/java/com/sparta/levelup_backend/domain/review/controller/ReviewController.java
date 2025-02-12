@@ -11,7 +11,9 @@ import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.levelup_backend.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,10 +34,10 @@ public class ReviewController {
      * @param dto contents(리뷰 내용), startScore(별점)
      */
     @PostMapping("/products/{productId}/reviews")
-    public ApiResponse<ReviewResponseDto> reviewSave(@Valid @RequestBody ReviewRequestDto dto, @PathVariable Long productId) {
+    public ApiResponse<ReviewResponseDto> SaveReview(@Valid @RequestBody ReviewRequestDto dto, @PathVariable Long productId) {
 
         Long userId = 1L; // 임시 사용자 ID 값 - 추후 JWT 토큰값에서 ID값 가져오는 것으로 변경
-        ReviewResponseDto result = reviewService.reviewSave(dto, userId, productId);
+        ReviewResponseDto result = reviewService.SaveReview(dto, userId, productId);
         return success(OK ,REVIEW_SUCCESS, result);
     }
 
@@ -43,10 +45,15 @@ public class ReviewController {
      * Review 삭제 API
      */
     @DeleteMapping("/admin/products/{productId}/reviews/{reviewId}")
-    public ApiResponse<Void> reviewDelete(@PathVariable Long productId, @PathVariable Long reviewId) {
+    public ApiResponse<Void> DeleteReview(@PathVariable Long productId, @PathVariable Long reviewId) {
 
         Long userId = 1L; // 임시 사용자 ID 값 - 추후 JWT 토큰값에서 ID값 가져오는 것으로 변경
-        reviewService.reviewDelete(userId, productId, reviewId);
+        reviewService.DeleteReview(userId, productId, reviewId);
         return success(OK, REVIEW_DELETE);
+    }
+
+    @GetMapping("/products/{product_id}/reviews")
+    public ApiResponse<Slice<ReviewResponseDto>> getAllReviews(@PathVariable Long productId) {
+        return null;
     }
 }
