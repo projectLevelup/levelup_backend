@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.domain.order.controller;
 
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.domain.auth.controller.AuthController;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
@@ -28,12 +29,12 @@ public class OrderController {
 
     // 주문 생성
     @PostMapping
-    public ApiResponse<OrderResponseDto> orderCreate(
+    public ApiResponse<OrderResponseDto> createOrder(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody OrderCreateRequestDto dto
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto orderResponseDto = orderService.orderCreate(userId, dto);
+        OrderResponseDto orderResponseDto = orderService.createOrder(userId, dto);
         return success(OK, ORDER_CREATE, orderResponseDto);
     }
 
@@ -50,24 +51,45 @@ public class OrderController {
 
     // 주문 결제 완료
     @PatchMapping("/{orderId}")
-    public ApiResponse<OrderResponseDto> orderUpdate(
+    public ApiResponse<OrderResponseDto> updateOrder(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto order = orderService.orderUpdate(userId, orderId);
+        OrderResponseDto order = orderService.updateOrder(userId, orderId);
         return success(OK, ORDER_UPDATE, order);
     }
 
     // 결제 완료
     @PatchMapping("/student/{orderId}")
-    public ApiResponse<OrderResponseDto> orderComplete(
+    public ApiResponse<OrderResponseDto> completeOrder(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto order = orderService.orderComplete(userId, orderId);
+        OrderResponseDto order = orderService.completeOrder(userId, orderId);
         return success(OK, ORDER_COMPLETE, order);
     }
 
+    // 주문 취소
+    @DeleteMapping("/{orderId}")
+    public ApiResponse<Void> deleteOrderByPending(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long orderId
+    ) {
+        Long userId = authUser.getId();
+        Void order = orderService.deleteOrderByPending(userId, orderId);
+        return success(OK, ORDER_CANCLED, order);
+    }
+
+    // 결제 취소 (거래중 일때)
+    @DeleteMapping("/tutor/{orderId}")
+    public ApiResponse<Void> deleteOrderByTrading(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long orderId
+    ) {
+        Long userId = authUser.getId();
+        Void order = orderService.deleteOrderByTrading(userId, orderId);
+        return success(OK, ORDER_CANCLED, order);
+    }
 }

@@ -37,7 +37,7 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
-    public void OrderDelete() {
+    public void orderDelete() {
         this.delete();
     }
 

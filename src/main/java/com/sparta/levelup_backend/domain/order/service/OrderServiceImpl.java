@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional
-    public OrderResponseDto orderCreate(Long userId, OrderCreateRequestDto dto) {
+    public OrderResponseDto createOrder(Long userId, OrderCreateRequestDto dto) {
 
         UserEntity user = userService.findById(userId);
 
@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
      * @return orderId, productId, productName, status, price
      */
     @Override
-    public OrderResponseDto orderUpdate(Long userId, Long orderId) {
+    public OrderResponseDto updateOrder(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
@@ -106,7 +106,7 @@ public class OrderServiceImpl implements OrderService {
      * @return orderId, productId, productName, status, price
      */
     @Override
-    public OrderResponseDto orderComplete(Long userId, Long orderId) {
+    public OrderResponseDto completeOrder(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
@@ -123,5 +123,61 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.COMPLETED);
         orderRepository.save(order);
         return new OrderResponseDto(order);
+    }
+
+    /**
+     * 주문 취소(결제 요청 상태일때)
+     * @param userId 구매자 id Or 판매자 id
+     * @param orderId 주문 id
+     * @return null
+     */
+    @Transactional
+    @Override
+    public Void deleteOrderByPending(Long userId, Long orderId) {
+
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        // 판매자 구매자 둘 다 취소 가능
+        if (!order.getUser().getId().equals(userId) && !order.getProduct().getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 거래요청이 아닐 때 예외 발생
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+        order.orderDelete();
+        orderRepository.save(order);
+        return null;
+    }
+
+    /**
+     * 결제 취소(거래중 일 때 판매자만 가능)
+     * @param userId 판매자 id
+     * @param orderId 주문 id
+     * @return null
+     */
+    @Transactional
+    @Override
+    public Void deleteOrderByTrading(Long userId, Long orderId) {
+
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        // 판매자인지 확인
+        if (!order.getProduct().getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 거래중이 아닐 때 예외 발생
+        if (order.getStatus() != OrderStatus.TRADING) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        order.setStatus(OrderStatus.CANCELED);
+        order.orderDelete();
+        orderRepository.save(order);
+        return null;
     }
 }
