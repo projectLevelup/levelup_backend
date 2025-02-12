@@ -8,6 +8,8 @@ public enum ErrorCode {
     // 400 BAD_REQUEST
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "ERR001", "요청값이 올바르지 않습니다."),
     INVALID_JSON_FORMAT(HttpStatus.BAD_REQUEST, "ERR002", "잘못된 JSON 형식입니다."),
+    INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ERR003", "결제 정책에 의해 상태 변경 요청이 불가능합니다."),
+    INVALID_ORDER_CANCELED(HttpStatus.BAD_REQUEST, "ERR005", "주문 취소 기능 요청으로 가능합니다."),
 
     // 401 UNAUTHORIZED
     UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),

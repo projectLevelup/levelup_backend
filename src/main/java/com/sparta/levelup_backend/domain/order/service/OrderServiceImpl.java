@@ -7,7 +7,7 @@ import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.domain.user.userservice.UserServiceImpl;
+import com.sparta.levelup_backend.domain.user.service.UserServiceImpl;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.OrderException;
@@ -15,8 +15,6 @@ import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 
 @Service
@@ -61,28 +59,54 @@ public class OrderServiceImpl implements OrderService {
      * @param orderId 조회 주문 id
      * @return orderId, productId, productName, status, price
      */
-//    @Override
-//    public OrderResponseDto findOrder(Long orderId) {
-//        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
-//
-//        return new OrderResponseDto(order);
-//    }
-//
-//    @Override
-//    public OrderResponseDto orderUpdate(Long orderId, OrderStatus status) {
-//        Long userId = 2L;
-//
-//        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
-//
-//        if (!order.getUser().getId().equals(userId)) {
-//            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
-//        }
-//
-//        if (order.getIsDeleted()) {
-//            throw new OrderException(ErrorCode.DUPLICATE_CANCELED_ORDER);
-//        }
-//
-//
-//        return null;
-//    }
+    @Override
+    public OrderResponseDto findOrder(Long orderId) {
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        return new OrderResponseDto(order);
+    }
+
+    /**
+     * 주문 상태 변경
+     * @param orderId 변경할 주문 id
+     * @param status TRADING, COMPLETED
+     * @return orderId, productId, productName, status, price
+     */
+    @Override
+    public OrderResponseDto orderUpdate(Long orderId, OrderStatus status) {
+        Long userId = 2L;
+
+        OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        if (order.getIsDeleted()) {
+            throw new OrderException(ErrorCode.DUPLICATE_CANCELED_ORDER);
+        }
+
+        OrderStatus orderStatus = order.getStatus();
+
+        // 결제 취소 불가능
+        if (status == OrderStatus.CANCELED) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_CANCELED);
+        }
+
+        // 결제요청 -> 결제완료 변경 불가능
+        if (orderStatus == OrderStatus.PENDING && status == OrderStatus.COMPLETED) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        // 거래중 -> 결제요청 변경 불가능
+        if (orderStatus == OrderStatus.TRADING && status == OrderStatus.PENDING) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+
+        order.setStatus(status);
+        orderRepository.save(order);
+
+        return new OrderResponseDto(order);
+    }
 }

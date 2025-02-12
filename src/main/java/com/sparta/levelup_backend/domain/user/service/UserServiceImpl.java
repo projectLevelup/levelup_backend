@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.domain.user.userservice;
+package com.sparta.levelup_backend.domain.user.service;
 
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
