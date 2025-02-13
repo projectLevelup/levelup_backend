@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.product.dto.requestDto;
 
-import static com.sparta.levelup_backend.domain.product.dto.ValidMessage.*;
+import static com.sparta.levelup_backend.domain.product.dto.ProductValidMessage.*;
 
 import com.sparta.levelup_backend.utill.ProductStatus;
 

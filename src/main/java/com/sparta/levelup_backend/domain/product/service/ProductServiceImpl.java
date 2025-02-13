@@ -39,27 +39,15 @@ public class ProductServiceImpl implements ProductService {
 
 	@Override
 	public List<ProductResponseDto> getAllProducts() {
-		return productRepository.findAllByIsDeletedFalse().stream()
-			.map(product -> {
-				// 수정 권한 체크 (본인이 등록한 상품만 수정 가능)
-				if (!product.getStatus().equals(ProductStatus.INACTIVE)) {
-					throw new DuplicateException(FORBIDDEN_ACCESS);
-				}
-				return new ProductResponseDto(product);
-			})
+		return productRepository.findAllByIsDeletedFalseAndStatus(ProductStatus.ACTIVE)
+			.stream()
+			.map(ProductResponseDto::new)
 			.collect(Collectors.toList());
 	}
 
 	@Override
 	public ProductResponseDto getProductById(Long id) {
-		ProductEntity product = productRepository.findByIdOrElseThrow(id);
-
-		// 수정 권한 체크 (본인이 등록한 상품만 수정 가능)
-		if (!product.getStatus().equals(ProductStatus.INACTIVE)) {
-			throw new DuplicateException(FORBIDDEN_ACCESS);
-		}
-
-		return productRepository.findByIdAndIsDeletedFalse(id)
+		return productRepository.findByIdAndIsDeletedFalseAndStatus(id, ProductStatus.ACTIVE)
 			.map(ProductResponseDto::new)
 			.orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "상품 ID: " + id));
 	}
@@ -87,8 +75,12 @@ public class ProductServiceImpl implements ProductService {
 			throw new DuplicateException(FORBIDDEN_ACCESS);
 		}
 
-		product.update(requestDto);
-		productRepository.save(product);
+		// STATUS가 ACTIVE인 상품만 수정 가능
+		if (product.getStatus() != ProductStatus.ACTIVE) {
+			throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+		}
+
+		ProductUpdate(id, requestDto);
 		return new ProductUpdateResponseDto(product);
 	}
 
@@ -111,6 +103,13 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		return new ProductDeleteResponseDto(id, PRODUCT_DELETE);
+	}
+
+	@Transactional(timeout = 5, rollbackFor = Exception.class)
+	public void ProductUpdate(Long productId, ProductUpdateRequestDto requestDto) {
+		ProductEntity product = getFindByIdWithLock(productId);
+		product.update(requestDto);
+		productRepository.save(product);
 	}
 
 	@Transactional(timeout = 5, rollbackFor = Exception.class)
