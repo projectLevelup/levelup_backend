@@ -49,7 +49,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Transactional
     @Override
-    public ProductCreateResponseDto productCreate(ProductCreateRequestDto dto) {
+    public ProductCreateResponseDto saveProduct(ProductCreateRequestDto dto) {
         UserEntity user = userRepository.findById(dto.getUserId())
             .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND, "사용자 ID: " + dto.getUserId()));
 
