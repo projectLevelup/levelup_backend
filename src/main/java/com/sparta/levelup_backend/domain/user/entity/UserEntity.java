@@ -53,4 +53,7 @@ public class UserEntity extends BaseEntity {
         this.phoneNumber = phoneNumber;
     }
 
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }
