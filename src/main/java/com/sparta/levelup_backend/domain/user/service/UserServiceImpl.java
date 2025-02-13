@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.user.service;
 
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
+import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserImgUrlReqeustDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
@@ -93,6 +94,20 @@ public class UserServiceImpl implements UserService {
         user.updateImgUrl(dto.getImgUrl());
 
         return UserResponseDto.of(user);
+
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long id, DeleteUserRequestDto dto) {
+
+        UserEntity user = userRepository.findByIdOrElseThrow(id);
+
+        if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())){
+            user.delete();
+        }else {
+            throw new CurrentPasswordNotMatched();
+        }
 
     }
 }

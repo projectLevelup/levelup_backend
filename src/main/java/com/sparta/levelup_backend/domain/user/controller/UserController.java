@@ -4,6 +4,7 @@ import com.sparta.levelup_backend.common.ApiResMessage;
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
+import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserImgUrlReqeustDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -71,6 +73,15 @@ public class UserController {
     ){
         UserResponseDto responseDto = userService.updateImgUrl(customUserDetails.getId(),dto);
         return ApiResponse.success(HttpStatus.OK, ApiResMessage.UPDATE_SUCCESS, responseDto);
+    }
+
+    @DeleteMapping("/users")
+    public ApiResponse<Void> deleteUser(
+        @AuthenticationPrincipal CustomUserDetails customUserDetails,
+        @Valid @RequestBody DeleteUserRequestDto dto
+    ){
+        userService.deleteUser(customUserDetails.getId(),dto);
+        return ApiResponse.success(HttpStatus.OK, ApiResMessage.DELETE_SUCCESS);
     }
 
 }
