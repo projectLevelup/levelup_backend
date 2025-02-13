@@ -28,6 +28,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ProductRepository productRepository;
 
     @Override
+    @Transactional
     public ReviewResponseDto saveReview(ReviewRequestDto dto, Long userId, Long productId) {
 
         UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
