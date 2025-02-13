@@ -8,16 +8,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class FilterResponse {
 
-    public void responseMsg(HttpServletResponse response,int statusCode,String msg){
+    public void responseErrorMsg(HttpServletResponse response,int statusCode,String code, String msg){
         try {
             response.setStatus(statusCode);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
 
             response.getWriter().write("{\n"
-                + "    \"success\": false,\n"
-                + "    \"message\": \""+msg+"\"\n"
-                + "    \"data\": null\n"
+                + "    \"errorCode\": \""+code+"\",\n"
+                + "    \"detail\": \""+msg+"\",\n"
+                + "    \"errorMessage\": \""+msg+"\"\n"
                 + "}");
             response.getWriter().flush();
         } catch (IOException e) {
@@ -26,14 +26,14 @@ public class FilterResponse {
 
     }
 
-    public void responseMsg(HttpServletResponse response,int statusCode,String msg, String data){
+    public void responseSuccessMsg(HttpServletResponse response,int statusCode,String msg, String data){
         try {
             response.setStatus(statusCode);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
 
             response.getWriter().write("{\n"
-                + "    \"success\": true,\n"
+                + "    \"success\": \"OK\",\n"
                 + "    \"message\": \""+msg+"\",\n"
                 + "    \"data\": \""+data+"\"\n"
                 + "}");

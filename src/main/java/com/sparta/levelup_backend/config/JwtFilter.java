@@ -74,20 +74,25 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
             filterChain.doFilter(request, response);
         } catch (SecurityException | MalformedJwtException e) {
-            filterResponse.responseMsg(response, ErrorCode.INVALID_JWT_TOKEN.getStatus().value(),
+            filterResponse.responseErrorMsg(response, ErrorCode.INVALID_JWT_TOKEN.getStatus().value(),
+                ErrorCode.INVALID_JWT_TOKEN.getCode(),
                 ErrorCode.INVALID_JWT_TOKEN.getMessage());
         } catch (ExpiredJwtException e) {
-            filterResponse.responseMsg(response, ErrorCode.EXPIRED_JWT_TOKEN.getStatus().value(),
+            filterResponse.responseErrorMsg(response, ErrorCode.EXPIRED_JWT_TOKEN.getStatus().value(),
+                ErrorCode.EXPIRED_JWT_TOKEN.getCode(),
                 ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
         } catch (UnsupportedJwtException e) {
-            filterResponse.responseMsg(response, ErrorCode.INVALID_FORMAT_TOKEN.getStatus().value(),
+            filterResponse.responseErrorMsg(response, ErrorCode.INVALID_FORMAT_TOKEN.getStatus().value(),
+                ErrorCode.INVALID_FORMAT_TOKEN.getCode(),
                 ErrorCode.INVALID_FORMAT_TOKEN.getMessage());
         } catch (NotFoundException e) {
-            filterResponse.responseMsg(response, ErrorCode.TOKEN_NOT_FOUND.getStatus().value(),
+            filterResponse.responseErrorMsg(response, ErrorCode.TOKEN_NOT_FOUND.getStatus().value(),
+                ErrorCode.TOKEN_NOT_FOUND.getCode(),
                 ErrorCode.TOKEN_NOT_FOUND.getMessage());
         } catch (Exception e) {
-            filterResponse.responseMsg(response,
+            filterResponse.responseErrorMsg(response,
                 ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value(),
+                ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
                 ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
         }
     }

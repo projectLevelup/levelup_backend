@@ -1,20 +1,22 @@
 package com.sparta.levelup_backend.domain.product.service;
 
-import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
-import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
+
+import org.springframework.stereotype.Service;
+
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
+import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
+import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.utill.ProductStatus;
 import com.sparta.levelup_backend.utill.UserRole;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Random;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -89,9 +91,9 @@ public class ProductmakedataService {
 				.game(randomGame)
 				.productName(generateRandomProductName())
 				.contents("설명 " + i)
-				.price((long) (10000 + (random.nextInt(100) * 1000)))
+				.price((long)(10000 + (random.nextInt(100) * 1000)))
 				.amount(random.nextInt(100) + 1)
-				.status(random.nextBoolean() ? ProductStatus.ACTIVE : ProductStatus.DELETED)
+				.status(random.nextBoolean() ? ProductStatus.ACTIVE : ProductStatus.INACTIVE)
 				.imgUrl(null)
 				.build();
 
