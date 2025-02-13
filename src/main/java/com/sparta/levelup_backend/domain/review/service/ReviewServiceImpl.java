@@ -58,7 +58,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new ForbiddenAccessException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
-        ReviewEntity review = reviewRepository.findById(reviewId).orElseThrow(RuntimeException::new);
+        ReviewEntity review = reviewRepository.findByIdOrElseThrow(reviewId);
 
         //리뷰가 해당 상품의 리뷰인 지 확인
         if(!review.getProduct().getId().equals(productId)) {
