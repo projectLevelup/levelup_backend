@@ -7,6 +7,7 @@ import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
+import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.domain.user.service.UserServiceImpl;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
@@ -25,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final UserServiceImpl userService;
+    private final UserRepository userRepository;
     private final ProductServiceImpl productServiceImpl;
 
     /**
@@ -37,7 +38,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponseDto createOrder(Long userId, OrderCreateRequestDto dto) {
 
-        UserEntity user = userService.findById(userId);
+        UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
         ProductEntity product = productServiceImpl.findById(dto.getProductId());
 
