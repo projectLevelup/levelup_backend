@@ -6,11 +6,9 @@ import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.sparta.levelup_backend.common.ApiResponse;
-import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
@@ -21,7 +19,6 @@ import com.sparta.levelup_backend.domain.product.service.ProductService;
 import com.sparta.levelup_backend.domain.product.service.ProductmakedataService;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 
@@ -32,8 +29,7 @@ public class ProductController {
     private final ProductService productService;
     private final ProductmakedataService productmakedataService;
 
-	public ProductController(ProductService productService, ProductmakedataService productmakedataService,
-		ProductServiceImpl productServiceImpl) {
+	public ProductController(ProductService productService, ProductmakedataService productmakedataService) {
 		this.productService = productService;
 		this.productmakedataService = productmakedataService;
 	}

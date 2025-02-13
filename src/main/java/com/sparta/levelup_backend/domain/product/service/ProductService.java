@@ -18,8 +18,5 @@ public interface ProductService {
 	ProductUpdateResponseDto updateProduct(Long id, ProductUpdateRequestDto requestDto);
 	ProductDeleteResponseDto deleteProduct(Long id);
 
-	List<ProductEntity> getProductsByGameId(Long gameId);
-
-
 }
 

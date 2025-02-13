@@ -80,12 +80,6 @@ public class ProductServiceImpl implements ProductService{
         return new ProductDeleteResponseDto(id,PRODUCT_DELETE);
     }
 
-    @Transactional
-    @Override
-    public List<ProductEntity> getProductsByGameId(Long gameId) {
-        return productRepository.findByGameId(gameId);
-    }
-
 
 
     @Transactional(timeout = 5, rollbackFor = Exception.class)
@@ -112,16 +106,4 @@ public class ProductServiceImpl implements ProductService{
                 .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 
-    private ProductResponseDto convertToDto(ProductEntity entity) {
-        return new ProductResponseDto(
-            entity.getUser().getId(),
-            entity.getGame().getId(),
-            entity.getProductName(),
-            entity.getContents(),
-            entity.getPrice(),
-            entity.getAmount(),
-            entity.getStatus(),
-            entity.getImgUrl()
-        );
-    }
 }
