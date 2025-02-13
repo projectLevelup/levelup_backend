@@ -6,11 +6,11 @@ import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.CurrentPasswordNotMatched;
+import com.sparta.levelup_backend.exception.common.CurrentPasswordNotMatchedException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
-import com.sparta.levelup_backend.exception.common.PasswordConfirmNotMatched;
+import com.sparta.levelup_backend.exception.common.PasswordConfirmNotMatchedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
         if (role.equals("ROLE_ADMIN")) {
             UserEntity user = userRepository.findByIdOrElseThrow(id);
-            return UserResponseDto.of(user);
+            return UserResponseDto.from(user);
         }
         throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
     }
@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto findUser(Long id) {
         UserEntity user = userRepository.findByIdOrElseThrow(id);
-        return UserResponseDto.of(user);
+        return UserResponseDto.from(user);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
             user.updatePhoneNumber(dto.getPhoneNumber());
         }
 
-        return UserResponseDto.of(user);
+        return UserResponseDto.from(user);
     }
 
     @Override
@@ -79,10 +79,10 @@ public class UserServiceImpl implements UserService {
             if (dto.getNewPassword().equals(dto.getPasswordConfirm())) {
                 user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
             } else {
-                throw new PasswordConfirmNotMatched();
+                throw new PasswordConfirmNotMatchedException();
             }
         } else {
-            throw new CurrentPasswordNotMatched();
+            throw new CurrentPasswordNotMatchedException();
         }
     }
 
@@ -92,7 +92,7 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByIdOrElseThrow(id);
         user.updateImgUrl(dto.getImgUrl());
 
-        return UserResponseDto.of(user);
+        return UserResponseDto.from(user);
 
     }
 }
