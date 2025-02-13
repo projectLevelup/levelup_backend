@@ -12,8 +12,8 @@ import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
+import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.utill.UserRole;
 
 import lombok.RequiredArgsConstructor;
@@ -21,18 +21,15 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class GameServiceImpl implements GameService{
+public class GameServiceImpl implements GameService {
 	private final GameRepository gameRepository;
 	private final UserRepository userRepository;
 
 	@Override
 	public GameEntity saveGame(String name, String imgUrl, String genre, Long userId) {
-		//TODO: orElseThrow()처리 다시 할 것
-		UserEntity user = userRepository.findById(userId).orElseThrow();
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
-		if(!user.getRole().equals(UserRole.ADMIN)){
-			throw new ForbiddenException(FORBIDDEN_ACCESS);
-		}
+		checkAdminAuth(user);
 
 		return gameRepository.save(
 			GameEntity.builder()
@@ -45,28 +42,53 @@ public class GameServiceImpl implements GameService{
 
 	@Transactional(readOnly = true)
 	@Override
-	public GameEntity findGame(Long gameId) {
-		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
-		if(game.getIsDeleted()){
-			throw new NotFoundException(GAME_NOT_FOUND);
-		}
-		return game;
-	}
+	public GameEntity findGame(Long userId, Long gameId) {
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
-	@Override
-	public GameEntity updateGame(Long gameId, UpdateGameRequestDto dto) {
+		checkAdminAuth(user);
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
-
-		if(Objects.nonNull(dto.getName())) game.updateName(dto.getName());
-		if(Objects.nonNull(dto.getImgUrl())) game.updateImgUrl(dto.getImgUrl());
-		if(Objects.nonNull(dto.getGenre())) game.updateGenre(dto.getGenre());
+		checkIsDeleted(game);
 
 		return game;
 	}
 
 	@Override
-	public void deleteGame(Long gameId) {
+	public GameEntity updateGame(Long userId, Long gameId, UpdateGameRequestDto dto) {
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+
+		checkAdminAuth(user);
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
+
+		if (Objects.nonNull(dto.getName()))
+			game.updateName(dto.getName());
+		if (Objects.nonNull(dto.getImgUrl()))
+			game.updateImgUrl(dto.getImgUrl());
+		if (Objects.nonNull(dto.getGenre()))
+			game.updateGenre(dto.getGenre());
+
+		return game;
+	}
+
+	@Override
+	public void deleteGame(Long userId, Long gameId) {
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+		checkAdminAuth(user);
+
+		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
+		checkIsDeleted(game);
+
 		game.deleteGame();
+	}
+
+	private void checkAdminAuth(UserEntity user) {
+		if (!user.getRole().equals(UserRole.ADMIN)) {
+			throw new ForbiddenException(FORBIDDEN_ACCESS);
+		}
+	}
+
+	private void checkIsDeleted(GameEntity game) {
+		if (game.getIsDeleted()) {
+			throw new DuplicateException(GAME_ISDELETED);
+		}
 	}
 }

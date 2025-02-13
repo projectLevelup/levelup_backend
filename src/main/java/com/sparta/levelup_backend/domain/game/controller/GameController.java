@@ -41,22 +41,28 @@ public class GameController {
 	}
 
 	@GetMapping("/{gameId}")
-	public ApiResponse<GameResponseDto> findGame(@PathVariable Long gameId) {
-		GameEntity game = gameService.findGame(gameId);
+	public ApiResponse<GameResponseDto> findGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@PathVariable Long gameId) {
+		Long userId = customUserDetails.getId();
+		GameEntity game = gameService.findGame(userId, gameId);
 
 		return success(OK, GAME_FOUND_SUCCESS, GameResponseDto.from(game));
 	}
 
 	@PatchMapping("/{gameId}")
-	public ApiResponse<GameResponseDto> updateGame(@PathVariable Long gameId, @RequestBody UpdateGameRequestDto dto){
-		GameEntity game = gameService.updateGame(gameId, dto);
+	public ApiResponse<GameResponseDto> updateGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@PathVariable Long gameId, @RequestBody UpdateGameRequestDto dto) {
+		Long userId = customUserDetails.getId();
+		GameEntity game = gameService.updateGame(userId, gameId, dto);
 
 		return success(OK, GAME_UPDATE_SUCCESS, GameResponseDto.from(game));
 	}
 
 	@DeleteMapping("/{gameId}")
-	public ApiResponse<Void> deleteGame(@PathVariable Long gameId) {
-		gameService.deleteGame(gameId);
+	public ApiResponse<Void> deleteGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@PathVariable Long gameId) {
+		Long userId = customUserDetails.getId();
+		gameService.deleteGame(userId, gameId);
 
 		return success(OK, GAME_DELETE_SUCCESS);
 	}
