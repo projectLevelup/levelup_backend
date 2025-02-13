@@ -1,6 +1,8 @@
 package com.sparta.levelup_backend.config;
 
+import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
+import com.sparta.levelup_backend.utill.UserRole;
 import java.io.IOException;
 
 import io.jsonwebtoken.Claims;
@@ -31,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-    private final CustomUserDetailsService customUserDetailsService;
     private final RequestMatcher WHITE_LIST = new AntPathRequestMatcher("/v1/sign**");
     private final FilterResponse filterResponse;
 
@@ -55,9 +56,16 @@ public class JwtFilter extends OncePerRequestFilter {
             }
 
             String email = claims.getSubject();
+            String role = claims.get("role", String.class);
+            Long id = claims.get("id", Long.class);
 
-            CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService
-                .loadUserByUsername(email);
+            UserEntity tokenUser = UserEntity.builder()
+                .id(id)
+                .email(email)
+                .role(UserRole.valueOf(role))
+                .build();
+
+            CustomUserDetails userDetails = new CustomUserDetails(tokenUser);
 
             Authentication authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
                 userDetails.getAuthorities());
@@ -77,8 +85,9 @@ public class JwtFilter extends OncePerRequestFilter {
             filterResponse.responseMsg(response, ErrorCode.TOKEN_NOT_FOUND.getStatus().value(),
                 ErrorCode.TOKEN_NOT_FOUND.getMessage());
         } catch (Exception e) {
-			filterResponse.responseMsg(response, ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value(),
-				ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
+            filterResponse.responseMsg(response,
+                ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value(),
+                ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
         }
     }
 
