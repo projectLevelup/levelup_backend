@@ -183,9 +183,6 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
         }
 
-        // 재고 복구 메소드 호출
-        productServiceImpl.decreaseAmount(order.getProduct().getId());
-
         order.setStatus(OrderStatus.CANCELED);
         order.orderDelete();
         orderRepository.save(order);
