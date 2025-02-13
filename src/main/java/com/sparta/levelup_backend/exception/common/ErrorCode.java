@@ -46,6 +46,7 @@ public enum ErrorCode {
 	DUPLICATE_REVIEW(HttpStatus.CONFLICT, "ERR404", "이미 리뷰를 작성하였습니다."),
 	REVIEW_ISDELETED(HttpStatus.CONFLICT, "ERR405", "이미 삭제된 리뷰입니다."),
 	PRODUCT_ISDELETED(HttpStatus.CONFLICT, "ERR406", "이미 삭제된 상품입니다."),
+  GAME_ISDELETED(HttpStatus.CONFLICT, "ERR407", "이미 삭제된 게임입니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다.");
