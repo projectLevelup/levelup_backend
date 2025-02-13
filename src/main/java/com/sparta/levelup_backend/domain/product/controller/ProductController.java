@@ -53,20 +53,16 @@ public class ProductController {
 	}
 
 	@GetMapping
-	public ApiResponse<List<ProductResponseDto>> getAllProducts(
-		@AuthenticationPrincipal CustomUserDetails userDetails) {
-		Long userId = userDetails.getId();
-		List<ProductResponseDto> productList = productService.getAllProducts(userId);
+	public ApiResponse<List<ProductResponseDto>> getAllProducts() {
+		List<ProductResponseDto> productList = productService.getAllProducts();
 		return success(OK, PRODUCT_READ, productList);
 	}
 
 	@GetMapping("/{id}")
 	public ApiResponse<ProductResponseDto> getProductById(
-		@PathVariable Long id,
-		@AuthenticationPrincipal CustomUserDetails userDetails
+		@PathVariable Long id
 	) {
-		Long userId = userDetails.getId();
-		ProductResponseDto responseDto = productService.getProductById(id, userId);
+		ProductResponseDto responseDto = productService.getProductById(id);
 		return success(OK, PRODUCT_READ, responseDto);
 	}
 

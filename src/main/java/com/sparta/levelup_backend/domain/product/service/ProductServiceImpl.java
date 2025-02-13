@@ -38,24 +38,24 @@ public class ProductServiceImpl implements ProductService {
 	private final GameRepository gameRepository;
 
 	@Override
-	public List<ProductResponseDto> getAllProducts(Long userId) {
-		UserEntity user = userRepository.findByIdOrElseThrow(userId);
-
-		// 수정 권한 체크 (본인이 등록한 상품만 수정 가능)
-		if (!user.getRole().equals(UserRole.ADMIN)) {
-			throw new DuplicateException(FORBIDDEN_ACCESS);
-		}
+	public List<ProductResponseDto> getAllProducts() {
 		return productRepository.findAllByIsDeletedFalse().stream()
-			.map(ProductResponseDto::new)
+			.map(product -> {
+				// 수정 권한 체크 (본인이 등록한 상품만 수정 가능)
+				if (!product.getStatus().equals(ProductStatus.INACTIVE)) {
+					throw new DuplicateException(FORBIDDEN_ACCESS);
+				}
+				return new ProductResponseDto(product);
+			})
 			.collect(Collectors.toList());
 	}
 
 	@Override
-	public ProductResponseDto getProductById(Long id, Long userId) {
-		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+	public ProductResponseDto getProductById(Long id) {
+		ProductEntity product = productRepository.findByIdOrElseThrow(id);
 
 		// 수정 권한 체크 (본인이 등록한 상품만 수정 가능)
-		if (!user.getRole().equals(UserRole.ADMIN)) {
+		if (!product.getStatus().equals(ProductStatus.INACTIVE)) {
 			throw new DuplicateException(FORBIDDEN_ACCESS);
 		}
 

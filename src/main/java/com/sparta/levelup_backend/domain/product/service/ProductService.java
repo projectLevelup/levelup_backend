@@ -11,9 +11,9 @@ import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductUpdateRe
 
 public interface ProductService {
 
-	List<ProductResponseDto> getAllProducts(Long userId);
+	List<ProductResponseDto> getAllProducts();
 
-	ProductResponseDto getProductById(Long id, Long userId);
+	ProductResponseDto getProductById(Long id);
 
 	ProductCreateResponseDto saveProduct(Long id, ProductCreateRequestDto dto);
 

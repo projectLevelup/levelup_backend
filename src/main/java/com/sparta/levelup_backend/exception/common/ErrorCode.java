@@ -13,9 +13,16 @@ public enum ErrorCode {
 	MISMATCH_REVIEW_PRODUCT(HttpStatus.BAD_REQUEST, "ERR004", "해당 상품의 리뷰가 아닙니다."),
 	INVALID_ORDER_CANCELED(HttpStatus.BAD_REQUEST, "ERR005", "주문 취소 기능 요청으로 가능합니다."),
 	INVALID_ORDER_COMPLETED(HttpStatus.BAD_REQUEST, "ERR006", "이미 거래가 완료되었습니다."),
+	INVALID_FORMAT_TOKEN(HttpStatus.BAD_REQUEST, "ERR007", "지원되지 않는 JWT 토큰입니다."),
+	INVALID_CURRENT_PASSWORD(HttpStatus.BAD_REQUEST, "ERR008", "현재 비밀번호가 일치하지 않습니다."),
+	INVALID_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "ERR009", "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."),
+	ALREADY_DELETED_USER(HttpStatus.BAD_REQUEST, "ERR010", "이미 탈퇴된 유저입니다."),
 
 	// 401 UNAUTHORIZED
 	UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),
+	LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "ERR102", "로그인에 실패했습니다."),
+	INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "ERR103", "유효하지 않는 JWT 서명입니다."),
+	EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "ERR104", "만료된 JWT 토큰입니다."),
 
 	// 403 FORBIDDEN
 	FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "ERR201", "접근 권한이 없습니다."),
@@ -28,6 +35,7 @@ public enum ErrorCode {
 	ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR304", "주문을 찾을 수 없습니다."),
 	GAME_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR305", "게임을 찾을 수 없습니다."),
 	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR306", "리뷰를 찾을 수 없습니다."),
+	ERRORCODE_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR307", "에러코드를 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "ERR401", "이미 사용 중인 이메일입니다."),
@@ -49,4 +57,14 @@ public enum ErrorCode {
 		this.code = code;
 		this.message = message;
 	}
+
+	public static ErrorCode from(String message) {
+		for (ErrorCode errorCode : values()) {
+			if (errorCode.getMessage().equals(message)) {
+				return errorCode;
+			}
+		}
+		throw new NotFoundException(ERRORCODE_NOT_FOUND);
+	}
+
 }
