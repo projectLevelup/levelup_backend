@@ -28,7 +28,6 @@ public class GameServiceImpl implements GameService {
 	@Override
 	public GameEntity saveGame(String name, String imgUrl, String genre, Long userId) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
-
 		checkAdminAuth(user);
 
 		return gameRepository.save(
@@ -44,8 +43,8 @@ public class GameServiceImpl implements GameService {
 	@Override
 	public GameEntity findGame(Long userId, Long gameId) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
-
 		checkAdminAuth(user);
+
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
 		checkIsDeleted(game);
 
@@ -55,9 +54,10 @@ public class GameServiceImpl implements GameService {
 	@Override
 	public GameEntity updateGame(Long userId, Long gameId, UpdateGameRequestDto dto) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
-
 		checkAdminAuth(user);
+
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
+		checkIsDeleted(game);
 
 		if (Objects.nonNull(dto.getName()))
 			game.updateName(dto.getName());
