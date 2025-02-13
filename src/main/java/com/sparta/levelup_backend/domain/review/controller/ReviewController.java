@@ -55,6 +55,12 @@ public class ReviewController {
         return success(OK, REVIEW_DELETE);
     }
 
+    /**
+     * Review 목록 조회 API
+     *
+     * @param pageable 무한스크롤 구조로 size만 받음
+     * @return
+     */
     @GetMapping("/products/{productId}/reviews")
     public ApiResponse<Slice<ReviewResponseDto>> findReviews(@PathVariable Long productId, @PageableDefault(size = 10) Pageable pageable) {
         return success(OK, REVIEW_LIST_SUCCESS, reviewService.findReviews(productId, pageable));
