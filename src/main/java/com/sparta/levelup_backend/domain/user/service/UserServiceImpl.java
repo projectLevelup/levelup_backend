@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.user.service;
 
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
+import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserImgUrlReqeustDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -70,6 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void changePassword(Long id, ChangePasswordDto dto) {
         UserEntity user = userRepository.findByIdOrElseThrow(id);
 
@@ -82,5 +84,15 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new CurrentPasswordNotMatched();
         }
+    }
+
+    @Override
+    public UserResponseDto updateImgUrl(Long id, UpdateUserImgUrlReqeustDto dto) {
+
+        UserEntity user = userRepository.findByIdOrElseThrow(id);
+        user.updateImgUrl(dto.getImgUrl());
+
+        return UserResponseDto.of(user);
+
     }
 }

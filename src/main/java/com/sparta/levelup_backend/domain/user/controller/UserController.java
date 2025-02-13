@@ -4,6 +4,7 @@ import com.sparta.levelup_backend.common.ApiResMessage;
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
+import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserImgUrlReqeustDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.service.UserService;
@@ -48,7 +49,7 @@ public class UserController {
     @PatchMapping("/users")
     public ApiResponse<UserResponseDto> updateUser(
         @AuthenticationPrincipal CustomUserDetails customUserDetails,
-        @RequestBody UpdateUserRequestDto dto
+        @Valid @RequestBody UpdateUserRequestDto dto
     ) {
 
         UserResponseDto responseDto = userService.updateUser(customUserDetails.getId(), dto);
@@ -57,11 +58,19 @@ public class UserController {
 
     @PatchMapping("/users/changePassword")
     public ApiResponse<Void> changePassword(
-        @Valid
         @AuthenticationPrincipal CustomUserDetails customUserDetails,
-        @RequestBody ChangePasswordDto dto) {
+        @Valid @RequestBody ChangePasswordDto dto) {
         userService.changePassword(customUserDetails.getId(), dto);
         return ApiResponse.success(HttpStatus.OK, ApiResMessage.PASSWORD_CHANGE_SUCCESS);
+    }
+
+    @PatchMapping("/users/profileImage")
+    public ApiResponse<UserResponseDto> updateImgUrl(
+        @AuthenticationPrincipal CustomUserDetails customUserDetails,
+        @Valid @RequestBody UpdateUserImgUrlReqeustDto dto
+    ){
+        UserResponseDto responseDto = userService.updateImgUrl(customUserDetails.getId(),dto);
+        return ApiResponse.success(HttpStatus.OK, ApiResMessage.UPDATE_SUCCESS, responseDto);
     }
 
 }
