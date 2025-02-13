@@ -50,6 +50,7 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByIdOrElseThrow(id);
 
         if (dto.getEmail() != null) {
+            userRepository.existsByEmailOrElseThrow(dto.getEmail());
             user.updateEmail(dto.getEmail());
         }
 
