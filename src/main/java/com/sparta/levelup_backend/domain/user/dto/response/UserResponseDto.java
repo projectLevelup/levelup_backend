@@ -8,15 +8,15 @@ import lombok.Getter;
 @Getter
 public class UserResponseDto {
 
-    private String email;
+    private final String email;
 
-    private String nickName;
+    private final String nickName;
 
-    private String imgUrl;
+    private final String imgUrl;
 
-    private String phoneNumber;
+    private final String phoneNumber;
 
-    public static UserResponseDto of(UserEntity user){
+    public static UserResponseDto from(UserEntity user){
         return new UserResponseDto(
             user.getEmail(),
             user.getNickName(),

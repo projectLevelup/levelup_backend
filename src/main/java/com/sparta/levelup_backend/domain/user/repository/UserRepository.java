@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.user.repository;
 
+import com.sparta.levelup_backend.exception.common.EmailDuplicatedException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import java.util.Optional;
@@ -11,6 +12,12 @@ import jakarta.validation.constraints.NotBlank;
 
 public interface UserRepository extends JpaRepository<UserEntity,Long> {
 	boolean existsByEmail(@NotBlank String email);
+
+	default void existsByEmailOrElseThrow(String email){
+		if(!existsByEmail(email)){
+			throw new EmailDuplicatedException();
+		}
+	}
 
 	Optional<UserEntity> findByEmail(String email);
 

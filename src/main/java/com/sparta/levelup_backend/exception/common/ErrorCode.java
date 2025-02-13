@@ -9,6 +9,8 @@ public enum ErrorCode {
     INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "ERR001", "요청값이 올바르지 않습니다."),
     INVALID_JSON_FORMAT(HttpStatus.BAD_REQUEST, "ERR002", "잘못된 JSON 형식입니다."),
     INVALID_FORMAT_TOKEN(HttpStatus.BAD_REQUEST, "ERR007", "지원되지 않는 JWT 토큰입니다."),
+    INVALID_CURRENT_PASSWORD(HttpStatus.BAD_REQUEST, "ERR008", "현재 비밀번호가 일치하지 않습니다."),
+    INVALID_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "ERR009", "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."),
 
 
     ALREADY_DELETED_USER(HttpStatus.BAD_REQUEST, "ERR010", "이미 탈퇴된 유저입니다."),

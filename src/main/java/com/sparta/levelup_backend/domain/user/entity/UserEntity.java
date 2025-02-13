@@ -37,4 +37,23 @@ public class UserEntity extends BaseEntity {
 
     private String phoneNumber;
 
+    public void updateEmail(String email){
+        this.email = email;
+    }
+
+    public void updateImgUrl(String imgUrl){
+        this.imgUrl = imgUrl;
+    }
+
+    public void updateNickName(String nickName){
+        this.nickName = nickName;
+    }
+
+    public void updatePhoneNumber(String phoneNumber){
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }
