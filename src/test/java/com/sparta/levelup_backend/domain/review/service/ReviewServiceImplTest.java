@@ -20,6 +20,7 @@ import com.sparta.levelup_backend.exception.common.ForbiddenAccessException;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import com.sparta.levelup_backend.utill.UserRole;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +55,7 @@ class ReviewServiceImplTest {
     private UserEntity adminUser;
     private ProductEntity product;
     private ReviewEntity review;
-    private OrderEntity completeOrder;
+    private OrderEntity order;
 
     @BeforeEach
     void setUp() {
@@ -72,20 +73,19 @@ class ReviewServiceImplTest {
             .id(productId)
             .build();
 
-        review = ReviewEntity.builder()
-            .id(reviewId)
-            .product(product)
-            .build();
-
-        completeOrder = OrderEntity.builder()
-            .user(normalUser)
-            .product(product)
-            .status(OrderStatus.COMPLETED)
-            .build();
     }
 
     @Test
     void 리뷰_관리자_권한이_없을때_예외발생() {
+        //given
+        review = ReviewEntity.builder()
+            .id(reviewId)
+            .starScore(5)
+            .user(normalUser)
+            .product(product)
+            .order(order)
+            .build();
+
         //when
         when(userRepository.findById(userId)).thenReturn(Optional.of(normalUser));
 
@@ -108,12 +108,15 @@ class ReviewServiceImplTest {
 
         review = ReviewEntity.builder()
             .id(reviewId)
+            .starScore(5)
+            .user(normalUser)
             .product(product2)
+            .order(order)
             .build();
 
         //when
         when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
-        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+        when(reviewRepository.findByIdOrElseThrow(reviewId)).thenReturn(review);
 
         //then
         assertThatThrownBy(() -> {
@@ -125,9 +128,18 @@ class ReviewServiceImplTest {
     @Test
     @Transactional
     void 리뷰_삭제_테스트() {
+        //given
+        review = ReviewEntity.builder()
+            .id(reviewId)
+            .starScore(5)
+            .user(normalUser)
+            .product(product)
+            .order(order)
+            .build();
+
         //when
         when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
-        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+        when(reviewRepository.findByIdOrElseThrow(reviewId)).thenReturn(review);
         reviewService.deleteReview(userId, productId, reviewId);
 
         //then
@@ -137,8 +149,6 @@ class ReviewServiceImplTest {
     @Test
     void 거래_완료된_주문이_없을때_예외발생() {
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(normalUser));
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(orderRepository.existsByUserIdAndProductIdAndStatus(userId, productId, OrderStatus.COMPLETED)).thenReturn(false);
 
         //then
@@ -151,8 +161,6 @@ class ReviewServiceImplTest {
     @Test
     void 이미_작성된_리뷰가_있을때_예외발생() {
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(normalUser));
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(orderRepository.existsByUserIdAndProductIdAndStatus(userId, productId, OrderStatus.COMPLETED)).thenReturn(true);
         when(reviewRepository.existsByUserIdAndProductId(userId, productId)).thenReturn(true);
 
@@ -162,6 +170,30 @@ class ReviewServiceImplTest {
         }).isInstanceOf(DuplicateException.class)
             .hasMessageContaining(ErrorCode.DUPLICATE_REVIEW.getMessage());
 
+    }
+
+    @Test
+    void 이미_삭제된_리뷰_삭제시도시_예외발생() {
+        //given
+        review = ReviewEntity.builder()
+        .id(reviewId)
+        .starScore(5)
+        .user(adminUser)
+        .product(product)
+        .order(order)
+        .build();
+
+        review.deleteReview();
+
+        //when
+        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
+        when(reviewRepository.findByIdOrElseThrow(reviewId)).thenReturn(review);
+
+        //then
+        assertThatThrownBy(() -> {
+            reviewService.deleteReview(userId, productId, reviewId);
+        }).isInstanceOf(DuplicateException.class)
+            .hasMessageContaining(ErrorCode.REVIEW_ISDELETED.getMessage());
     }
 
 }
