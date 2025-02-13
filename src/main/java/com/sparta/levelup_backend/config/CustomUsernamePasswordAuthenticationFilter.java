@@ -82,8 +82,8 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 
         String token = jwtUtils.createToken(username, id, role);
 
-		filterResponse.responseMsg(response,HttpStatus.OK.value(), ApiResMessage.LOGIN_SUCCESS,token);
         response.addHeader("Authorization", token);
+        filterResponse.responseMsg(response,HttpStatus.OK.value(), ApiResMessage.LOGIN_SUCCESS,token);
 
     }
 
