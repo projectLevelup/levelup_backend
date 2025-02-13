@@ -21,11 +21,11 @@ public class OrderEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Column(length = 15, nullable = false)
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @Setter
     @Column(name = "total_price", nullable = false)
     private Long totalPrice;
 
@@ -33,9 +33,12 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
+
+    public void orderDelete() {
+        this.delete();
+    }
 
 }

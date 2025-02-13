@@ -1,8 +1,19 @@
 package com.sparta.levelup_backend.domain.order.service;
 
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
-import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderCreateResponseDto;
+import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
+import com.sparta.levelup_backend.utill.OrderStatus;
 
 public interface OrderService {
-    OrderCreateResponseDto orderCreate(OrderCreateRequestDto dto);
+    OrderResponseDto createOrder(Long userId, OrderCreateRequestDto dto);
+
+    OrderResponseDto findOrder(Long userId, Long orderId);
+
+    OrderResponseDto updateOrder(Long userId, Long orderId);
+
+    OrderResponseDto completeOrder(Long userId, Long orderId);
+
+    void deleteOrderByPending(Long userId, Long orderId);
+
+    void deleteOrderByTrading(Long userId, Long orderId);
 }
