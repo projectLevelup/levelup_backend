@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.user.controller;
 
+import static com.sparta.levelup_backend.common.ApiResponse.success;
+
 import com.sparta.levelup_backend.common.ApiResMessage;
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
@@ -37,7 +39,7 @@ public class UserController {
             iterator().next().
             getAuthority();
         UserResponseDto responseDto = userService.findUserById(role, userId);
-        return ApiResponse.success(HttpStatus.OK, ApiResMessage.FIND_SUCCESS, responseDto);
+        return success(HttpStatus.OK, ApiResMessage.FIND_SUCCESS, responseDto);
     }
 
     @GetMapping("/users")
@@ -45,7 +47,7 @@ public class UserController {
         @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         UserResponseDto responseDto = userService.findUser(customUserDetails.getId());
-        return ApiResponse.success(HttpStatus.OK, ApiResMessage.FIND_SUCCESS, responseDto);
+        return success(HttpStatus.OK, ApiResMessage.FIND_SUCCESS, responseDto);
     }
 
     @PatchMapping("/users")
@@ -55,15 +57,15 @@ public class UserController {
     ) {
 
         UserResponseDto responseDto = userService.updateUser(customUserDetails.getId(), dto);
-        return ApiResponse.success(HttpStatus.OK, ApiResMessage.UPDATE_SUCCESS, responseDto);
+        return success(HttpStatus.OK, ApiResMessage.UPDATE_SUCCESS, responseDto);
     }
 
-    @PatchMapping("/users/changePassword")
+    @PatchMapping("/users/changingPassword")
     public ApiResponse<Void> changePassword(
         @AuthenticationPrincipal CustomUserDetails customUserDetails,
         @Valid @RequestBody ChangePasswordDto dto) {
         userService.changePassword(customUserDetails.getId(), dto);
-        return ApiResponse.success(HttpStatus.OK, ApiResMessage.PASSWORD_CHANGE_SUCCESS);
+        return success(HttpStatus.OK, ApiResMessage.PASSWORD_CHANGE_SUCCESS);
     }
 
     @PatchMapping("/users/profileImage")
@@ -72,7 +74,7 @@ public class UserController {
         @Valid @RequestBody UpdateUserImgUrlReqeustDto dto
     ){
         UserResponseDto responseDto = userService.updateImgUrl(customUserDetails.getId(),dto);
-        return ApiResponse.success(HttpStatus.OK, ApiResMessage.UPDATE_SUCCESS, responseDto);
+        return success(HttpStatus.OK, ApiResMessage.UPDATE_SUCCESS, responseDto);
     }
 
     @DeleteMapping("/users")

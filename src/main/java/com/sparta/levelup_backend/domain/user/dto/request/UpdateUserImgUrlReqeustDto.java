@@ -9,6 +9,6 @@ import org.hibernate.validator.constraints.URL;
 public class UpdateUserImgUrlReqeustDto {
 
     @URL
-    private String imgUrl;
+    private final String imgUrl;
 
 }
