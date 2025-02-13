@@ -6,11 +6,9 @@ import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.sparta.levelup_backend.common.ApiResponse;
-import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
@@ -19,9 +17,7 @@ import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductResponse
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductUpdateResponseDto;
 import com.sparta.levelup_backend.domain.product.service.ProductService;
 import com.sparta.levelup_backend.domain.product.service.ProductmakedataService;
-import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 
@@ -32,17 +28,16 @@ public class ProductController {
     private final ProductService productService;
     private final ProductmakedataService productmakedataService;
 
-	public ProductController(ProductService productService, ProductmakedataService productmakedataService,
-		ProductServiceImpl productServiceImpl) {
+	public ProductController(ProductService productService, ProductmakedataService productmakedataService) {
 		this.productService = productService;
 		this.productmakedataService = productmakedataService;
 	}
 
     @PostMapping
-    public ApiResponse<ProductCreateResponseDto> productCreate(
+    public ApiResponse<ProductCreateResponseDto> saveProduct(
         @Valid @RequestBody ProductCreateRequestDto dto
     ) {
-        ProductCreateResponseDto productCreateResponseDto = productService.productCreate(dto);
+        ProductCreateResponseDto productCreateResponseDto = productService.saveProduct(dto);
         return success(OK, PRODUCT_CREATE, productCreateResponseDto);
     }
 
@@ -76,11 +71,24 @@ public class ProductController {
     }
 
 
-    // 상품 100만개 등록
-    @GetMapping("/generate")
-    public ResponseEntity<String> generateProducts(@RequestParam(defaultValue = "100000") int count) {
+
+
+    @PostMapping("/users/{count}")
+    public ResponseEntity<String> createUsers(@PathVariable int count) {
+        productmakedataService.generateUsers(count);
+        return ResponseEntity.ok(count + "명의 유저 데이터가 생성되었습니다.");
+    }
+
+    @PostMapping("/games/{count}")
+    public ResponseEntity<String> createGames(@PathVariable int count) {
+        productmakedataService.generateGames(count);
+        return ResponseEntity.ok(count + "개의 게임 데이터가 생성되었습니다.");
+    }
+
+    @PostMapping("/products/{count}")
+    public ResponseEntity<String> createProducts(@PathVariable int count) {
         productmakedataService.generateProducts(count);
-        return ResponseEntity.ok(count + "개의 제품 데이터가 생성되었습니다.");
+        return ResponseEntity.ok(count + "개의 상품 데이터가 생성되었습니다.");
     }
 
 }

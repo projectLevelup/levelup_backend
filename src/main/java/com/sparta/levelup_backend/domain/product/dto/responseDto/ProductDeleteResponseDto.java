@@ -7,6 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ProductDeleteResponseDto {
 
-	private final Long id; // 수정된 상품의 ID
-	private final String productName; // 수정된 상품 이름
+	private final Long id;
+	private final String productName;
 }

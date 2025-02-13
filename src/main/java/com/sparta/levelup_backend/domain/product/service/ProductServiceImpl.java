@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
-import com.sparta.levelup_backend.domain.game.repsitory.GameRepository;
+import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -49,7 +49,7 @@ public class ProductServiceImpl implements ProductService{
 
     @Transactional
     @Override
-    public ProductCreateResponseDto productCreate(ProductCreateRequestDto dto) {
+    public ProductCreateResponseDto saveProduct(ProductCreateRequestDto dto) {
         UserEntity user = userRepository.findById(dto.getUserId())
             .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND, "사용자 ID: " + dto.getUserId()));
 
@@ -80,12 +80,6 @@ public class ProductServiceImpl implements ProductService{
         return new ProductDeleteResponseDto(id,PRODUCT_DELETE);
     }
 
-    @Transactional
-    @Override
-    public List<ProductEntity> getProductsByGameId(Long gameId) {
-        return productRepository.findByGameId(gameId);
-    }
-
 
 
     @Transactional(timeout = 5, rollbackFor = Exception.class)
@@ -112,16 +106,4 @@ public class ProductServiceImpl implements ProductService{
                 .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 
-    private ProductResponseDto convertToDto(ProductEntity entity) {
-        return new ProductResponseDto(
-            entity.getUser().getId(),
-            entity.getGame().getId(),
-            entity.getProductName(),
-            entity.getContents(),
-            entity.getPrice(),
-            entity.getAmount(),
-            entity.getStatus(),
-            entity.getImgUrl()
-        );
-    }
 }
