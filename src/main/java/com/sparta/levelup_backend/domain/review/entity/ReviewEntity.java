@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.review.entity;
 
 import com.sparta.levelup_backend.common.entity.BaseEntity;
+import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import jakarta.persistence.Column;
@@ -43,6 +44,10 @@ public class ReviewEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private OrderEntity order;
 
     public void deleteReview() {
         this.delete();
