@@ -42,7 +42,7 @@ public enum ErrorCode {
     DUPLICATE_CANCELED_ORDER(HttpStatus.CONFLICT, "ERR403", "이미 주문취소가 되었습니다."),
     DUPLICATE_REVIEW(HttpStatus.CONFLICT, "ERR404", "이미 리뷰를 작성하였습니다."),
     REVIEW_ISDELETED(HttpStatus.CONFLICT, "ERR405", "이미 삭제된 리뷰입니다."),
-    GAME_ISDELETED(HttpStatus.CONFLICT, "ERR407", "이미 삭제된 리뷰입니다."),
+    GAME_ISDELETED(HttpStatus.CONFLICT, "ERR407", "이미 삭제된 게임입니다."),
 
 
     // 500 INTERNAL_SERVER_ERROR
