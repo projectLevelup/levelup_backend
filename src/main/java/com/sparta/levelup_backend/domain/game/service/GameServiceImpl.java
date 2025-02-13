@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
+import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDto;
+import com.sparta.levelup_backend.domain.game.dto.responseDto.GameResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -67,6 +69,16 @@ public class GameServiceImpl implements GameService {
 			game.updateGenre(dto.getGenre());
 
 		return game;
+	}
+
+	@Override
+	public GameListResponseDto findGames() {
+		return new GameListResponseDto(gameRepository.findAll()
+			.stream()
+			.filter(game -> !game.getIsDeleted())
+			.map(game -> new GameResponseDto(game.getName(), game.getImgUrl(),
+				game.getGenre()))
+			.toList());
 	}
 
 	@Override

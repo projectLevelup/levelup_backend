@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.game.service;
 
 import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
+import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 
 public interface GameService {
@@ -11,4 +12,6 @@ public interface GameService {
 	void deleteGame(Long userId, Long gameId);
 
 	GameEntity updateGame(Long userId, Long gameId, UpdateGameRequestDto dto);
+
+	GameListResponseDto findGames();
 }
