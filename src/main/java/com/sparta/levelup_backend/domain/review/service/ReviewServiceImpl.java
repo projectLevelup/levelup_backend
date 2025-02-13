@@ -1,7 +1,10 @@
 package com.sparta.levelup_backend.domain.review.service;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
-import static com.sparta.levelup_backend.utill.OrderStatus.*;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.COMPLETED_ORDER_REQUIRED;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.DUPLICATE_REVIEW;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.FORBIDDEN_ACCESS;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.MISMATCH_REVIEW_PRODUCT;
+import static com.sparta.levelup_backend.utill.OrderStatus.COMPLETED;
 
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
@@ -13,11 +16,9 @@ import com.sparta.levelup_backend.domain.review.repository.ReviewQueryRepository
 import com.sparta.levelup_backend.domain.review.repository.ReviewRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.BusinessException;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ForbiddenAccessException;
 import com.sparta.levelup_backend.exception.common.MismatchException;
-import com.sparta.levelup_backend.utill.OrderStatus;
 import com.sparta.levelup_backend.utill.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -43,8 +44,13 @@ public class ReviewServiceImpl implements ReviewService {
         ProductEntity product = productRepository.findById(productId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
 
         // 해당 상품을 거래 완료한 사용자인지 확인
-        if (!orderRepository.existsByUserIdAndProductIdAndStatus(userId, productId, COMPLETED)) {
+        if(!orderRepository.existsByUserIdAndProductIdAndStatus(userId, productId, COMPLETED)) {
             throw new ForbiddenAccessException(COMPLETED_ORDER_REQUIRED);
+        }
+
+        // 이미 리뷰를 작성한 유저인지 확인
+        if(reviewRepository.existsByUserIdAndProductId(userId, productId)) {
+            throw new DuplicateException(DUPLICATE_REVIEW);
         }
 
         ReviewEntity review = ReviewEntity.builder()
