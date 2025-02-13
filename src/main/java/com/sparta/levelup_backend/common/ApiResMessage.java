@@ -10,4 +10,7 @@ public class ApiResMessage {
     // Order
     public static final String ORDER_CREATE = "주문이 생성되었습니다";
     public static final String ORDER_FIND = "주문이 조회되었습니다.";
+    public static final String ORDER_UPDATE = "주문 상태가 변경되었습니다.";
+    public static final String ORDER_COMPLETE = "거래가 완료되었습니다.";
+    public static final String ORDER_CANCLED = "주문 및 거래가 취소되었습니다.";
 }
