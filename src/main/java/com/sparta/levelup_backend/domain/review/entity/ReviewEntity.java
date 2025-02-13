@@ -44,7 +44,7 @@ public class ReviewEntity extends BaseEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    public void DeleteReview() {
+    public void deleteReview() {
         this.delete();
     }
 
