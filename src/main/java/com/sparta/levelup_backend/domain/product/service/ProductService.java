@@ -6,7 +6,6 @@ import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateRe
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductUpdateResponseDto;
-import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 
 import java.util.List;
 
