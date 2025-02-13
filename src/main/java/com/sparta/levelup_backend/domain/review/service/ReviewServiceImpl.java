@@ -5,13 +5,17 @@ import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
 import com.sparta.levelup_backend.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.levelup_backend.domain.review.entity.ReviewEntity;
+import com.sparta.levelup_backend.domain.review.repository.ReviewQueryRepository;
 import com.sparta.levelup_backend.domain.review.repository.ReviewRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.ForbiddenAccessException;
+import com.sparta.levelup_backend.exception.common.MismatchException;
 import com.sparta.levelup_backend.utill.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +24,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ReviewQueryRepository reviewQueryRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
     @Override
-    public ReviewResponseDto SaveReview(ReviewRequestDto dto, Long userId, Long productId) {
+    @Transactional
+    public ReviewResponseDto saveReview(ReviewRequestDto dto, Long userId, Long productId) {
 
-        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
-        ProductEntity product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
+        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
+        ProductEntity product = productRepository.findById(productId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
 
         ReviewEntity review = ReviewEntity.builder()
             .contents(dto.getContents())
@@ -43,23 +49,28 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void DeleteReview(Long userId, Long productId, Long reviewId) {
+    public void deleteReview(Long userId, Long productId, Long reviewId) {
 
-        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
+        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
 
-        // 사용자 접근 권한 확인
+        // 리뷰 삭제는 관리자 권한만 실행 가능
         if(!user.getRole().equals(UserRole.ADMIN)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenAccessException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
-        ReviewEntity review = reviewRepository.findById(reviewId).orElseThrow(RuntimeException::new);
+        ReviewEntity review = reviewRepository.findByIdOrElseThrow(reviewId);
 
         //리뷰가 해당 상품의 리뷰인 지 확인
         if(!review.getProduct().getId().equals(productId)) {
-            throw new BusinessException(ErrorCode.MISMATCH_REVIEW_PRODUCT);
+            throw new MismatchException(ErrorCode.MISMATCH_REVIEW_PRODUCT);
         }
 
-        review.reviewDelete();
+        review.deleteReview();
 
+    }
+
+    @Override
+    public Slice<ReviewResponseDto> findReviews(Long productId, Pageable pageable) {
+        return reviewQueryRepository.findReviews(productId, pageable);
     }
 }

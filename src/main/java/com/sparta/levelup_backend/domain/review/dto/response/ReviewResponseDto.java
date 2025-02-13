@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.review.dto.response;
 
+import com.querydsl.core.annotations.QueryProjection;
 import com.sparta.levelup_backend.domain.review.entity.ReviewEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,5 +23,13 @@ public class ReviewResponseDto {
         this.userId = review.getUser().getId();
         this.contents = review.getContents();
         this.starScore = review.getStarScore();
+    }
+
+    @QueryProjection
+    public ReviewResponseDto(Long reviewId, Long userId, String contents, Integer starScore) {
+        this.reviewId = reviewId;
+        this.userId = userId;
+        this.contents = contents;
+        this.starScore = starScore;
     }
 }
