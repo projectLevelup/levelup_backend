@@ -40,6 +40,7 @@ public class ReviewQueryRepository {
             .leftJoin(review.product, product)
             .leftJoin(review.user, user)
             .where(review.product.id.eq(productId))
+            .where(review.isDeleted.eq(false))
             .orderBy(review.id.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
