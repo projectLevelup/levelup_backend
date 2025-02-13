@@ -46,7 +46,7 @@ public class ReviewEntity extends BaseEntity {
     private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "orders_id")
     private OrderEntity order;
 
     public void deleteReview() {
