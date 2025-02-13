@@ -6,9 +6,9 @@ import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 public interface GameService {
 	GameEntity saveGame(String name, String imgUrl, String genre, Long userId);
 
-	GameEntity findGame(Long gameId);
+	GameEntity findGame(Long userId, Long gameId);
 
-	void deleteGame(Long gameId);
+	void deleteGame(Long userId, Long gameId);
 
-	GameEntity updateGame(Long gameId, UpdateGameRequestDto dto);
+	GameEntity updateGame(Long userId, Long gameId, UpdateGameRequestDto dto);
 }
