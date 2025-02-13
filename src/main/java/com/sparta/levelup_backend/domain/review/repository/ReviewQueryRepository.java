@@ -34,6 +34,7 @@ public class ReviewQueryRepository {
             .select(new QReviewResponseDto(
                 review.id,
                 user.id,
+                user.nickName,
                 review.contents,
                 review.starScore))
             .from(review)
