@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
         if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())){
             user.delete();
         }else {
-            throw new CurrentPasswordNotMatched();
+            throw new CurrentPasswordNotMatchedException();
         }
 
     }
