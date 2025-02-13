@@ -24,11 +24,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserEntity findById(Long userId) {
-        return userRepository.findById(userId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-    }
-
     @Override
     public UserResponseDto findUserById(String role, Long id) {
 
