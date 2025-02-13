@@ -24,4 +24,12 @@ public class ReviewResponseDto {
         this.contents = review.getContents();
         this.starScore = review.getStarScore();
     }
+
+    @QueryProjection
+    public ReviewResponseDto(Long reviewId, Long userId, String contents, Integer starScore) {
+        this.reviewId = reviewId;
+        this.userId = userId;
+        this.contents = contents;
+        this.starScore = starScore;
+    }
 }

@@ -4,7 +4,6 @@ import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
 import com.sparta.levelup_backend.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
-import com.sparta.levelup_backend.domain.review.dto.response.ReviewSliceResponseDto;
 import com.sparta.levelup_backend.domain.review.entity.ReviewEntity;
 import com.sparta.levelup_backend.domain.review.repository.ReviewQueryRepository;
 import com.sparta.levelup_backend.domain.review.repository.ReviewRepository;
@@ -69,7 +68,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public Slice<ReviewSliceResponseDto> findReviews(Long productId, Pageable pageable) {
+    public Slice<ReviewResponseDto> findReviews(Long productId, Pageable pageable) {
         return reviewQueryRepository.findReviews(productId, pageable);
     }
 }

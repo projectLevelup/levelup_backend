@@ -9,7 +9,6 @@ import static org.springframework.http.HttpStatus.OK;
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
-import com.sparta.levelup_backend.domain.review.dto.response.ReviewSliceResponseDto;
 import com.sparta.levelup_backend.domain.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +56,7 @@ public class ReviewController {
     }
 
     @GetMapping("/products/{productId}/reviews")
-    public ApiResponse<Slice<ReviewSliceResponseDto>> findReviews(@PathVariable Long productId, @PageableDefault(size = 10) Pageable pageable) {
+    public ApiResponse<Slice<ReviewResponseDto>> findReviews(@PathVariable Long productId, @PageableDefault(size = 10) Pageable pageable) {
         return success(OK, REVIEW_LIST_SUCCESS, reviewService.findReviews(productId, pageable));
     }
 }
