@@ -14,6 +14,7 @@ import com.sparta.levelup_backend.domain.review.repository.ReviewRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.BusinessException;
+import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenAccessException;
 import com.sparta.levelup_backend.utill.OrderStatus;
@@ -145,6 +146,22 @@ class ReviewServiceImplTest {
             reviewService.saveReview(new ReviewRequestDto("리뷰 테스트", 5), userId, productId);
         }).isInstanceOf(ForbiddenAccessException.class)
             .hasMessageContaining(ErrorCode.COMPLETED_ORDER_REQUIRED.getMessage());
+    }
+
+    @Test
+    void 이미_작성된_리뷰가_있을때_예외발생() {
+        //when
+        when(userRepository.findById(userId)).thenReturn(Optional.of(normalUser));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(orderRepository.existsByUserIdAndProductIdAndStatus(userId, productId, OrderStatus.COMPLETED)).thenReturn(true);
+        when(reviewRepository.existsByUserIdAndProductId(userId, productId)).thenReturn(true);
+
+        //then
+        assertThatThrownBy(() -> {
+            reviewService.saveReview(new ReviewRequestDto("리뷰 테스트", 5), userId, productId);
+        }).isInstanceOf(DuplicateException.class)
+            .hasMessageContaining(ErrorCode.DUPLICATE_REVIEW.getMessage());
+
     }
 
 }
