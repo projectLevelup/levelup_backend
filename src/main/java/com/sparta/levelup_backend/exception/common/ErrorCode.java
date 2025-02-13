@@ -6,17 +6,29 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
-	// 400 BAD_REQUEST
-	INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "ERR001", "요청값이 올바르지 않습니다."),
-	INVALID_JSON_FORMAT(HttpStatus.BAD_REQUEST, "ERR002", "잘못된 JSON 형식입니다."),
-	INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ERR003", "이미 취소 되었거나 결제 정책에 의해 상태 변경 요청이 불가능합니다."),
-	MISMATCH_REVIEW_PRODUCT(HttpStatus.BAD_REQUEST, "ERR004", "해당 상품의 리뷰가 아닙니다."),
-	INVALID_ORDER_CANCELED(HttpStatus.BAD_REQUEST, "ERR005", "주문 취소 기능 요청으로 가능합니다."),
-	INVALID_ORDER_COMPLETED(HttpStatus.BAD_REQUEST, "ERR006", "이미 거래가 완료되었습니다."),
-	INVALID_FORMAT_TOKEN(HttpStatus.BAD_REQUEST, "ERR007", "지원되지 않는 JWT 토큰입니다."),
-	INVALID_CURRENT_PASSWORD(HttpStatus.BAD_REQUEST, "ERR008", "현재 비밀번호가 일치하지 않습니다."),
-	INVALID_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "ERR009", "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."),
-	ALREADY_DELETED_USER(HttpStatus.BAD_REQUEST, "ERR010", "이미 탈퇴된 유저입니다."),
+
+    // 400 BAD_REQUEST
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "ERR001", "요청값이 올바르지 않습니다."),
+    INVALID_JSON_FORMAT(HttpStatus.BAD_REQUEST, "ERR002", "잘못된 JSON 형식입니다."),
+    INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ERR003", "이미 취소 되었거나 결제 정책에 의해 상태 변경 요청이 불가능합니다."),
+    MISMATCH_REVIEW_PRODUCT(HttpStatus.BAD_REQUEST, "ERR004", "해당 상품의 리뷰가 아닙니다."),
+    INVALID_ORDER_CANCELED(HttpStatus.BAD_REQUEST, "ERR005", "주문 취소 기능 요청으로 가능합니다."),
+    INVALID_ORDER_COMPLETED(HttpStatus.BAD_REQUEST, "ERR006" ,"이미 거래가 완료되었습니다." ),
+    INVALID_FORMAT_TOKEN(HttpStatus.BAD_REQUEST, "ERR007", "지원되지 않는 JWT 토큰입니다."),
+    INVALID_CURRENT_PASSWORD(HttpStatus.BAD_REQUEST, "ERR008", "현재 비밀번호가 일치하지 않습니다."),
+    INVALID_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "ERR009", "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."),
+    ALREADY_DELETED_USER(HttpStatus.BAD_REQUEST, "ERR010", "이미 탈퇴된 유저입니다."),
+    INVALID_ORDER_CREATE(HttpStatus.BAD_REQUEST, "ERR011", "본인의 상품은 주문할 수 없습니다."),
+
+    // 401 UNAUTHORIZED
+    UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),
+    LOGIN_FAILED(HttpStatus.UNAUTHORIZED,"ERR102","로그인에 실패했습니다."),
+    INVALID_JWT_TOKEN(HttpStatus.UNAUTHORIZED,"ERR103", "유효하지 않는 JWT 서명입니다."),
+    EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "ERR104", "만료된 JWT 토큰입니다."),
+
+    // 403 FORBIDDEN
+    FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "ERR201", "접근 권한이 없습니다."),
+    COMPLETED_ORDER_REQUIRED(HttpStatus.FORBIDDEN, "ERR202", "해당 상품을 거래 완료한 사용자만 리뷰를 작성할 수 있습니다."),
 
 	// 401 UNAUTHORIZED
 	UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),
