@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
-import com.sparta.levelup_backend.domain.game.repsitory.GameRepository;
+import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;

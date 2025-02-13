@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.domain.game.repsitory;
+package com.sparta.levelup_backend.domain.game.repository;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 
