@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.product.dto;
 
-public class ValidMessage {
+public class ProductValidMessage {
 	// ✅ 필수 입력 메시지
 	public static final String USER_ID_REQUIRED = "유저 ID는 필수 입력 항목입니다.";
 	public static final String GAME_ID_REQUIRED = "게임 ID는 필수 입력 항목입니다.";
