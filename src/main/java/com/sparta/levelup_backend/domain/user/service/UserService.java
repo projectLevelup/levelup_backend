@@ -21,4 +21,5 @@ public interface UserService {
     UserResponseDto updateImgUrl(Long id, UpdateUserImgUrlReqeustDto dto);
 
     void deleteUser(Long id, @Valid DeleteUserRequestDto dto);
+
 }

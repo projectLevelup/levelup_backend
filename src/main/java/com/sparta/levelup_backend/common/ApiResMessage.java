@@ -12,7 +12,28 @@ public class ApiResMessage {
     public static final String PASSWORD_NOT_VALID = "비밀번호는 최소 8자 이상이며, 대소문자, 숫자, 특수문자를 각각 최소 1자 이상 포함해야 합니다.";
     public static final String DELETE_SUCCESS = "탈퇴가 완료되었습니다.";
 
+    //Review
+    public static final String REVIEW_SUCCESS = "리뷰 작성이 완료되었습니다.";
+    public static final String REVIEW_DELETE = "리뷰 삭제가 완료되었습니다.";
+    public static final String REVIEW_LIST_SUCCESS = "리뷰 목록 조회가 완료되었습니다.";
+
     // Order
     public static final String ORDER_CREATE = "주문이 생성되었습니다";
+    public static final String ORDER_FIND = "주문이 조회되었습니다.";
+    public static final String ORDER_UPDATE = "주문 상태가 변경되었습니다.";
+    public static final String ORDER_COMPLETE = "거래가 완료되었습니다.";
+    public static final String ORDER_CANCLED = "주문 및 거래가 취소되었습니다.";
 
+    // Product
+    public static final String PRODUCT_CREATE = "상품이 생성되었습니다";
+    public static final String PRODUCT_READ = "상품이 조회되었습니다";
+    public static final String PRODUCT_UPDATE = "상품이 수정되었습니다";
+    public static final String PRODUCT_DELETE = "상품이 삭제되었습니다";
+
+    // 게임 관련 성공 메시지
+    public static final String GAME_SAVE_SUCCESS = "게임 등록이 성공적으로 완료되었습니다.";
+    public static final String GAME_FOUND_SUCCESS = "게임을 성공적으로 조회되었습니다.";
+    public static final String GAME_UPDATE_SUCCESS = "게임을 성공적으로 수정되었습니다.";
+    public static final String GAME_DELETE_SUCCESS = "게임이 성공적으로 삭제되었습니다.";
 }
+
