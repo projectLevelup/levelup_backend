@@ -11,6 +11,8 @@ import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.ForbiddenAccessException;
+import com.sparta.levelup_backend.exception.common.MismatchException;
 import com.sparta.levelup_backend.utill.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -52,16 +54,16 @@ public class ReviewServiceImpl implements ReviewService {
 
         UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
 
-        // 사용자 접근 권한 확인
+        // 리뷰 삭제는 관리자 권한만 실행 가능
         if(!user.getRole().equals(UserRole.ADMIN)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenAccessException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         ReviewEntity review = reviewRepository.findById(reviewId).orElseThrow(RuntimeException::new);
 
         //리뷰가 해당 상품의 리뷰인 지 확인
         if(!review.getProduct().getId().equals(productId)) {
-            throw new BusinessException(ErrorCode.MISMATCH_REVIEW_PRODUCT);
+            throw new MismatchException(ErrorCode.MISMATCH_REVIEW_PRODUCT);
         }
 
         review.DeleteReview();
