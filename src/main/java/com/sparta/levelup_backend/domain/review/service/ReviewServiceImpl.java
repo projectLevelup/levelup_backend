@@ -28,7 +28,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ProductRepository productRepository;
 
     @Override
-    public ReviewResponseDto SaveReview(ReviewRequestDto dto, Long userId, Long productId) {
+    public ReviewResponseDto saveReview(ReviewRequestDto dto, Long userId, Long productId) {
 
         UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
         ProductEntity product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
@@ -47,7 +47,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public void DeleteReview(Long userId, Long productId, Long reviewId) {
+    public void deleteReview(Long userId, Long productId, Long reviewId) {
 
         UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
 

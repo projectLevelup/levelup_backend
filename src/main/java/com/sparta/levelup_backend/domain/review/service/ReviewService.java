@@ -7,9 +7,9 @@ import org.springframework.data.domain.Slice;
 
 public interface ReviewService {
 
-    ReviewResponseDto SaveReview(ReviewRequestDto dto, Long userId, Long productId);
+    ReviewResponseDto saveReview(ReviewRequestDto dto, Long userId, Long productId);
 
-    void DeleteReview(Long userId, Long productId, Long reviewId);
+    void deleteReview(Long userId, Long productId, Long reviewId);
 
     Slice<ReviewResponseDto> findReviews(Long productId, Pageable pageable);
 }

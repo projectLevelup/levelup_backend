@@ -75,7 +75,7 @@ class ReviewServiceImplTest {
 
         //then
         assertThatThrownBy(() -> {
-                reviewService.DeleteReview(userId, productId, reviewId);
+                reviewService.deleteReview(userId, productId, reviewId);
             }).isInstanceOf(BusinessException.class)
             .hasMessageContaining(ErrorCode.FORBIDDEN_ACCESS.getMessage());
 
@@ -101,7 +101,7 @@ class ReviewServiceImplTest {
 
         //then
         assertThatThrownBy(() -> {
-            reviewService.DeleteReview(userId, productId, reviewId);
+            reviewService.deleteReview(userId, productId, reviewId);
         }).isInstanceOf(BusinessException.class)
             .hasMessageContaining(ErrorCode.MISMATCH_REVIEW_PRODUCT.getMessage());
     }
@@ -112,7 +112,7 @@ class ReviewServiceImplTest {
         //when
         when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
-        reviewService.DeleteReview(userId, productId, reviewId);
+        reviewService.deleteReview(userId, productId, reviewId);
 
         // then
         assertThat(review.getIsDeleted()).isTrue();

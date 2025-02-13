@@ -37,10 +37,10 @@ public class ReviewController {
      * @param dto contents(리뷰 내용), startScore(별점)
      */
     @PostMapping("/products/{productId}/reviews")
-    public ApiResponse<ReviewResponseDto> SaveReview(@Valid @RequestBody ReviewRequestDto dto, @PathVariable Long productId) {
+    public ApiResponse<ReviewResponseDto> saveReview(@Valid @RequestBody ReviewRequestDto dto, @PathVariable Long productId) {
 
         Long userId = 1L; // 임시 사용자 ID 값 - 추후 JWT 토큰값에서 ID값 가져오는 것으로 변경
-        ReviewResponseDto result = reviewService.SaveReview(dto, userId, productId);
+        ReviewResponseDto result = reviewService.saveReview(dto, userId, productId);
         return success(OK ,REVIEW_SUCCESS, result);
     }
 
@@ -48,10 +48,10 @@ public class ReviewController {
      * Review 삭제 API
      */
     @DeleteMapping("/admin/products/{productId}/reviews/{reviewId}")
-    public ApiResponse<Void> DeleteReview(@PathVariable Long productId, @PathVariable Long reviewId) {
+    public ApiResponse<Void> deleteReview(@PathVariable Long productId, @PathVariable Long reviewId) {
 
         Long userId = 1L; // 임시 사용자 ID 값 - 추후 JWT 토큰값에서 ID값 가져오는 것으로 변경
-        reviewService.DeleteReview(userId, productId, reviewId);
+        reviewService.deleteReview(userId, productId, reviewId);
         return success(OK, REVIEW_DELETE);
     }
 
