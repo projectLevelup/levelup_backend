@@ -14,7 +14,7 @@ import com.sparta.levelup_backend.domain.review.repository.ReviewRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.common.ForbiddenAccessException;
+import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.MismatchException;
 import com.sparta.levelup_backend.utill.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 해당 상품을 거래 완료한 사용자인지 확인
         if(!orderRepository.existsByUserIdAndProductIdAndStatus(userId, productId, COMPLETED)) {
-            throw new ForbiddenAccessException(COMPLETED_ORDER_REQUIRED);
+            throw new ForbiddenException(COMPLETED_ORDER_REQUIRED);
         }
 
         // 이미 리뷰를 작성한 유저인지 확인
@@ -70,7 +70,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         // 리뷰 삭제는 관리자 권한만 실행 가능
         if(!user.getRole().equals(UserRole.ADMIN)) {
-            throw new ForbiddenAccessException(FORBIDDEN_ACCESS);
+            throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
         ReviewEntity review = reviewRepository.findByIdOrElseThrow(reviewId);
@@ -86,7 +86,6 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         review.deleteReview();
-
     }
 
     @Override
