@@ -11,4 +11,5 @@ public interface GameRepository extends JpaRepository<GameEntity, Long> {
 	default GameEntity findByIdOrElseThrow(Long id){
 		return findById(id).orElseThrow(() -> new NotFoundException(GAME_NOT_FOUND));
 	}
+
 }
