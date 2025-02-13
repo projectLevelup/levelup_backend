@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 
+
 @Entity
 @Getter
 @Builder
@@ -25,7 +26,6 @@ public class GameEntity extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    @Lob
     @Column(nullable = false)
     private String imgUrl;
 
@@ -35,5 +35,19 @@ public class GameEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+    public void updateName(String name){
+        this.name = name;
+    }
+    public void updateImgUrl(String imgUrl){
+        this.imgUrl = imgUrl;
+    }
+    public void updateGenre(String genre){
+        this.genre = genre;
+    }
+
+    public void deleteGame(){
+        this.delete();
+    }
 
 }

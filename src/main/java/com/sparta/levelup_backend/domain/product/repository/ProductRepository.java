@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Repository;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
+
 import java.util.List;
 import java.util.Optional;
 
