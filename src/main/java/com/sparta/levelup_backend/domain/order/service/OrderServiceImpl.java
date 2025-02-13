@@ -154,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 재고 복구 메소드 호출
-        productServiceImpl.decreaseAmount(order.getProduct().getId());
+        productServiceImpl.increaseAmount(order.getProduct().getId());
 
         order.setStatus(OrderStatus.CANCELED);
         order.orderDelete();
@@ -184,7 +184,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // 재고 복구 메소드 호출
-        productServiceImpl.decreaseAmount(order.getProduct().getId());
+        productServiceImpl.increaseAmount(order.getProduct().getId());
 
         order.setStatus(OrderStatus.CANCELED);
         order.orderDelete();
