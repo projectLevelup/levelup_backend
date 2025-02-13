@@ -47,6 +47,10 @@ public class OrderServiceImpl implements OrderService {
             throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
         }
 
+        if (user.getId() == product.getUser().getId()) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_CREATE);
+        }
+
         // 재고 차감 메소드 호출
         productServiceImpl.decreaseAmount(dto.getProductId());
 
