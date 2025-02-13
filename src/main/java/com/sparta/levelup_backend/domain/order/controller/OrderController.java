@@ -19,7 +19,6 @@ import static com.sparta.levelup_backend.common.ApiResMessage.*;
 import static com.sparta.levelup_backend.common.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
-
 @RestController
 @RequestMapping("/v1/orders")
 @RequiredArgsConstructor
@@ -27,7 +26,6 @@ public class OrderController {
 
     private final OrderServiceImpl orderService;
 
-    // 주문 생성
     @PostMapping
     public ApiResponse<OrderResponseDto> createOrder(
             @AuthenticationPrincipal CustomUserDetails authUser,
