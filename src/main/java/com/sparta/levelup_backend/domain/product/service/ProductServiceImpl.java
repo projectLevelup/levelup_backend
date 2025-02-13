@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.product.service;
 
+import static com.sparta.levelup_backend.common.ApiResMessage.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,18 +35,19 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public List<ProductResponseDto> getAllProducts() {
-        return productRepository.findAll().stream()
-            .map(this::convertToDto)
+        return productRepository.findAllByIsDeletedFalse().stream()
+            .map(ProductResponseDto::new)
             .collect(Collectors.toList());
     }
 
     @Override
     public ProductResponseDto getProductById(Long id) {
-        return productRepository.findById(id)
-            .map(this::convertToDto)
+        return productRepository.findByIdAndIsDeletedFalse(id)
+            .map(ProductResponseDto::new)
             .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "상품 ID: " + id));
     }
 
+    @Transactional
     @Override
     public ProductCreateResponseDto productCreate(ProductCreateRequestDto dto) {
         UserEntity user = userRepository.findById(dto.getUserId())
@@ -57,39 +60,33 @@ public class ProductServiceImpl implements ProductService{
         ProductEntity savedProduct = productRepository.save(product);
 
         return new ProductCreateResponseDto(
-            savedProduct.getId(),
-            savedProduct.getProductName()
+            savedProduct
         );
     }
 
-
+    @Transactional
     @Override
     public ProductUpdateResponseDto updateProduct(Long id, ProductUpdateRequestDto requestDto) {
-        ProductEntity product = productRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "상품 ID: " + id));
+        ProductEntity product = productRepository.findByIdOrElseThrow(id);
         product.update(requestDto);
         productRepository.save(product);
         return new ProductUpdateResponseDto(product);
     }
-
+    @Transactional
     @Override
     public ProductDeleteResponseDto deleteProduct(Long id) {
-        ProductEntity product = productRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "상품 ID: " + id));
-        productRepository.delete(product);
-        return new ProductDeleteResponseDto(id, "상품이 삭제되었습니다.");
+        ProductEntity product = productRepository.findByIdOrElseThrow(id);
+        product.Productdelete();
+        return new ProductDeleteResponseDto(id,PRODUCT_DELETE);
     }
 
-
-
-
-
-
-
+    @Transactional
     @Override
     public List<ProductEntity> getProductsByGameId(Long gameId) {
         return productRepository.findByGameId(gameId);
     }
+
+
 
     @Transactional(timeout = 5, rollbackFor = Exception.class)
     public void decreaseAmount(Long productId) {
@@ -117,8 +114,8 @@ public class ProductServiceImpl implements ProductService{
 
     private ProductResponseDto convertToDto(ProductEntity entity) {
         return new ProductResponseDto(
-            entity.getUser().getId(),   // User 엔티티에서 ID 추출
-            entity.getGame().getId(),   // Game 엔티티에서 ID 추출
+            entity.getUser().getId(),
+            entity.getGame().getId(),
             entity.getProductName(),
             entity.getContents(),
             entity.getPrice(),

@@ -2,11 +2,11 @@ package com.sparta.levelup_backend.domain.product.dto.responseDto;
 
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 
+import lombok.Getter;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductUpdateResponseDto {
