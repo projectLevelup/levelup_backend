@@ -13,6 +13,8 @@ public class OrderResponseDto {
 
     private final Long productId;
 
+    private final String Student;
+
     private final String productName;
 
     private final OrderStatus status;
@@ -22,6 +24,7 @@ public class OrderResponseDto {
     public OrderResponseDto(OrderEntity order) {
         this.orderId = order.getId();
         this.productId = order.getProduct().getId();
+        this.Student = order.getUser().getNickName();
         this.productName = order.getProduct().getProductName();
         this.status = order.getStatus();
         this.price = order.getTotalPrice();

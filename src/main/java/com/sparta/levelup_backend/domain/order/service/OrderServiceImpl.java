@@ -7,11 +7,13 @@ import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.domain.user.service.UserServiceImpl;
+import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.exception.common.OrderException;
 import com.sparta.levelup_backend.utill.OrderStatus;
+import com.sparta.levelup_backend.utill.ProductStatus;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final UserServiceImpl userService;
+    private final UserRepository userRepository;
     private final ProductServiceImpl productServiceImpl;
 
     /**
@@ -37,9 +39,17 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponseDto createOrder(Long userId, OrderCreateRequestDto dto) {
 
-        UserEntity user = userService.findById(userId);
+        UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
         ProductEntity product = productServiceImpl.findById(dto.getProductId());
+
+        if (product.getStatus().equals(ProductStatus.INACTIVE)) {
+            throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+        }
+
+        if (user.getId() == product.getUser().getId()) {
+            throw new OrderException(ErrorCode.INVALID_ORDER_CREATE);
+        }
 
         // 재고 차감 메소드 호출
         productServiceImpl.decreaseAmount(dto.getProductId());
@@ -147,6 +157,9 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
         }
 
+        // 재고 복구 메소드 호출
+        productServiceImpl.increaseAmount(order.getProduct().getId());
+
         order.setStatus(OrderStatus.CANCELED);
         order.orderDelete();
         orderRepository.save(order);
@@ -173,6 +186,9 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() != OrderStatus.TRADING) {
             throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
         }
+
+        // 재고 복구 메소드 호출
+        productServiceImpl.increaseAmount(order.getProduct().getId());
 
         order.setStatus(OrderStatus.CANCELED);
         order.orderDelete();
