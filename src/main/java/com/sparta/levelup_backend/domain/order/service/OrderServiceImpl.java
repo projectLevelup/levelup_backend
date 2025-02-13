@@ -158,10 +158,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(OrderStatus.CANCELED);
         order.orderDelete();
-
-        OrderEntity saveOrder = orderRepository.save(order);
-
-        orderRepository.save(saveOrder);
+        orderRepository.save(order);
     }
 
     /**
