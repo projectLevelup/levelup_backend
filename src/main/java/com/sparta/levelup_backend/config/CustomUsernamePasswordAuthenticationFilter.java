@@ -73,13 +73,14 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         Authentication authentication) throws IOException {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String username = customUserDetails.getUsername();
+        Long id = customUserDetails.getId();
 
         Collection<? extends GrantedAuthority> authorites = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorites.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String token = jwtUtils.createToken(username, role);
+        String token = jwtUtils.createToken(username, id, role);
 
 		filterResponse.responseMsg(response,HttpStatus.OK.value(), ApiResMessage.LOGIN_SUCCESS,token);
         response.addHeader("Authorization", token);

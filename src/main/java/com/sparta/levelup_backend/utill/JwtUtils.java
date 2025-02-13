@@ -32,7 +32,7 @@ public class JwtUtils {
 		KEY = Keys.hmacShaKeyFor(secret_key_bytes);
 	}
 
-	public String createToken(String email, String role){
+	public String createToken(String email, Long id, String role){
 		Date date = new Date();
 
 
@@ -40,6 +40,7 @@ public class JwtUtils {
 			Jwts.builder()
 				.setSubject(email)
 				.claim("role",role)
+				.claim("id",id.toString())
 				.setExpiration(
 					new Date(date.getTime() + EXPIRE_TIME))
 				.setIssuedAt(date)

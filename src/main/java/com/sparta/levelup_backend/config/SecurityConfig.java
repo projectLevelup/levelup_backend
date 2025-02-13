@@ -50,7 +50,7 @@ public class SecurityConfig {
 				.anyRequest().authenticated());
 
 		http.
-			addFilterBefore(new JwtFilter(jwtUtils, userDetailsService, filterResponse), CustomUsernamePasswordAuthenticationFilter.class);
+			addFilterBefore(new JwtFilter(jwtUtils, filterResponse), CustomUsernamePasswordAuthenticationFilter.class);
 
 		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
 			authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
