@@ -40,9 +40,6 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewResponseDto saveReview(ReviewRequestDto dto, Long userId, Long productId) {
 
-        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
-        ProductEntity product = productRepository.findById(productId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
-
         // 해당 상품을 거래 완료한 사용자인지 확인
         if(!orderRepository.existsByUserIdAndProductIdAndStatus(userId, productId, COMPLETED)) {
             throw new ForbiddenAccessException(COMPLETED_ORDER_REQUIRED);
@@ -52,6 +49,9 @@ public class ReviewServiceImpl implements ReviewService {
         if(reviewRepository.existsByUserIdAndProductId(userId, productId)) {
             throw new DuplicateException(DUPLICATE_REVIEW);
         }
+
+        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
+        ProductEntity product = productRepository.findById(productId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
 
         ReviewEntity review = ReviewEntity.builder()
             .contents(dto.getContents())
