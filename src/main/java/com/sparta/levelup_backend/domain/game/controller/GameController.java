@@ -31,11 +31,6 @@ public class GameController {
 
 	private final GameService gameService;
 
-	/**
-	 * 게임 생성
-	 * @param dto
-	 * @return
-	 */
 	@PostMapping
 	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@RequestBody CreateGameRequestDto dto) {
@@ -45,11 +40,6 @@ public class GameController {
 		return success(CREATED, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
 	}
 
-	/**
-	 * 단일 게임 조회(By ID)
-	 * @param gameId
-	 * @return
-	 */
 	@GetMapping("/{gameId}")
 	public ApiResponse<GameResponseDto> findGame(@PathVariable Long gameId) {
 		GameEntity game = gameService.findGame(gameId);
