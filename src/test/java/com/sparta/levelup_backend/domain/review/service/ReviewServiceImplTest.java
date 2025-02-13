@@ -16,11 +16,11 @@ import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
-import com.sparta.levelup_backend.exception.common.ForbiddenAccessException;
+import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import com.sparta.levelup_backend.utill.UserRole;
 import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -154,7 +154,7 @@ class ReviewServiceImplTest {
         //then
         assertThatThrownBy(() -> {
             reviewService.saveReview(new ReviewRequestDto("리뷰 테스트", 5), userId, productId);
-        }).isInstanceOf(ForbiddenAccessException.class)
+        }).isInstanceOf(ForbiddenException.class)
             .hasMessageContaining(ErrorCode.COMPLETED_ORDER_REQUIRED.getMessage());
     }
 
