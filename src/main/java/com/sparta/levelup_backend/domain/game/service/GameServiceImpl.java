@@ -12,8 +12,8 @@ import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
+import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.utill.UserRole;
 
 import lombok.RequiredArgsConstructor;
@@ -48,9 +48,8 @@ public class GameServiceImpl implements GameService {
 
 		checkAdminAuth(user);
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
-		if (game.getIsDeleted()) {
-			throw new NotFoundException(GAME_NOT_FOUND);
-		}
+		checkIsDeleted(game);
+
 		return game;
 	}
 
@@ -74,15 +73,23 @@ public class GameServiceImpl implements GameService {
 	@Override
 	public void deleteGame(Long userId, Long gameId) {
 		UserEntity user = userRepository.findById(userId).orElseThrow();
-
 		checkAdminAuth(user);
+
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
+		checkIsDeleted(game);
+
 		game.deleteGame();
 	}
 
 	private void checkAdminAuth(UserEntity user) {
 		if (!user.getRole().equals(UserRole.ADMIN)) {
 			throw new ForbiddenException(FORBIDDEN_ACCESS);
+		}
+	}
+
+	private void checkIsDeleted(GameEntity game) {
+		if (game.getIsDeleted()) {
+			throw new DuplicateException(GAME_ISDELETED);
 		}
 	}
 }
