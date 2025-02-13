@@ -133,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Transactional
     @Override
-    public Void deleteOrderByPending(Long userId, Long orderId) {
+    public void deleteOrderByPending(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
@@ -150,7 +150,6 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.CANCELED);
         order.orderDelete();
         orderRepository.save(order);
-        return null;
     }
 
     /**
@@ -161,7 +160,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Transactional
     @Override
-    public Void deleteOrderByTrading(Long userId, Long orderId) {
+    public void deleteOrderByTrading(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
@@ -178,6 +177,5 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(OrderStatus.CANCELED);
         order.orderDelete();
         orderRepository.save(order);
-        return null;
     }
 }

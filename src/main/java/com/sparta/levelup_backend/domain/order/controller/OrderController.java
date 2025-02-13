@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.domain.order.controller;
 
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.domain.auth.controller.AuthController;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
@@ -77,8 +78,8 @@ public class OrderController {
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        Void order = orderService.deleteOrderByPending(userId, orderId);
-        return success(OK, ORDER_CANCLED, order);
+        orderService.deleteOrderByPending(userId, orderId);
+        return success(OK, ORDER_CANCLED);
     }
 
     // 결제 취소 (거래중 일때)
@@ -88,7 +89,7 @@ public class OrderController {
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        Void order = orderService.deleteOrderByTrading(userId, orderId);
-        return success(OK, ORDER_CANCLED, order);
+        orderService.deleteOrderByTrading(userId, orderId);
+        return success(OK, ORDER_CANCLED);
     }
 }

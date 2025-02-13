@@ -13,7 +13,7 @@ public interface OrderService {
 
     OrderResponseDto completeOrder(Long userId, Long orderId);
 
-    Void deleteOrderByPending(Long userId, Long orderId);
+    void deleteOrderByPending(Long userId, Long orderId);
 
-    Void deleteOrderByTrading(Long userId, Long orderId);
+    void deleteOrderByTrading(Long userId, Long orderId);
 }
