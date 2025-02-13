@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.auth.service;
 
+import com.sparta.levelup_backend.exception.common.AlreadyDeletedUserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,8 +22,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		UserEntity user = userRepository.findByEmail(email).
-			orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "임시 오류: 해당 사용자가 없습니다.."));
+		UserEntity user = userRepository.findByEmailOrElseThrow(email);
+		if(user.getIsDeleted()){
+			throw new AlreadyDeletedUserException();
+		}
 
 		return new CustomUserDetails(user);
 	}
