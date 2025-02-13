@@ -20,6 +20,11 @@ public class ReviewQueryRepository {
     private final EntityManager em;
     private final JPAQueryFactory queryFactory;
 
+    /**
+     * 특정 상품의 리뷰 목록을 페이징하여 조회
+     *
+     * @return 다음 페이지 여부를 포함하는 Slice 형태의 리뷰 목록
+     */
     public Slice<ReviewResponseDto> findReviews(Long productId, Pageable pageable) {
         QReviewEntity review = new QReviewEntity("review");
         QProductEntity product = new QProductEntity("product");
@@ -40,6 +45,7 @@ public class ReviewQueryRepository {
             .limit(pageable.getPageSize())
             .fetch();
 
+        // 다음 페이지 여부 확인
         boolean hasNext = reviews.size() > pageable.getPageSize();
 
         return new SliceImpl<>(reviews, pageable, hasNext);
