@@ -10,4 +10,7 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     default ReviewEntity findByIdOrElseThrow(Long id) {
         return findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
     }
+
+    boolean existsByUserIdAndProductId(Long userId, Long productId);
+
 }
