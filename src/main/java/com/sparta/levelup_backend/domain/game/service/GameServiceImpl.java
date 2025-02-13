@@ -27,8 +27,7 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public GameEntity saveGame(String name, String imgUrl, String genre, Long userId) {
-		//TODO: orElseThrow()처리 다시 할 것
-		UserEntity user = userRepository.findById(userId).orElseThrow();
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
 		checkAdminAuth(user);
 
@@ -44,7 +43,7 @@ public class GameServiceImpl implements GameService {
 	@Transactional(readOnly = true)
 	@Override
 	public GameEntity findGame(Long userId, Long gameId) {
-		UserEntity user = userRepository.findById(userId).orElseThrow();
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
 		checkAdminAuth(user);
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
@@ -55,7 +54,7 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public GameEntity updateGame(Long userId, Long gameId, UpdateGameRequestDto dto) {
-		UserEntity user = userRepository.findById(userId).orElseThrow();
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
 		checkAdminAuth(user);
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
@@ -72,7 +71,7 @@ public class GameServiceImpl implements GameService {
 
 	@Override
 	public void deleteGame(Long userId, Long gameId) {
-		UserEntity user = userRepository.findById(userId).orElseThrow();
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		checkAdminAuth(user);
 
 		GameEntity game = gameRepository.findByIdOrElseThrow(gameId);
