@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.sparta.levelup_backend.domain.auth.service.CustomUserDetailsService;
@@ -36,6 +37,11 @@ public class SecurityConfig {
 	}
 
 	@Bean
+	public AccessDeniedHandler accessDeniedHandler(){
+		return new CustomAccessDeniedHandler(filterResponse);
+	}
+
+	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 		http
@@ -48,6 +54,9 @@ public class SecurityConfig {
 				.requestMatchers("/","/v1/signin","v1/signup").permitAll()
 				.requestMatchers("/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated());
+
+		http.exceptionHandling(exceptionHandling ->
+			exceptionHandling.accessDeniedHandler(accessDeniedHandler()));
 
 		http.
 			addFilterBefore(new JwtFilter(jwtUtils, filterResponse), CustomUsernamePasswordAuthenticationFilter.class);

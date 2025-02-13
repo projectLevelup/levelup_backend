@@ -93,8 +93,10 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         IOException,
         ServletException {
 
+        String msg = failed.getCause().getMessage();
+
 		if(response.getStatus()==200) {
-			filterResponse.responseMsg(response,ErrorCode.LOGIN_FAILED.getStatus().value(),ErrorCode.LOGIN_FAILED.getMessage());
+			filterResponse.responseMsg(response,ErrorCode.from(failed.getCause().getMessage()).getStatus().value(),failed.getCause().getMessage());
 		}
     }
 

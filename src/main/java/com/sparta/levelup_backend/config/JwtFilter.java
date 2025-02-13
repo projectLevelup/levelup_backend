@@ -57,7 +57,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
             String email = claims.getSubject();
             String role = claims.get("role", String.class);
-            Long id = claims.get("id", Long.class);
+            role = role.substring(5);
+            Long id = Long.parseLong(claims.get("id", String.class));
+            System.out.println(role);
 
             UserEntity tokenUser = UserEntity.builder()
                 .id(id)
