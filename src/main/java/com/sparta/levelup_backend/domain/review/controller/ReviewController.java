@@ -68,7 +68,10 @@ public class ReviewController {
      * @return
      */
     @GetMapping("/products/{productId}/reviews")
-    public ApiResponse<Slice<ReviewResponseDto>> findReviews(@PathVariable Long productId, @PageableDefault(size = 10) Pageable pageable) {
+    public ApiResponse<Slice<ReviewResponseDto>> findReviews(
+        @PathVariable Long productId,
+        @PageableDefault(size = 10) Pageable pageable
+    ) {
         return success(OK, REVIEW_LIST_SUCCESS, reviewService.findReviews(productId, pageable));
     }
 }

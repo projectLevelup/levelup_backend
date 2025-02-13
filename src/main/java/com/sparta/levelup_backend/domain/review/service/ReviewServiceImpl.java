@@ -32,8 +32,8 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewResponseDto saveReview(ReviewRequestDto dto, Long userId, Long productId) {
 
-        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
-        ProductEntity product = productRepository.findById(productId).orElseThrow(RuntimeException::new);
+        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
+        ProductEntity product = productRepository.findById(productId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
 
         ReviewEntity review = ReviewEntity.builder()
             .contents(dto.getContents())
@@ -51,7 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public void deleteReview(Long userId, Long productId, Long reviewId) {
 
-        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
+        UserEntity user = userRepository.findById(userId).orElseThrow(RuntimeException::new); // Todo: 변경 예정
 
         // 리뷰 삭제는 관리자 권한만 실행 가능
         if(!user.getRole().equals(UserRole.ADMIN)) {
