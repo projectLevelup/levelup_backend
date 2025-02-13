@@ -13,4 +13,5 @@ public class ValidMessage {
 	// ✅ 길이 제한 메시지
 	public static final String PRODUCT_NAME_LENGTH = "상품명은 최대 255자까지 입력 가능합니다.";
 	public static final String CONTENTS_LENGTH = "상품 설명은 최대 1000자까지 입력 가능합니다.";
+
 }
