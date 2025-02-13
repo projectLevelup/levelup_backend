@@ -1,9 +1,6 @@
 package com.sparta.levelup_backend.domain.review.service;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.COMPLETED_ORDER_REQUIRED;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.DUPLICATE_REVIEW;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.FORBIDDEN_ACCESS;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.MISMATCH_REVIEW_PRODUCT;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static com.sparta.levelup_backend.utill.OrderStatus.COMPLETED;
 
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
@@ -77,6 +74,11 @@ public class ReviewServiceImpl implements ReviewService {
         }
 
         ReviewEntity review = reviewRepository.findByIdOrElseThrow(reviewId);
+
+        // 이미 삭제된 리뷰인지 확인
+        if(review.getIsDeleted()) {
+            throw new DuplicateException(REVIEW_ISDELETED);
+        }
 
         //리뷰가 해당 상품의 리뷰인 지 확인
         if(!review.getProduct().getId().equals(productId)) {
