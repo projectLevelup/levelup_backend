@@ -54,6 +54,16 @@ dependencies {
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+
+    // Elasticsearch 관련 라이브러리
+    implementation 'co.elastic.clients:elasticsearch-java:8.17.1'  // 8.x 이상 버전 사용 시
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+
+    // Jackson 관련 라이브러리 (JSON 변환)
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.0' // Java 8 DateTime 지원
+
 }
 
 tasks.named('test') {

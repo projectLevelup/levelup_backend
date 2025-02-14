@@ -75,8 +75,8 @@ public class ProductServiceImpl implements ProductService {
 			throw new DuplicateException(FORBIDDEN_ACCESS);
 		}
 
-		// STATUS가 ACTIVE인 상품만 수정 가능
-		if (product.getStatus() != ProductStatus.ACTIVE) {
+		// 삭제되지 않은 상품만 수정 가능
+		if (product.getIsDeleted()) {
 			throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
 		}
 
