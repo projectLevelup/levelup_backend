@@ -18,6 +18,7 @@ import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.game.dto.requestDto.CreateGameRequestDto;
 import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
+import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.service.GameService;
@@ -25,13 +26,13 @@ import com.sparta.levelup_backend.domain.game.service.GameService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/admin/games")
+@RequestMapping("/v1")
 @RequiredArgsConstructor
 public class GameController {
 
 	private final GameService gameService;
 
-	@PostMapping
+	@PostMapping("/admin/games")
 	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@RequestBody CreateGameRequestDto dto) {
 		Long userId = customUserDetails.getId();
@@ -40,25 +41,38 @@ public class GameController {
 		return success(CREATED, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
 	}
 
-	@GetMapping("/{gameId}")
-	public ApiResponse<GameResponseDto> findGame(@PathVariable Long gameId) {
-		GameEntity game = gameService.findGame(gameId);
+	@GetMapping("/admin/games/{gameId}")
+	public ApiResponse<GameResponseDto> findGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@PathVariable Long gameId) {
+		Long userId = customUserDetails.getId();
+		GameEntity game = gameService.findGame(userId, gameId);
 
 		return success(OK, GAME_FOUND_SUCCESS, GameResponseDto.from(game));
 	}
 
-	@PatchMapping("/{gameId}")
-	public ApiResponse<GameResponseDto> updateGame(@PathVariable Long gameId, @RequestBody UpdateGameRequestDto dto){
-		GameEntity game = gameService.updateGame(gameId, dto);
+	@PatchMapping("/admin/games/{gameId}")
+	public ApiResponse<GameResponseDto> updateGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@PathVariable Long gameId, @RequestBody UpdateGameRequestDto dto) {
+		Long userId = customUserDetails.getId();
+		GameEntity game = gameService.updateGame(userId, gameId, dto);
 
 		return success(OK, GAME_UPDATE_SUCCESS, GameResponseDto.from(game));
 	}
 
-	@DeleteMapping("/{gameId}")
-	public ApiResponse<Void> deleteGame(@PathVariable Long gameId) {
-		gameService.deleteGame(gameId);
+	@DeleteMapping("/admin/games/{gameId}")
+	public ApiResponse<Void> deleteGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@PathVariable Long gameId) {
+		Long userId = customUserDetails.getId();
+		gameService.deleteGame(userId, gameId);
 
 		return success(OK, GAME_DELETE_SUCCESS);
+	}
+
+	@GetMapping("/games")
+	public ApiResponse<GameListResponseDto> findGames(){
+		GameListResponseDto listDto = gameService.findGames();
+
+		return success(OK, GAME_FOUND_SUCCESS, listDto);
 	}
 }
 

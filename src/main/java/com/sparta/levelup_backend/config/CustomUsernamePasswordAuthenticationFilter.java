@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.config;
 
+import static com.sparta.levelup_backend.common.ApiResMessage.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.levelup_backend.common.ApiResMessage;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
@@ -30,7 +32,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final ObjectMapper objectMapper = new ObjectMapper();
-	private final FilterResponse filterResponse;
+    private final FilterResponse filterResponse;
 
 
     @Override
@@ -52,12 +54,18 @@ public class CustomUsernamePasswordAuthenticationFilter extends
                 password = signInUserRequestDto.getPassword();
 
             } catch (IOException e) {
-				email = " ";
-				password = " ";
-				filterResponse.responseMsg(response, ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),ErrorCode.INVALID_JSON_FORMAT.getMessage());
+                email = " ";
+                password = " ";
+                filterResponse.responseErrorMsg(response,
+                    ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),
+                    ErrorCode.INVALID_JSON_FORMAT.getCode(),
+                    ErrorCode.INVALID_JSON_FORMAT.getMessage());
             }
         } else {
-			filterResponse.responseMsg(response,ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),ErrorCode.INVALID_JSON_FORMAT.getMessage());
+            filterResponse.responseErrorMsg(response,
+                ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),
+                ErrorCode.INVALID_JSON_FORMAT.getCode(),
+                ErrorCode.INVALID_JSON_FORMAT.getMessage());
             email = " ";
             password = " ";
         }
@@ -82,8 +90,8 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 
         String token = jwtUtils.createToken(username, id, role);
 
-		filterResponse.responseMsg(response,HttpStatus.OK.value(), ApiResMessage.LOGIN_SUCCESS,token);
         response.addHeader("Authorization", token);
+        filterResponse.responseSuccessMsg(response, HttpStatus.OK.value(), LOGIN_SUCCESS, token);
 
     }
 
@@ -93,11 +101,19 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         IOException,
         ServletException {
 
-        String msg = failed.getCause().getMessage();
+        if (response.getStatus() == 200 && failed.getCause() != null) {
+            ErrorCode errorCode = ErrorCode.from(failed.getCause().getMessage());
 
-		if(response.getStatus()==200) {
-			filterResponse.responseMsg(response,ErrorCode.from(failed.getCause().getMessage()).getStatus().value(),failed.getCause().getMessage());
-		}
+            filterResponse.responseErrorMsg(response,
+                errorCode.getStatus().value(),
+                errorCode.getCode(),
+                failed.getCause().getMessage());
+        } else {
+            filterResponse.responseErrorMsg(response,
+                ErrorCode.LOGIN_FAILED.getStatus().value(),
+                ErrorCode.LOGIN_FAILED.getCode(),
+                ErrorCode.LOGIN_FAILED.getMessage());
+        }
     }
 
 
