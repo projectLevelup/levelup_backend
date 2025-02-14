@@ -1,52 +1,108 @@
 package com.sparta.levelup_backend.domain.product.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import static com.sparta.levelup_backend.common.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static org.springframework.http.HttpStatus.*;
 
-import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sparta.levelup_backend.common.ApiResponse;
+import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
+import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
+import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductUpdateResponseDto;
 import com.sparta.levelup_backend.domain.product.service.ProductService;
 import com.sparta.levelup_backend.domain.product.service.ProductmakedataService;
-import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
-import java.util.List;
-import java.util.Optional;
+
+import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/v1/products")
 public class ProductController {
 
-    private ProductService productService;
-    private ProductmakedataService productmakedataService;
-    private ProductServiceImpl productServiceImpl;
+	private final ProductService productService;
+	private final ProductmakedataService productmakedataService;
 
-    // 모든 상품 조회
-    @GetMapping
-    public List<ProductEntity> getAllProducts() {
-        return productService.getAllProducts();
-    }
+	public ProductController(ProductService productService, ProductmakedataService productmakedataService) {
+		this.productService = productService;
+		this.productmakedataService = productmakedataService;
+	}
 
-    // 상품 ID로 조회
-    @GetMapping("/{id}")
-    public Optional<ProductEntity> getProductById(@PathVariable Long id) {
-        return productService.getProductById(id);
-    }
+	@PostMapping
+	public ApiResponse<ProductCreateResponseDto> saveProduct(
+		@Valid @RequestBody ProductCreateRequestDto dto,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		Long userId = userDetails.getId();
+		ProductCreateResponseDto productCreateResponseDto = productService.saveProduct(userId, dto);
+		return success(OK, PRODUCT_CREATE, productCreateResponseDto);
+	}
 
-    @PostMapping
-    public ProductEntity createProduct(@RequestBody ProductEntity product) {
-        return productService.createProduct(product);
-    }
+	@GetMapping
+	public ApiResponse<List<ProductResponseDto>> getAllProducts() {
+		List<ProductResponseDto> productList = productService.getAllProducts();
+		return success(OK, PRODUCT_READ, productList);
+	}
 
-    // 상품 삭제
-    @DeleteMapping("/{id}")
-    public void deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-    }
+	@GetMapping("/{id}")
+	public ApiResponse<ProductResponseDto> getProductById(
+		@PathVariable Long id
+	) {
+		ProductResponseDto responseDto = productService.getProductById(id);
+		return success(OK, PRODUCT_READ, responseDto);
+	}
 
-    // 상품 100만개 등록
-    @GetMapping("/generate")
-    public ResponseEntity<String> generateProducts(@RequestParam(defaultValue = "100000") int count) {
-        productmakedataService.generateProducts(count); // ✅ static 호출이 아니라 인스턴스 호출로 변경
-        return ResponseEntity.ok(count + "개의 제품 데이터가 생성되었습니다.");
-    }
+	@PatchMapping("/{id}")
+	public ApiResponse<ProductUpdateResponseDto> updateProduct(
+		@PathVariable Long id,
+		@Valid @RequestBody ProductUpdateRequestDto requestDto,
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
+		Long userId = userDetails.getId();
+		ProductUpdateResponseDto responseDto = productService.updateProduct(id, userId, requestDto);
+		return success(OK, PRODUCT_UPDATE, responseDto);
+	}
+
+	@DeleteMapping("/{id}")
+	public ApiResponse<ProductDeleteResponseDto> deleteProduct(
+		@PathVariable Long id,
+		@AuthenticationPrincipal CustomUserDetails userDetails) {
+		Long userId = userDetails.getId();
+		ProductDeleteResponseDto responseDto = productService.deleteProduct(id, userId);
+		return success(OK, PRODUCT_DELETE, responseDto);
+	}
+
+	@PostMapping("/users/{count}")
+	public ResponseEntity<String> createUsers(@PathVariable int count) {
+		productmakedataService.generateUsers(count);
+		return ResponseEntity.ok(count + "명의 유저 데이터가 생성되었습니다.");
+	}
+
+	@PostMapping("/games/{count}")
+	public ResponseEntity<String> createGames(@PathVariable int count) {
+		productmakedataService.generateGames(count);
+		return ResponseEntity.ok(count + "개의 게임 데이터가 생성되었습니다.");
+	}
+
+	@PostMapping("/products/{count}")
+	public ResponseEntity<String> createProducts(@PathVariable int count) {
+		productmakedataService.generateProducts(count);
+		return ResponseEntity.ok(count + "개의 상품 데이터가 생성되었습니다.");
+	}
+
 }
 
