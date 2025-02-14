@@ -9,6 +9,7 @@ import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -31,7 +32,6 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final FilterResponse filterResponse;
 
 
@@ -39,36 +39,13 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     public Authentication attemptAuthentication(HttpServletRequest request,
         HttpServletResponse response) throws
         AuthenticationException {
+        request.getCookies();
 
-        String email;
-        String password;
+        setUsernameParameter("email");
 
-        if (request.getContentType() != null && request.getContentType()
-            .equals(MediaType.APPLICATION_JSON_VALUE)) {
-            try {
-                SignInUserRequestDto signInUserRequestDto = objectMapper.readValue(
-                    request.getReader().lines().collect(Collectors.joining()),
-                    SignInUserRequestDto.class);
+        String email = obtainUsername(request);
+        String password = obtainPassword(request);
 
-                email = signInUserRequestDto.getEmail();
-                password = signInUserRequestDto.getPassword();
-
-            } catch (IOException e) {
-                email = " ";
-                password = " ";
-                filterResponse.responseErrorMsg(response,
-                    ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),
-                    ErrorCode.INVALID_JSON_FORMAT.getCode(),
-                    ErrorCode.INVALID_JSON_FORMAT.getMessage());
-            }
-        } else {
-            filterResponse.responseErrorMsg(response,
-                ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),
-                ErrorCode.INVALID_JSON_FORMAT.getCode(),
-                ErrorCode.INVALID_JSON_FORMAT.getMessage());
-            email = " ";
-            password = " ";
-        }
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(email,
             password);
 
@@ -79,9 +56,12 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     protected void successfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, FilterChain chain,
         Authentication authentication) throws IOException {
+
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String username = customUserDetails.getUsername();
         Long id = customUserDetails.getId();
+
+
 
         Collection<? extends GrantedAuthority> authorites = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorites.iterator();
@@ -91,6 +71,16 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         String token = jwtUtils.createToken(username, id, role);
 
         response.addHeader("Authorization", token);
+
+        /**
+         * 일단 쿠키에 토큰 저장.
+         */
+
+//        Cookie cookie = new Cookie("Authorization",token);
+//        cookie.setDomain("kubernetes.docker.internal");
+//        response.addCookie(cookie);
+        response.addHeader("Set-Cookie","token="+token);
+        response.addHeader("Domain","localhost" );
         filterResponse.responseSuccessMsg(response, HttpStatus.OK, LOGIN_SUCCESS, token);
 
     }

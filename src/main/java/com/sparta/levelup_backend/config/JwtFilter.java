@@ -1,52 +1,66 @@
 package com.sparta.levelup_backend.config;
 
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
-import com.sparta.levelup_backend.utill.UserRole;
-import java.io.IOException;
-
-import io.jsonwebtoken.Claims;
-
-import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.sparta.levelup_backend.domain.auth.service.CustomUserDetailsService;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.utill.JwtUtils;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
+import com.sparta.levelup_backend.utill.UserRole;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-    private final RequestMatcher WHITE_LIST = new AntPathRequestMatcher("/v1/sign**");
+    private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
+        new AntPathRequestMatcher("/"),
+        new AntPathRequestMatcher("/v1/sign**"));
+    private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
     private final FilterResponse filterResponse;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException, NotFoundException {
-        if (WHITE_LIST.matches(request)) {
+
+        if (orRequestMatcher.matches(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String jwt = request.getHeader("Authorization");
 
+
         try {
+            if(request.getHeader("Cookie")!=null) {
+                String cookie = request.getHeader("Cookie");
+                String[] cookies = cookie.split(";");
+                for(String cookiedata : cookies){
+                    if(cookiedata.startsWith("token")){
+                        int index = cookiedata.indexOf("=");
+                        jwt = cookiedata.substring(index+1);
+                    }
+                }
+            }
+
             if (jwt == null || jwt.isBlank()) {
                 throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
             }

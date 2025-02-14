@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div class="container">
+
+  <div class="py-4 text-center">
+    <h2>Test Form</h2>
+  </div>
+
+  <form action="/v1/signinSend" method="post">
+    User ID: <input type="text" name="email">
+    Password: <input type="password" name="password">
+    <button type="submit">Login</button>
+  </form>
+</div>
+</body>
+</html>

@@ -46,12 +46,14 @@ public class SecurityConfig {
 
 		http
 			.csrf((csrf) -> csrf.disable())
-			.formLogin((form) -> form.disable())
+			.headers(headers -> headers.disable())
+			.formLogin((form) -> form
+				.loginPage("/v1/signin"))
 			.httpBasic((basic) -> basic.disable());
 
 		http.
 			authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/","/v1/signin","v1/signup").permitAll()
+				.requestMatchers("/","/v1/signin","/v1/signinSend","v1/signup").permitAll()
 				.requestMatchers("/v1/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated());
 
@@ -63,7 +65,7 @@ public class SecurityConfig {
 
 		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
 			authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
-		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/signin");
+		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/signinSend");
 
 		http.
 			addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
