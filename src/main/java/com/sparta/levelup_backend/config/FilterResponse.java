@@ -33,9 +33,9 @@ public class FilterResponse {
             response.setCharacterEncoding("UTF-8");
 
             response.getWriter().write("{\n"
-                + "    \"success\": \"OK\",\n"
+                + "    \"code\": \"Success\",\n"
                 + "    \"message\": \""+msg+"\",\n"
-                + "    \"data\": \""+data+"\"\n"
+                + "    \"body\": \""+data+"\"\n"
                 + "}");
             response.getWriter().flush();
         } catch (IOException e) {
