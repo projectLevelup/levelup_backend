@@ -10,15 +10,8 @@ public class ProductCreateResponseDto {
 	private final Long id;
 	private final String productName;
 
-	// ✅ 기존 `ProductEntity` 기반 생성자
 	public ProductCreateResponseDto(ProductEntity product) {
 		this.id = product.getId();
 		this.productName = product.getProductName();
 	}
-
-	// ✅ 새롭게 추가된 `ProductDocument` 기반 생성자
-	// public ProductCreateResponseDto(ProductDocument document) {
-	// 	this.id = Long.parseLong(document.getId()); // Elasticsearch ID 변환
-	// 	this.productName = document.getProductName();
-	// }
 }

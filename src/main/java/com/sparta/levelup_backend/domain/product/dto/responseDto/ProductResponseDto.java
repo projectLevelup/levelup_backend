@@ -18,7 +18,6 @@ public class ProductResponseDto {
 	private final ProductStatus status;
 	private final String imgUrl;
 
-	// ✅ 기존 `ProductEntity`를 이용한 생성자
 	public ProductResponseDto(ProductEntity entity) {
 		this.id = entity.getId();
 		this.userId = entity.getUser().getId();
@@ -30,17 +29,4 @@ public class ProductResponseDto {
 		this.status = entity.getStatus();
 		this.imgUrl = entity.getImgUrl();
 	}
-
-	// ✅ 새로운 `ProductDocument`를 이용한 생성자 추가
-	// public ProductResponseDto(ProductDocument document) {
-	// 	this.id = Long.parseLong(document.getId()); // Elasticsearch의 ID는 String → Long 변환 필요
-	// 	this.userId = document.getUserId();
-	// 	this.gameId = document.getGameId();
-	// 	this.productName = document.getProductName();
-	// 	this.contents = document.getContents();
-	// 	this.price = document.getPrice();
-	// 	this.amount = document.getAmount();
-	// 	this.status = document.getStatus();
-	// 	this.imgUrl = document.getImgUrl();
-	// }
 }
