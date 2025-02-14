@@ -1,6 +1,5 @@
 package com.sparta.levelup_backend.domain.product.dto.responseDto;
 
-import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 
 import lombok.Getter;
@@ -18,8 +17,8 @@ public class ProductUpdateResponseDto {
 	}
 
 	// ✅ 새롭게 추가된 `ProductDocument` 기반 생성자
-	public ProductUpdateResponseDto(ProductDocument document) {
-		this.id = Long.parseLong(document.getId()); // Elasticsearch ID 변환
-		this.productName = document.getProductName();
-	}
+	// public ProductUpdateResponseDto(ProductDocument document) {
+	// 	this.id = Long.parseLong(document.getId()); // Elasticsearch ID 변환
+	// 	this.productName = document.getProductName();
+	// }
 }

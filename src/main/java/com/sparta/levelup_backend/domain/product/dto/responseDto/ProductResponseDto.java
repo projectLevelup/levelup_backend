@@ -1,6 +1,5 @@
 package com.sparta.levelup_backend.domain.product.dto.responseDto;
 
-import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.utill.ProductStatus;
 
@@ -33,15 +32,15 @@ public class ProductResponseDto {
 	}
 
 	// ✅ 새로운 `ProductDocument`를 이용한 생성자 추가
-	public ProductResponseDto(ProductDocument document) {
-		this.id = Long.parseLong(document.getId()); // Elasticsearch의 ID는 String → Long 변환 필요
-		this.userId = document.getUserId();
-		this.gameId = document.getGameId();
-		this.productName = document.getProductName();
-		this.contents = document.getContents();
-		this.price = document.getPrice();
-		this.amount = document.getAmount();
-		this.status = document.getStatus();
-		this.imgUrl = document.getImgUrl();
-	}
+	// public ProductResponseDto(ProductDocument document) {
+	// 	this.id = Long.parseLong(document.getId()); // Elasticsearch의 ID는 String → Long 변환 필요
+	// 	this.userId = document.getUserId();
+	// 	this.gameId = document.getGameId();
+	// 	this.productName = document.getProductName();
+	// 	this.contents = document.getContents();
+	// 	this.price = document.getPrice();
+	// 	this.amount = document.getAmount();
+	// 	this.status = document.getStatus();
+	// 	this.imgUrl = document.getImgUrl();
+	// }
 }
