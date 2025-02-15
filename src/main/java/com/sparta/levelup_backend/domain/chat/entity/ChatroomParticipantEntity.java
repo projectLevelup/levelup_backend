@@ -1,14 +1,13 @@
 package com.sparta.levelup_backend.domain.chat.entity;
 
-import java.util.Set;
-
-import com.sparta.levelup_backend.common.entity.BaseEntity;
+import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,18 +17,20 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @Getter
 @Entity
-@Table(name = "chatroom")
+@Table(name = "ChatroomParticipant")
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ChatroomEntity extends BaseEntity {
+public class ChatroomParticipantEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	Long id;
 
-	private String title;
+	@JoinColumn(name = "user_id")
+	@ManyToOne
+	UserEntity user;
 
-	@OneToMany(mappedBy = "chatroom")
-	Set<ChatroomParticipantEntity> userSet;
-
+	@JoinColumn(name = "chatroom_id")
+	@ManyToOne
+	ChatroomEntity chatroom;
 }
