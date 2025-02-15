@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.domain.chat.Controller;
+package com.sparta.levelup_backend.domain.chat.controller;
 
 import java.util.List;
 

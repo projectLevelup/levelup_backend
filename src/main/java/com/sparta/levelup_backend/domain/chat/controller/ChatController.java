@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.domain.chat.Controller;
+package com.sparta.levelup_backend.domain.chat.controller;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
