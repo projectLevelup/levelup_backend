@@ -97,4 +97,27 @@ public class BillServiceImplV2 implements BillServiceV2 {
 
         return new BillResponseDto(bill);
     }
+
+    /**
+     * 결제내역 단건 조회(student 전용)
+     * @param userId 사용자
+     * @param billId 결제내역Id
+     * @return billId, tutorName, tutorNumber, studentName, studentNumber, billHistory, price, status, paymentDate
+     */
+    @Override
+    public BillResponseDto findBillByStudent(Long userId, Long billId) {
+
+        BillEntity bill = billRepository.findByIdWithTutorAndStudent(billId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+
+        if (!bill.getStudent().getId().equals(userId)) {
+            throw new NotFoundException(ErrorCode.BILL_NOT_FOUND);
+        }
+
+        if (bill.getStudentIsDeleted().equals(true)) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_DELETED_BILL);
+        }
+
+        return new BillResponseDto(bill);
+    }
 }

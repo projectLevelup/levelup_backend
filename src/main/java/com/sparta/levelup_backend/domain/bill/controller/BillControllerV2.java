@@ -54,4 +54,15 @@ public class BillControllerV2 {
         BillResponseDto bill = billService.findBillByTutor(userId, billId);
         return success(OK, BILL_FIND, bill);
     }
+
+    // 결제내역 단건 조회(student 전용)
+    @GetMapping("/student/{billId}")
+    public ApiResponse<BillResponseDto> findBillByStudent(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long billId
+    ) {
+        Long userId = authUser.getId();
+        BillResponseDto bill = billService.findBillByStudent(userId, billId);
+        return success(OK, BILL_FIND, bill);
+    }
 }
