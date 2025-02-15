@@ -8,7 +8,7 @@ public interface ChatroomService {
 
 	ChatroomResponseDto createChatroom(Long userId, Long targetUserId, String title);
 
-	Boolean leaveChatroom(Long id, Long chatroomId);
+	void leaveChatroom(Long id, Long chatroomId);
 
 	List<ChatroomResponseDto> findChatrooms(Long id);
 }

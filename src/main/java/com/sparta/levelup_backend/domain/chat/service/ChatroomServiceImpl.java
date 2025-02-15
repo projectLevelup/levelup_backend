@@ -16,6 +16,7 @@ import com.sparta.levelup_backend.domain.chat.repository.ChatroomRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -64,18 +65,25 @@ public class ChatroomServiceImpl implements ChatroomService {
 
 	@Transactional
 	@Override
-	public Boolean leaveChatroom(Long userId, Long chatroomId) {
-		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+	public void leaveChatroom(Long userId, Long chatroomId) {
+		ChatroomEntity chatroom = chatroomRepository.findByIdOrElseThrow(chatroomId);
 
-		// 기존에 참여된 방인지 확인
-		if(!cpRepository.existsByUserIdAndChatroomId(userId, chatroomId)) {
-			return false;
+		// 채팅방 참가 여부 확인
+		if (!cpRepository.existsByUserIdAndChatroomId(userId, chatroomId)) {
+			throw new NotFoundException(PARTICIPANT_ISDELETED);
 		}
 
-		// 참여 기록 제거
+		// 채팅방 참가 이력 삭제
 		cpRepository.deleteByUserIdAndChatroomId(userId, chatroomId);
 
-		return true;
+		// 채팅방에 남은 인원 1명 이하일때 채팅방 삭제
+		if (cpRepository.countByChatroomId(chatroomId) <= 1) {
+			chatroom.delete(); //
+			cpRepository.deleteByChatroomId(chatroomId);
+		}
+
+		chatroomRepository.save(chatroom);
+
 	}
 
 	/**

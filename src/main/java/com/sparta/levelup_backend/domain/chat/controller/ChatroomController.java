@@ -47,8 +47,9 @@ public class ChatroomController {
 	 * 채팅방 나가기 API
 	 */
 	@DeleteMapping("/{chatroomId}")
-	public Boolean leaveChatroom(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long chatroomId) {
-		return chatroomService.leaveChatroom(authUser.getId(), chatroomId);
+	public ApiResponse<Void> leaveChatroom(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long chatroomId) {
+		chatroomService.leaveChatroom(authUser.getId(), chatroomId);
+		return success(OK, CHATROOM_LEAVE);
 	}
 
 	/**
