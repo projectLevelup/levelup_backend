@@ -111,6 +111,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
      * @return orderId, productId, productName, status, price
      */
     @Override
+    @Transactional
     public OrderResponseDto updateOrder(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
