@@ -11,8 +11,9 @@ public class ChatroomResponseDto {
 
 	private final Long chatroomId;
 	private final String title;
+	private final Integer participantsCount;
 
 	public static ChatroomResponseDto from(ChatroomEntity chatroom) {
-		return new ChatroomResponseDto(chatroom.getId(), chatroom.getTitle());
+		return new ChatroomResponseDto(chatroom.getId(), chatroom.getTitle(), chatroom.getParticipantsCount());
 	}
 }
