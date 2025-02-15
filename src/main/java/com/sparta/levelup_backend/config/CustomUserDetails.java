@@ -29,6 +29,10 @@ public class CustomUserDetails implements UserDetails {
 		return grantedAuthority;
 	}
 
+	public UserEntity getUser() {
+		return user;
+	}
+
 	@Override
 	public String getPassword() {
 		return user.getPassword();
