@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.bill.service;
 
+import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.bill.dto.responseDto.BillResponseDto;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
@@ -7,8 +8,10 @@ import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
+import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.utill.BillStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,13 +48,13 @@ public class BillServiceImplV2 implements BillServiceV2 {
     }
 
     /**
-     * 결제내역 조회 (tutor 전용)
+     * 결제내역 페이징 조회 (tutor 전용)
      * @param userId 사용자
      * @param pageable 삭제되지않은 내역 페이징
      * @return billId, tutorName, tutorNumber, studentName, studentNumber, billHistory, price, status
      */
     @Override
-    public Page<BillResponseDto> findBillByTutor(Long userId, Pageable pageable) {
+    public Page<BillResponseDto> findBillsByTutor(Long userId, Pageable pageable) {
 
         Page<BillEntity> tutorBills = billRepository.findTutorBills(userId, pageable);
 
@@ -59,16 +62,39 @@ public class BillServiceImplV2 implements BillServiceV2 {
     }
 
     /**
-     * 결제내역 조회 (student 전용)
+     * 결제내역 페이징 조회 (student 전용)
      * @param userId 사용자
      * @param pageable 삭제되지않은 내역 페이징
-     * @return billId, tutorName, tutorNumber, studentName, studentNumber, billHistory, price, status
+     * @return billId, tutorName, tutorNumber, studentName, studentNumber, billHistory, price, status, paymentDate
      */
     @Override
-    public Page<BillResponseDto> findBillByStudent(Long userId, Pageable pageable) {
+    public Page<BillResponseDto> findBillsByStudent(Long userId, Pageable pageable) {
 
         Page<BillEntity> studentBills = billRepository.findStudentBills(userId, pageable);
 
         return studentBills.map(BillResponseDto::new);
+    }
+
+    /**
+     * 결제내역 단건 조회(tutor 전용)
+     * @param userId 사용자
+     * @param billId 결제내역Id
+     * @return billId, tutorName, tutorNumber, studentName, studentNumber, billHistory, price, status, paymentDate
+     */
+    @Override
+    public BillResponseDto findBillByTutor(Long userId, Long billId) {
+
+        BillEntity bill = billRepository.findByIdWithTutorAndStudent(billId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+
+        if (!bill.getTutor().getId().equals(userId)) {
+            throw new NotFoundException(ErrorCode.BILL_NOT_FOUND);
+        }
+
+        if (bill.getTutorIsDeleted().equals(true)) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_DELETED_BILL);
+        }
+
+        return new BillResponseDto(bill);
     }
 }

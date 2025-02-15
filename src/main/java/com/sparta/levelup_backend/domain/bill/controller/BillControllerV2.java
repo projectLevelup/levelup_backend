@@ -24,23 +24,34 @@ public class BillControllerV2 {
 
     // 결제내역 페이징 조회(tutor 전용)
     @GetMapping("/tutor")
-    public ApiResponse<Page<BillResponseDto>> findBillByTutor(
+    public ApiResponse<Page<BillResponseDto>> findBillsByTutor(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Long userId = authUser.getId();
-        Page<BillResponseDto> billById = billService.findBillByTutor(userId, pageable);
+        Page<BillResponseDto> billById = billService.findBillsByTutor(userId, pageable);
         return success(OK, BILL_FIND, billById);
     }
 
     // 결제내역 페이징 조회(student 전용)
     @GetMapping("/student")
-    public ApiResponse<Page<BillResponseDto>> findBillByStudent(
+    public ApiResponse<Page<BillResponseDto>> findBillsByStudent(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Long userId = authUser.getId();
-        Page<BillResponseDto> billById = billService.findBillByStudent(userId, pageable);
+        Page<BillResponseDto> billById = billService.findBillsByStudent(userId, pageable);
         return success(OK, BILL_FIND, billById);
+    }
+
+    // 결제내역 단건 조회(tutor 전용)
+    @GetMapping("/tutor/{billId}")
+    public ApiResponse<BillResponseDto> findBillByTutor(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long billId
+    ) {
+        Long userId = authUser.getId();
+        BillResponseDto bill = billService.findBillByTutor(userId, billId);
+        return success(OK, BILL_FIND, bill);
     }
 }
