@@ -2,23 +2,17 @@ package com.sparta.levelup_backend.config;
 
 import static com.sparta.levelup_backend.common.ApiResMessage.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.levelup_backend.common.ApiResMessage;
-import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -68,9 +62,10 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String token = jwtUtils.createToken(username, id, role);
+        String accessToken = jwtUtils.createAccessToken(username, id, role);
+        String refreshToken = jwtUtils.createRefreshToken(username, id, role);
 
-        response.addHeader("Authorization", token);
+        response.addHeader("Authorization", accessToken);
 
         /**
          * 일단 쿠키에 토큰 저장.
@@ -79,9 +74,10 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 //        Cookie cookie = new Cookie("Authorization",token);
 //        cookie.setDomain("kubernetes.docker.internal");
 //        response.addCookie(cookie);
-        response.addHeader("Set-Cookie","token="+token);
+        response.addHeader("Set-Cookie","accessToken="+accessToken);
+        response.addHeader("Set-Cookie","refreshToken="+refreshToken);
         response.addHeader("Domain","localhost" );
-        filterResponse.responseSuccessMsg(response, HttpStatus.OK, LOGIN_SUCCESS, token);
+        filterResponse.responseSuccessMsg(response, HttpStatus.OK, LOGIN_SUCCESS, accessToken);
 
     }
 

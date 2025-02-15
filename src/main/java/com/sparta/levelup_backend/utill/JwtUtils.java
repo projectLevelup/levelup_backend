@@ -16,7 +16,9 @@ import org.springframework.stereotype.Component;
 public class JwtUtils {
 	private final String BEARER_PREFIX = "Bearer ";
 
-	private final Long EXPIRE_TIME = 60L * 60L * 1000L;
+	private final Long REFRESH_TOKEN_EXPIRE_TIME =  12L * 60L * 60L * 1000L;
+
+	private final Long ACCESS_TOKEN_EXPIRE_TIME = 30L * 60L * 1000L;
 
 	private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
@@ -32,7 +34,7 @@ public class JwtUtils {
 		KEY = Keys.hmacShaKeyFor(secret_key_bytes);
 	}
 
-	public String createToken(String email, Long id, String role){
+	public String createAccessToken(String email, Long id, String role){
 		Date date = new Date();
 
 
@@ -41,8 +43,26 @@ public class JwtUtils {
 				.setSubject(email)
 				.claim("role",role)
 				.claim("id",id.toString())
+				.claim("type","ACCESS")
 				.setExpiration(
-					new Date(date.getTime() + EXPIRE_TIME))
+					new Date(date.getTime() + ACCESS_TOKEN_EXPIRE_TIME))
+				.setIssuedAt(date)
+				.signWith(KEY, SIGNATURE_ALGORITHM)
+				.compact();
+	}
+
+	public String createRefreshToken(String email, Long id, String role){
+		Date date = new Date();
+
+
+		return BEARER_PREFIX +
+			Jwts.builder()
+				.setSubject(email)
+				.claim("role",role)
+				.claim("id",id.toString())
+				.claim("type","REFRESH")
+				.setExpiration(
+					new Date(date.getTime() + REFRESH_TOKEN_EXPIRE_TIME))
 				.setIssuedAt(date)
 				.signWith(KEY, SIGNATURE_ALGORITHM)
 				.compact();
@@ -61,6 +81,22 @@ public class JwtUtils {
 			.build()
 			.parseClaimsJws(token)
 			.getBody();
+	}
+
+	public String refresingToken(String validToken) throws Exception {
+		Claims claims = extractClaims(substringToken(validToken));
+
+		String email = claims.getSubject();
+		String role = claims.get("role", String.class);
+		Long id = Long.parseLong(claims.get("id", String.class));
+		String type = claims.get("type",String.class);
+
+		if(type.equals("ACCESS")){
+			return createRefreshToken(email,id,role);
+		}else {
+			return createAccessToken(email,id,role);
+		}
+
 	}
 
 
