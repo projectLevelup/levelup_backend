@@ -5,5 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface BillServiceV2 {
-    Page<BillResponseDto> findBill(Long userId, Long billId, Pageable pageable);
+    Page<BillResponseDto> findBillByTutor(Long userId, Long billId, Pageable pageable);
+
+    Page<BillResponseDto> findBillByStudent(Long userId, Long billId, Pageable pageable);
 }

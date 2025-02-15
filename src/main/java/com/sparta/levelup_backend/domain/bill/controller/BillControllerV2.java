@@ -22,14 +22,27 @@ public class BillControllerV2 {
 
     private final BillServiceImplV2 billService;
 
+    // 결제내역 조회(tutor 전용)
     @GetMapping("/tutor/{billId}")
-    public ApiResponse<Page<BillResponseDto>> findBill(
+    public ApiResponse<Page<BillResponseDto>> findBillByTutor(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PathVariable Long billId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Long userId = authUser.getId();
-        Page<BillResponseDto> billById = billService.findBill(userId, billId, pageable);
+        Page<BillResponseDto> billById = billService.findBillByTutor(userId, billId, pageable);
+        return success(OK, BILL_FIND, billById);
+    }
+
+    // 결제내역 조회(student 전용)
+    @GetMapping("/student/{billId}")
+    public ApiResponse<Page<BillResponseDto>> findBillByStudent(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @PathVariable Long billId,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Long userId = authUser.getId();
+        Page<BillResponseDto> billById = billService.findBillByStudent(userId, billId, pageable);
         return success(OK, BILL_FIND, billById);
     }
 }

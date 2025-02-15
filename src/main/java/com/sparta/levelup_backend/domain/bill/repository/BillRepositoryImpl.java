@@ -23,7 +23,7 @@ public class BillRepositoryImpl implements BillRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
-    // 판매자 전용 결제내역 조회
+    // 결제내역 조회 (tutor 전용)
     @Override
 
     public Page<BillEntity> findTutorBills(Long tutorId, Pageable pageable) {
@@ -45,6 +45,33 @@ public class BillRepositoryImpl implements BillRepositoryCustom {
                                 .where(
                                         billEntity.tutor.id.eq(tutorId),
                                         billEntity.tutorIsDeleted.eq(false)
+                                )
+                                .fetchOne())
+                .orElse(0L);
+        return new PageImpl<>(results, pageable, totalCount);
+    }
+
+    // 결제내역 조회 (student 전용)
+    @Override
+    public Page<BillEntity> findStudentBills(Long studentId, Pageable pageable) {
+        List<BillEntity> results = queryFactory
+                .selectFrom(billEntity)
+                .where(
+                        billEntity.student.id.eq(studentId),
+                        billEntity.studentIsDeleted.eq(false)
+                )
+                .orderBy(getSortedOrder())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long totalCount = Optional.ofNullable(
+                        queryFactory
+                                .select(billEntity.count())
+                                .from(billEntity)
+                                .where(
+                                        billEntity.student.id.eq(studentId),
+                                        billEntity.studentIsDeleted.eq(false)
                                 )
                                 .fetchOne())
                 .orElse(0L);

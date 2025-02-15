@@ -45,14 +45,14 @@ public class BillServiceImplV2 implements BillServiceV2 {
     }
 
     /**
-     * 결제내역 조회 (판매자 전용)
+     * 결제내역 조회 (tutor 전용)
      * @param userId 사용자
      * @param billId 결제내역Id
      * @param pageable 삭제되지않은 내역 페이징
-     * @return
+     * @return billId, tutorName, tutorNumber, studentName, studentNumber, billHistory, price, status
      */
     @Override
-    public Page<BillResponseDto> findBill(Long userId, Long billId, Pageable pageable) {
+    public Page<BillResponseDto> findBillByTutor(Long userId, Long billId, Pageable pageable) {
 
         BillEntity bill = billRepository.findByIdOrElseThrow(billId);
 
@@ -63,5 +63,26 @@ public class BillServiceImplV2 implements BillServiceV2 {
         Page<BillEntity> tutorBills = billRepository.findTutorBills(bill.getTutor().getId(), pageable);
 
         return tutorBills.map(BillResponseDto::new);
+    }
+
+    /**
+     * 결제내역 조회 (student 전용)
+     * @param userId 사용자
+     * @param billId 결제내역Id
+     * @param pageable 삭제되지않은 내역 페이징
+     * @return billId, tutorName, tutorNumber, studentName, studentNumber, billHistory, price, status
+     */
+    @Override
+    public Page<BillResponseDto> findBillByStudent(Long userId, Long billId, Pageable pageable) {
+
+        BillEntity bill = billRepository.findByIdOrElseThrow(billId);
+
+        if (!bill.getStudent().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        Page<BillEntity> studentBills = billRepository.findStudentBills(bill.getStudent().getId(), pageable);
+
+        return studentBills.map(BillResponseDto::new);
     }
 }
