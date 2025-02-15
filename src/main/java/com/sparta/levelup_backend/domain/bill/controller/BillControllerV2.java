@@ -23,7 +23,7 @@ public class BillControllerV2 {
     private final BillServiceImplV2 billService;
 
     // 결제내역 페이징 조회(tutor 전용)
-    @GetMapping("/tutor/{billId}")
+    @GetMapping("/tutor")
     public ApiResponse<Page<BillResponseDto>> findBillByTutor(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PageableDefault(size = 10) Pageable pageable
@@ -34,7 +34,7 @@ public class BillControllerV2 {
     }
 
     // 결제내역 페이징 조회(student 전용)
-    @GetMapping("/student/{billId}")
+    @GetMapping("/student")
     public ApiResponse<Page<BillResponseDto>> findBillByStudent(
             @AuthenticationPrincipal CustomUserDetails authUser,
             @PageableDefault(size = 10) Pageable pageable
