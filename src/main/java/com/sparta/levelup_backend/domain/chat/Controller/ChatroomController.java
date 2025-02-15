@@ -31,4 +31,18 @@ public class ChatroomController {
 		return chatroomService.createChatroom(authUser.getId(), title);
 	}
 
+	/**
+	 * 1:1 채팅방 생성 API
+	 * @param targetUserId
+	 * @param title 채팅방 제목 - 임시로 개인 채팅 로 입력되도록 설정 (추후 상대방 닉네임으로 생성되도록 변경)
+	 */
+	@PostMapping("/private")
+	public ChatroomResponseDto createPrivateChatroom(
+		@AuthenticationPrincipal CustomUserDetails authUser,
+		@RequestParam Long targetUserId,
+		@RequestParam(defaultValue = "개인 채팅") String title
+	) {
+		return chatroomService.createPrivateChatroom(authUser.getId(), targetUserId, title);
+	}
+
 }

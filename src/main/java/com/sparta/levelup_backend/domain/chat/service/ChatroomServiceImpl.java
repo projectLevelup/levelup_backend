@@ -40,4 +40,31 @@ public class ChatroomServiceImpl implements ChatroomService {
 		return ChatroomResponseDto.from(chatroom);
 	}
 
+	@Override
+	public ChatroomResponseDto createPrivateChatroom(Long userId, Long targetUserId, String title) {
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+		UserEntity targetUser = userRepository.findByIdOrElseThrow(targetUserId);
+
+		ChatroomEntity chatroom = ChatroomEntity.builder()
+			.title(title)
+			.build();
+
+		chatroom = chatroomRepository.save(chatroom);
+
+		ChatroomParticipantEntity cp1 = ChatroomParticipantEntity.builder()
+			.user(user)
+			.chatroom(chatroom)
+			.build();
+
+		ChatroomParticipantEntity cp2 = ChatroomParticipantEntity.builder()
+			.user(targetUser)
+			.chatroom(chatroom)
+			.build();
+
+		cpRepository.save(cp1);
+		cpRepository.save(cp2);
+
+		return ChatroomResponseDto.from(chatroom);
+	}
+
 }
