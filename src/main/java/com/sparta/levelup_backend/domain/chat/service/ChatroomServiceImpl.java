@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomResponseDto;
 import com.sparta.levelup_backend.domain.chat.entity.ChatroomEntity;
 import com.sparta.levelup_backend.domain.chat.entity.ChatroomParticipantEntity;
@@ -40,9 +42,13 @@ public class ChatroomServiceImpl implements ChatroomService {
 		UserEntity authUser = userRepository.findByIdOrElseThrow(userId);
 		UserEntity targetUser = userRepository.findByIdOrElseThrow(targetUserId);
 
+		String chatroomTitle = (StringUtils.hasText(title))
+			? authUser.getNickName() + ", " + targetUser.getNickName()
+			: title;
+
 		ChatroomEntity chatroom = chatroomRepository.save(
 			ChatroomEntity.builder()
-				.title(title)
+				.title(chatroomTitle)
 				.build()
 		);
 
@@ -90,15 +96,11 @@ public class ChatroomServiceImpl implements ChatroomService {
 	 * 채팅방 리스트 조회
 	 */
 	@Override
-	public List<ChatroomResponseDto> findChatrooms(Long userId) {
+	public List<ChatroomListResponseDto> findChatrooms(Long userId) {
 		List<ChatroomParticipantEntity> chatroomInfoList = cpRepository.findAllByUserId(userId);
 
-		List<ChatroomEntity> chatroomList = chatroomInfoList.stream()
-			.map(ChatroomParticipantEntity::getChatroom)
-			.toList();
-
-		return chatroomList.stream()
-			.map(ChatroomResponseDto::from)
+		return chatroomInfoList.stream()
+			.map(participant -> ChatroomListResponseDto.from(participant.getChatroom(), userId))
 			.toList();
 	}
 
