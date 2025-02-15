@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.order.service;
 
+import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
@@ -35,9 +36,12 @@ class OrderServiceImplTest {
     private GameRepository gameRepository;
     @Autowired
     OrderRepository orderRepository;
+    @Autowired
+    private BillRepository billRepository;
 
     @AfterEach
     void cleanup() {
+        billRepository.deleteAll();
         orderRepository.deleteAll();
         productRepository.deleteAll();
         gameRepository.deleteAll();

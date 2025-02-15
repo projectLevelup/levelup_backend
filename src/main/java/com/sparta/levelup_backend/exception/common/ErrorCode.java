@@ -38,6 +38,7 @@ public enum ErrorCode {
 	GAME_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR305", "게임을 찾을 수 없습니다."),
 	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR306", "리뷰를 찾을 수 없습니다."),
 	ERRORCODE_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR307", "에러코드를 찾을 수 없습니다."),
+	BILL_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR309", "거래내역을 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "ERR401", "이미 사용 중인 이메일입니다."),

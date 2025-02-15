@@ -20,12 +20,12 @@ public class BillEntity extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "seller_id", nullable = false)
-    private UserEntity seller;
+    @JoinColumn(name = "tutor_id", nullable = false)
+    private UserEntity tutor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buter_id", nullable = false)
-    private UserEntity buyer;
+    @JoinColumn(name = "student_id", nullable = false)
+    private UserEntity student;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
@@ -40,6 +40,12 @@ public class BillEntity extends BaseEntity {
     @Column(length = 15, nullable = false)
     @Enumerated(EnumType.STRING)
     private BillStatus status;
+
+    @Column(name = "tutor_is_deleted")
+    private Boolean tutorIsDeleted;
+
+    @Column(name = "student_is_deleted")
+    private Boolean studentIsDeleted;
 
     public void billDelete() {
         this.delete();
