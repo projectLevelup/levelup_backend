@@ -7,4 +7,6 @@ public interface ChatroomService {
 	public ChatroomResponseDto createChatroom(Long userId, String title);
 
 	ChatroomResponseDto createPrivateChatroom(Long id, Long targetUserId, String title);
+
+	Boolean leaveChatroom(Long id, Long chatroomId);
 }

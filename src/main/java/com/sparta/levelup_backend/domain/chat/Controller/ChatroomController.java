@@ -1,6 +1,8 @@
 package com.sparta.levelup_backend.domain.chat.Controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,6 +45,14 @@ public class ChatroomController {
 		@RequestParam(defaultValue = "개인 채팅") String title
 	) {
 		return chatroomService.createPrivateChatroom(authUser.getId(), targetUserId, title);
+	}
+
+	/**
+	 * 채팅방 나가기 API
+	 */
+	@DeleteMapping("/{chatroomId}")
+	public Boolean leaveChatroom(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long chatroomId) {
+		return chatroomService.leaveChatroom(authUser.getId(), chatroomId);
 	}
 
 }

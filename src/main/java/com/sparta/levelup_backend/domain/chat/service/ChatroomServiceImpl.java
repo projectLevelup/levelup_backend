@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomResponseDto;
 import com.sparta.levelup_backend.domain.chat.entity.ChatroomEntity;
@@ -65,6 +66,22 @@ public class ChatroomServiceImpl implements ChatroomService {
 		cpRepository.save(cp2);
 
 		return ChatroomResponseDto.from(chatroom);
+	}
+
+	@Transactional
+	@Override
+	public Boolean leaveChatroom(Long userId, Long chatroomId) {
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+
+		// 기존에 참여된 방인지 확인
+		if(!cpRepository.existsByUserIdAndChatroomId(userId, chatroomId)) {
+			return false;
+		}
+
+		// 참여 기록 제거
+		cpRepository.deleteByUserIdAndChatroomId(userId, chatroomId);
+
+		return true;
 	}
 
 }
