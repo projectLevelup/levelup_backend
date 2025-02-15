@@ -1,5 +1,9 @@
 package com.sparta.levelup_backend.domain.chat.controller;
 
+import static com.sparta.levelup_backend.common.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static org.springframework.http.HttpStatus.*;
+
 import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomResponseDto;
 import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
@@ -26,28 +31,16 @@ public class ChatroomController {
 
 	/**
 	 * 채팅방 생생 API
-	 * @param title 채팅방 제목 - 임시로 Default Title 로 입력되도록 설정 (추후 변경 예정)
+	 * @param targetUserId 참가대상 유저 ID
+	 * @return
 	 */
 	@PostMapping
-	public ChatroomResponseDto createChatroom(
-		@AuthenticationPrincipal CustomUserDetails authUser,
-		@RequestParam(defaultValue = "Default Title") String title
-	) {
-		return chatroomService.createChatroom(authUser.getId(), title);
-	}
-
-	/**
-	 * 1:1 채팅방 생성 API
-	 * @param targetUserId
-	 * @param title 채팅방 제목 - 임시로 개인 채팅 로 입력되도록 설정 (추후 상대방 닉네임으로 생성되도록 변경)
-	 */
-	@PostMapping("/private")
-	public ChatroomResponseDto createPrivateChatroom(
+	public ApiResponse<ChatroomResponseDto> createChatroom(
 		@AuthenticationPrincipal CustomUserDetails authUser,
 		@RequestParam Long targetUserId,
-		@RequestParam(defaultValue = "개인 채팅") String title
+		@RequestParam(defaultValue = "Default Title") String title
 	) {
-		return chatroomService.createPrivateChatroom(authUser.getId(), targetUserId, title);
+		return success(CREATED, CHATROOM_CREATE, chatroomService.createChatroom(authUser.getId(), targetUserId, title));
 	}
 
 	/**
