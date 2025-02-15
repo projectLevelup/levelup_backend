@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,6 +84,22 @@ public class ChatroomServiceImpl implements ChatroomService {
 		cpRepository.deleteByUserIdAndChatroomId(userId, chatroomId);
 
 		return true;
+	}
+
+	/**
+	 * 채팅방 리스트 조회
+	 */
+	@Override
+	public List<ChatroomResponseDto> findChatrooms(Long userId) {
+		List<ChatroomParticipantEntity> chatroomInfoList = cpRepository.findAllByUserId(userId);
+
+		List<ChatroomEntity> chatroomList = chatroomInfoList.stream()
+			.map(ChatroomParticipantEntity::getChatroom)
+			.toList();
+
+		return chatroomList.stream()
+			.map(ChatroomResponseDto::from)
+			.toList();
 	}
 
 }

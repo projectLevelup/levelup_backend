@@ -1,7 +1,10 @@
 package com.sparta.levelup_backend.domain.chat.Controller;
 
+import java.util.List;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +56,14 @@ public class ChatroomController {
 	@DeleteMapping("/{chatroomId}")
 	public Boolean leaveChatroom(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long chatroomId) {
 		return chatroomService.leaveChatroom(authUser.getId(), chatroomId);
+	}
+
+	/**
+	 * 채팅방 목록 API
+	 */
+	@GetMapping
+	public List<ChatroomResponseDto> findChatrooms(@AuthenticationPrincipal CustomUserDetails authUser) {
+		return chatroomService.findChatrooms(authUser.getId());
 	}
 
 }
