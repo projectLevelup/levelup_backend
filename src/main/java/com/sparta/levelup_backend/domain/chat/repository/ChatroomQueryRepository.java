@@ -19,7 +19,13 @@ public class ChatroomQueryRepository {
 		return queryFactory
 			.selectOne()
 			.from(participant)
-			.where(participant.user.id.in(userId, targetUserId))
+			.where(participant.chatroom.id.in(
+				queryFactory
+					.select(participant.chatroom.id)
+					.from(participant)
+					.where(participant.user.id.eq(userId))
+			))
+			.where(participant.user.id.eq(targetUserId))
 			.fetchFirst() != null;
 	}
 
