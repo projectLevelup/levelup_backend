@@ -11,6 +11,7 @@ import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.UserRole;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,12 +20,10 @@ public class AuthServiceImpl implements AuthService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@Override
+	@Transactional
 	public void signUpUser(SignUpUserRequestDto signUpUserRequestDto) {
 
-		if (userRepository.existsByEmail(signUpUserRequestDto.getEmail())) {
-
-			throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
-		} else {
+			userRepository.existsByEmailOrElseThrow(signUpUserRequestDto.getEmail());
 
 			UserEntity user = UserEntity.builder().
 				email(signUpUserRequestDto.getEmail())
@@ -39,4 +38,3 @@ public class AuthServiceImpl implements AuthService {
 		}
 
 	}
-}

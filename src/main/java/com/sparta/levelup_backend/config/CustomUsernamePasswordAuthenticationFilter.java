@@ -54,6 +54,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String username = customUserDetails.getUsername();
         Long id = customUserDetails.getId();
+        String nickName = customUserDetails.getNickName();
 
 
 
@@ -62,8 +63,8 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String accessToken = jwtUtils.createAccessToken(username, id, role);
-        String refreshToken = jwtUtils.createRefreshToken(username, id, role);
+        String accessToken = jwtUtils.createAccessToken(username, id, nickName, role);
+        String refreshToken = jwtUtils.createRefreshToken(username, id, nickName, role);
 
         response.addHeader("Authorization", accessToken);
 

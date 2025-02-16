@@ -30,8 +30,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
     private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
-        new AntPathRequestMatcher("/"),
-        new AntPathRequestMatcher("/v1/sign**"));
+        new AntPathRequestMatcher("/oauth2/authorization/naver"),
+        new AntPathRequestMatcher("/v2/sign**"));
     private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
     private final FilterResponse filterResponse;
 
@@ -72,10 +72,12 @@ public class JwtFilter extends OncePerRequestFilter {
             String role = accessTokenClaims.get("role", String.class);
             role = role.substring(5);
             Long id = Long.parseLong(accessTokenClaims.get("id", String.class));
+            String nickName = accessTokenClaims.get("nickName",String.class);
 
             UserEntity tokenUser = UserEntity.builder()
                 .id(id)
                 .email(email)
+                .nickName(nickName)
                 .role(UserRole.valueOf(role))
                 .build();
 

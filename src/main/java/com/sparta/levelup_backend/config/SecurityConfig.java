@@ -1,5 +1,9 @@
 package com.sparta.levelup_backend.config;
 
+import com.sparta.levelup_backend.domain.auth.service.CustomOAuth2UserService;
+import com.sparta.levelup_backend.domain.auth.service.CustomUserDetailsService;
+import com.sparta.levelup_backend.utill.JwtUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,19 +16,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.sparta.levelup_backend.domain.auth.service.CustomUserDetailsService;
-import com.sparta.levelup_backend.utill.JwtUtils;
-
-import lombok.RequiredArgsConstructor;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JwtUtils jwtUtils;
-	private final CustomUserDetailsService userDetailsService;
+	private final CustomOAuth2UserService customOAuth2UserService;
 	private final FilterResponse filterResponse;
+
+
+
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -46,15 +48,30 @@ public class SecurityConfig {
 
 		http
 			.csrf((csrf) -> csrf.disable())
-			.headers(headers -> headers.disable())
 			.formLogin((form) -> form
-				.loginPage("/v1/signin"))
+				.loginPage("/v2/signin"))
 			.httpBasic((basic) -> basic.disable());
+
+		/**
+		 * 이 부분에서 customOAuth2UserService를 연결해줍니다.
+		 * 데이터를 받으면 이쪽 서비스로 자동적으로 넣어줍니다.
+		 */
+		http.
+					oauth2Login((oauth2)
+						-> oauth2.userInfoEndpoint((userInfoEndpointConfig)
+						-> userInfoEndpointConfig.userService(customOAuth2UserService)));
+
+
+		http.oauth2Login((auth)
+				-> auth.authorizationEndpoint((authorizationEndPointConfig)
+				-> authorizationEndPointConfig.baseUri("/v2/signin/oauth2/authorization") )
+			);
+
 
 		http.
 			authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/","/v1/signin","/v1/signinSend","v1/signup").permitAll()
-				.requestMatchers("/v1/admin/**").hasRole("ADMIN")
+				.requestMatchers("/","/v2/sign**").permitAll()
+				.requestMatchers("/v2/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated());
 
 		http.exceptionHandling(exceptionHandling ->
@@ -65,7 +82,7 @@ public class SecurityConfig {
 
 		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
 			authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
-		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/signinSend");
+		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v2/signinSend");
 
 		http.
 			addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -11,10 +11,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import jakarta.validation.constraints.NotBlank;
 
 public interface UserRepository extends JpaRepository<UserEntity,Long> {
-	boolean existsByEmail(@NotBlank String email);
+	boolean existsByEmail(String email);
 
 	default void existsByEmailOrElseThrow(String email){
-		if(!existsByEmail(email)){
+		if(existsByEmail(email)){
 			throw new EmailDuplicatedException();
 		}
 	}

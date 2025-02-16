@@ -34,7 +34,7 @@ public class JwtUtils {
 		KEY = Keys.hmacShaKeyFor(secret_key_bytes);
 	}
 
-	public String createAccessToken(String email, Long id, String role){
+	public String createAccessToken(String email, Long id, String nickName, String role){
 		Date date = new Date();
 
 
@@ -43,6 +43,7 @@ public class JwtUtils {
 				.setSubject(email)
 				.claim("role",role)
 				.claim("id",id.toString())
+				.claim("nickName",nickName)
 				.claim("type","ACCESS")
 				.setExpiration(
 					new Date(date.getTime() + ACCESS_TOKEN_EXPIRE_TIME))
@@ -51,7 +52,7 @@ public class JwtUtils {
 				.compact();
 	}
 
-	public String createRefreshToken(String email, Long id, String role){
+	public String createRefreshToken(String email, Long id, String nickName, String role){
 		Date date = new Date();
 
 
@@ -60,6 +61,7 @@ public class JwtUtils {
 				.setSubject(email)
 				.claim("role",role)
 				.claim("id",id.toString())
+				.claim("nickName",nickName)
 				.claim("type","REFRESH")
 				.setExpiration(
 					new Date(date.getTime() + REFRESH_TOKEN_EXPIRE_TIME))
@@ -89,12 +91,13 @@ public class JwtUtils {
 		String email = claims.getSubject();
 		String role = claims.get("role", String.class);
 		Long id = Long.parseLong(claims.get("id", String.class));
-		String type = claims.get("type",String.class);
+		String nickName = claims.get("nickName", String.class);
+		String type = claims.get("type", String.class);
 
 		if(type.equals("ACCESS")){
-			return createRefreshToken(email,id,role);
+			return createRefreshToken(email, id, nickName, role);
 		}else {
-			return createAccessToken(email,id,role);
+			return createAccessToken(email, id, nickName, role);
 		}
 
 	}

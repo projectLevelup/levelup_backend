@@ -16,16 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/v1")
+@RequestMapping("/v2")
 @RequiredArgsConstructor
 public class AuthController {
 	private final AuthService authService;
 
-	@GetMapping("/signup")
-	public String signUpUserPage(){
 
-		return "signup";
-	}
 
 	@PostMapping("/signup")
 	public ApiResponse<Void> signUpUser(@Valid @RequestBody SignUpUserRequestDto dto) {
