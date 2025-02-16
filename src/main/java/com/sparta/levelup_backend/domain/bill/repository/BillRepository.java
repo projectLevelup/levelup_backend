@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.bill.repository;
 
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
+import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,6 @@ public interface BillRepository extends JpaRepository<BillEntity, Long>, BillRep
 
     @Query("SELECT b FROM BillEntity b JOIN FETCH b.tutor JOIN FETCH b.student WHERE b.id = :billId")
     Optional<BillEntity> findByIdWithTutorAndStudent(Long billId);
+
+    Optional<BillEntity> findByOrderId(Long order);
 }
