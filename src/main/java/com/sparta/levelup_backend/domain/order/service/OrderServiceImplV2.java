@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.order.service;
 
-import com.sparta.levelup_backend.domain.bill.service.BillServiceImpl;
+import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
@@ -29,7 +29,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
     private final UserRepository userRepository;
     private final ProductServiceImpl productService;
     private final RedissonClient redissonClient;
-    private final BillServiceImpl billService;
+    private final BillServiceImplV2 billService;
 
     /**
      * 주문생성
