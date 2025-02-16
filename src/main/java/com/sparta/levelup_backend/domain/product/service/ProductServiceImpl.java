@@ -111,20 +111,6 @@ public class ProductServiceImpl implements ProductService {
 		productRepository.save(product);
 	}
 
-	@Transactional(timeout = 5, rollbackFor = Exception.class)
-	public void decreaseAmount(Long productId) {
-		ProductEntity product = getFindByIdWithLock(productId);
-		product.decreaseAmount();
-		productRepository.save(product);
-	}
-
-	@Transactional(timeout = 5, rollbackFor = Exception.class)
-	public void increaseAmount(Long productId) {
-		ProductEntity product = getFindByIdWithLock(productId);
-		product.increaseAmount();
-		productRepository.save(product);
-	}
-
 	public ProductEntity getFindByIdWithLock(Long productId) {
 		return productRepository.findByIdWithLock(productId)
 			.orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));

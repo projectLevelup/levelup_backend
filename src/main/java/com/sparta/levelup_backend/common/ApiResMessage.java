@@ -35,5 +35,9 @@ public class ApiResMessage {
     public static final String GAME_FOUND_SUCCESS = "게임을 성공적으로 조회되었습니다.";
     public static final String GAME_UPDATE_SUCCESS = "게임을 성공적으로 수정되었습니다.";
     public static final String GAME_DELETE_SUCCESS = "게임이 성공적으로 삭제되었습니다.";
+
+    // Bill
+    public static final String BILL_FIND = "결제 내역이 조회되었습니다.";
+    public static final String BILL_DELETE = "결제 내역이 삭제되었습니다.";
 }
 
