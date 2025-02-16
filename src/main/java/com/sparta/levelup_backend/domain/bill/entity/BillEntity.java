@@ -27,7 +27,7 @@ public class BillEntity extends BaseEntity {
     @JoinColumn(name = "student_id", nullable = false)
     private UserEntity student;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private OrderEntity order;
 
