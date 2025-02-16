@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 public interface BillRepositoryCustom {
     Page<BillEntity> findTutorBills(Long tutorId, Pageable pageable);
 
-    Page<BillEntity> findStudentBills(Long studentid, Pageable pageable);
+    Page<BillEntity> findStudentBills(Long studentId, Pageable pageable);
 }

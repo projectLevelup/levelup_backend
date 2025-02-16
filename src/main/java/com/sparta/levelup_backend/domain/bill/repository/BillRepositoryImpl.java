@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.bill.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import jakarta.persistence.EntityManager;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -65,17 +67,14 @@ public class BillRepositoryImpl implements BillRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        long totalCount = Optional.ofNullable(
-                        queryFactory
-                                .select(billEntity.count())
-                                .from(billEntity)
-                                .where(
-                                        billEntity.student.id.eq(studentId),
-                                        billEntity.studentIsDeleted.eq(false)
-                                )
-                                .fetchOne())
-                .orElse(0L);
-        return new PageImpl<>(results, pageable, totalCount);
+        JPAQuery<Long> totalCount = queryFactory
+                        .select(billEntity.count())
+                        .from(billEntity)
+                        .where(
+                                billEntity.student.id.eq(studentId),
+                                billEntity.studentIsDeleted.eq(false)
+                        );
+        return PageableExecutionUtils.getPage(results, pageable, totalCount::fetchOne);
     }
 
     private OrderSpecifier<?> getSortedOrder() {
