@@ -58,4 +58,8 @@ public class BillEntity extends BaseEntity {
     public void billStudentDelete() {
         this.studentIsDeleted = true;
     }
+
+    public void cancelBill() {
+        this.status = BillStatus.PAYCANCELED;
+    }
 }

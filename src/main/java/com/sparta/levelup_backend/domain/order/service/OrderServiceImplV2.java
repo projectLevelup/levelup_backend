@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.order.service;
 
+import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
+import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
@@ -30,6 +32,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
     private final ProductServiceImpl productService;
     private final RedissonClient redissonClient;
     private final BillServiceImplV2 billService;
+    private final BillRepository billRepository;
 
     /**
      * 주문생성
@@ -238,7 +241,15 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
             product.increaseAmount();
             order.setStatus(OrderStatus.CANCELED);
             order.orderDelete();
+
+            BillEntity bill = billRepository.findByOrderId(orderId)
+                    .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+
+            bill.cancelBill();
+
             orderRepository.save(order);
+            billRepository.save(bill);
+
         } catch (InterruptedException e) {
             throw new LockException(ErrorCode.CONFLICT_LOCK_ERROR);
         } finally {
@@ -246,5 +257,6 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
                 lock.unlock();
             }
         }
+
     }
 }
