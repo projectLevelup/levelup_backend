@@ -39,7 +39,7 @@ public class ChatroomController {
 	public ApiResponse<ChatroomResponseDto> createChatroom(
 		@AuthenticationPrincipal CustomUserDetails authUser,
 		@RequestParam Long targetUserId,
-		@RequestParam String title
+		@RequestParam(required = false) String title
 	) {
 		return success(CREATED, CHATROOM_CREATE, chatroomService.createChatroom(authUser.getId(), targetUserId, title));
 	}

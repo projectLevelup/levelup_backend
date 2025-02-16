@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>채팅방</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <!-- SockJS와 Stomp.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>채팅방</h1>
+    <div id="chat" style="height: 300px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #eee; padding: 10px;"></div>
+    <div style="display: flex; gap: 8px;">
+        <input type="text" id="messageInput" placeholder="메시지 입력" />
+        <button onclick="sendMessage()">전송</button>
+        <button onclick="leaveChatroom()">나가기</button>
+    </div>
+</div>
+
+<script>
+    let stompClient = null;
+    let chatroomId = new URLSearchParams(window.location.search).get("chatroomId");
+
+    function connect() {
+        if (!chatroomId) {
+            alert("채팅방 ID가 없습니다.");
+            return;
+        }
+
+        const socket = new SockJS('/ws/chats');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function(frame) {
+            console.log("연결됨: " + frame);
+
+            stompClient.subscribe(`/sub/chats/${chatroomId}`, function(message) {
+                const chatMessage = JSON.parse(message.body);
+                showMessage(chatMessage);
+            });
+        });
+    }
+
+    function disconnect() {
+        if (stompClient) {
+            stompClient.disconnect();
+            console.log("연결 끊김");
+        }
+    }
+
+    function leaveChatroom() {
+        if (!chatroomId) {
+            alert("채팅방 ID가 없습니다.");
+            return;
+        }
+
+        fetch(`/v1/chats/${chatroomId}`, {
+            method: "DELETE",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("채팅방을 나갔습니다.");
+                    disconnect(); // 웹소켓 연결 해제
+                    window.location.href = "/"; // 메인 페이지로 이동
+                } else {
+                    alert("채팅방 나가기에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("채팅방 나가기에 실패했습니다.");
+            });
+    }
+
+
+    function sendMessage() {
+        const messageInput = document.getElementById("messageInput").value;
+        if (messageInput && stompClient) {
+            const chatMessage = { message: messageInput };
+            stompClient.send(`/pub/chats/${chatroomId}`, {}, JSON.stringify(chatMessage));
+            document.getElementById("messageInput").value = "";
+        }
+    }
+
+    function showMessage(message) {
+        const chatDiv = document.getElementById("chat");
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>${message.nickname}:</strong> ${message.message}`;
+        chatDiv.appendChild(p);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    window.onload = connect;
+</script>
+</body>
+</html>
