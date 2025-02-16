@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomResponseDto;
 import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
 
@@ -38,7 +39,7 @@ public class ChatroomController {
 	public ApiResponse<ChatroomResponseDto> createChatroom(
 		@AuthenticationPrincipal CustomUserDetails authUser,
 		@RequestParam Long targetUserId,
-		@RequestParam(defaultValue = "Default Title") String title
+		@RequestParam(required = false) String title
 	) {
 		return success(CREATED, CHATROOM_CREATE, chatroomService.createChatroom(authUser.getId(), targetUserId, title));
 	}
@@ -47,15 +48,16 @@ public class ChatroomController {
 	 * 채팅방 나가기 API
 	 */
 	@DeleteMapping("/{chatroomId}")
-	public Boolean leaveChatroom(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long chatroomId) {
-		return chatroomService.leaveChatroom(authUser.getId(), chatroomId);
+	public ApiResponse<Void> leaveChatroom(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long chatroomId) {
+		chatroomService.leaveChatroom(authUser.getId(), chatroomId);
+		return success(OK, CHATROOM_LEAVE);
 	}
 
 	/**
 	 * 채팅방 목록 API
 	 */
 	@GetMapping
-	public List<ChatroomResponseDto> findChatrooms(@AuthenticationPrincipal CustomUserDetails authUser) {
+	public List<ChatroomListResponseDto> findChatrooms(@AuthenticationPrincipal CustomUserDetails authUser) {
 		return chatroomService.findChatrooms(authUser.getId());
 	}
 

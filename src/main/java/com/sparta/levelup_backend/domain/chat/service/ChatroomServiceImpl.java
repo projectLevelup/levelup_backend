@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomResponseDto;
 import com.sparta.levelup_backend.domain.chat.entity.ChatroomEntity;
 import com.sparta.levelup_backend.domain.chat.entity.ChatroomParticipantEntity;
@@ -16,6 +18,7 @@ import com.sparta.levelup_backend.domain.chat.repository.ChatroomRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,9 +42,13 @@ public class ChatroomServiceImpl implements ChatroomService {
 		UserEntity authUser = userRepository.findByIdOrElseThrow(userId);
 		UserEntity targetUser = userRepository.findByIdOrElseThrow(targetUserId);
 
+		String chatroomTitle = (StringUtils.hasText(title))
+			? authUser.getNickName() + ", " + targetUser.getNickName()
+			: title;
+
 		ChatroomEntity chatroom = chatroomRepository.save(
 			ChatroomEntity.builder()
-				.title(title)
+				.title(chatroomTitle)
 				.build()
 		);
 
@@ -64,33 +71,36 @@ public class ChatroomServiceImpl implements ChatroomService {
 
 	@Transactional
 	@Override
-	public Boolean leaveChatroom(Long userId, Long chatroomId) {
-		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+	public void leaveChatroom(Long userId, Long chatroomId) {
+		ChatroomEntity chatroom = chatroomRepository.findByIdOrElseThrow(chatroomId);
 
-		// 기존에 참여된 방인지 확인
-		if(!cpRepository.existsByUserIdAndChatroomId(userId, chatroomId)) {
-			return false;
+		// 채팅방 참가 여부 확인
+		if (!cpRepository.existsByUserIdAndChatroomId(userId, chatroomId)) {
+			throw new NotFoundException(PARTICIPANT_ISDELETED);
 		}
 
-		// 참여 기록 제거
+		// 채팅방 참가 이력 삭제
 		cpRepository.deleteByUserIdAndChatroomId(userId, chatroomId);
 
-		return true;
+		// 채팅방에 남은 인원 1명 이하일때 채팅방 삭제
+		if (cpRepository.countByChatroomId(chatroomId) <= 1) {
+			chatroom.delete(); //
+			cpRepository.deleteByChatroomId(chatroomId);
+		}
+
+		chatroomRepository.save(chatroom);
+
 	}
 
 	/**
 	 * 채팅방 리스트 조회
 	 */
 	@Override
-	public List<ChatroomResponseDto> findChatrooms(Long userId) {
+	public List<ChatroomListResponseDto> findChatrooms(Long userId) {
 		List<ChatroomParticipantEntity> chatroomInfoList = cpRepository.findAllByUserId(userId);
 
-		List<ChatroomEntity> chatroomList = chatroomInfoList.stream()
-			.map(ChatroomParticipantEntity::getChatroom)
-			.toList();
-
-		return chatroomList.stream()
-			.map(ChatroomResponseDto::from)
+		return chatroomInfoList.stream()
+			.map(participant -> ChatroomListResponseDto.from(participant.getChatroom(), userId))
 			.toList();
 	}
 

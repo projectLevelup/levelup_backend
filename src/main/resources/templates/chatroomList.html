@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>채팅방 목록</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+</head>
+<body>
+<div class="container">
+    <h1>채팅방 목록</h1>
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+        <tr style="background-color: #f1f1f1;">
+            <th style="padding: 8px; border-bottom: 1px solid #eee;">채팅방 ID</th>
+            <th style="padding: 8px; border-bottom: 1px solid #eee;">제목</th>
+        </tr>
+        </thead>
+        <tbody id="chatroomTableBody">
+        <!-- 채팅방 목록이 여기에 채워집니다 -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function loadChatrooms() {
+        fetch("/v1/chats", {
+            method: "GET",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(response => response.json())
+            .then(data => populateTable(data))
+            .catch(error => {
+                console.error(error);
+                alert("채팅방 목록을 불러오지 못했습니다.");
+            });
+    }
+
+    function populateTable(chatrooms) {
+        const tbody = document.getElementById("chatroomTableBody");
+        tbody.innerHTML = "";
+        chatrooms.forEach(room => {
+            const tr = document.createElement("tr");
+            tr.style.cursor = "pointer";
+            tr.onclick = function() {
+                window.location.href = "/chatroom?chatroomId=" + room.chatroomId;
+            };
+            tr.innerHTML = `
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">${room.chatroomId}</td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">${room.nickname}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    window.onload = loadChatrooms;
+</script>
+</body>
+</html>

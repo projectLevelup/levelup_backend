@@ -13,4 +13,7 @@ public interface ChatroomParticipantRepository extends JpaRepository<ChatroomPar
 
 	List<ChatroomParticipantEntity> findAllByUserId(Long userId);
 
+	int countByChatroomId(Long chatroomId);
+
+	void deleteByChatroomId(Long chatroomId);
 }
