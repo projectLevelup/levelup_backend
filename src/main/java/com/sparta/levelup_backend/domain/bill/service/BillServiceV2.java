@@ -12,4 +12,8 @@ public interface BillServiceV2 {
     BillResponseDto findBillByTutor(Long userId, Long billId);
 
     BillResponseDto findBillByStudent(Long userId, Long billId);
+
+    void deleteBillByTutor(Long userId, Long billId);
+
+    void deleteBillByStudent(Long userId, Long billId);
 }

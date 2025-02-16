@@ -50,4 +50,12 @@ public class BillEntity extends BaseEntity {
     public void billDelete() {
         this.delete();
     }
+
+    public void billTutorDelete() {
+        this.tutorIsDeleted = true;
+    }
+
+    public void billStudentDelete() {
+        this.studentIsDeleted = true;
+    }
 }
