@@ -38,5 +38,6 @@ public class ApiResMessage {
 
     // Bill
     public static final String BILL_FIND = "결제 내역이 조회되었습니다.";
+    public static final String BILL_DELETE = "결제 내역이 삭제되었습니다.";
 }
 

@@ -18,6 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class BillServiceImplV2 implements BillServiceV2 {
@@ -111,7 +113,7 @@ public class BillServiceImplV2 implements BillServiceV2 {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
 
         if (!bill.getStudent().getId().equals(userId)) {
-            throw new NotFoundException(ErrorCode.BILL_NOT_FOUND);
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         if (bill.getStudentIsDeleted().equals(true)) {
@@ -119,5 +121,51 @@ public class BillServiceImplV2 implements BillServiceV2 {
         }
 
         return new BillResponseDto(bill);
+    }
+
+    /**
+     * 결제내역 삭제 (tutor 전용)
+     * @param userId 사용자Id
+     * @param billId 거래내역Id
+     */
+    @Override
+    public void deleteBillByTutor(Long userId, Long billId) {
+
+        BillEntity bill = billRepository.findByIdWithTutorAndStudent(billId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+
+        if (!bill.getTutor().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        if (bill.getTutorIsDeleted().equals(true)) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_DELETED_BILL);
+        }
+
+        bill.billTutorDelete();
+        billRepository.save(bill);
+    }
+
+    /**
+     * 결제내역 삭제 (student 전용)
+     * @param userId 사용자Id
+     * @param billId 거래내역Id
+     */
+    @Override
+    public void deleteBillByStudent(Long userId, Long billId) {
+
+        BillEntity bill = billRepository.findByIdWithTutorAndStudent(billId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+
+        if (!bill.getStudent().getId().equals(userId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        if (bill.getStudentIsDeleted().equals(true)) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_DELETED_BILL);
+        }
+
+        bill.billStudentDelete();
+        billRepository.save(bill);
     }
 }

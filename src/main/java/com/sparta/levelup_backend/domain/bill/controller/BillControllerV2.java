@@ -65,4 +65,26 @@ public class BillControllerV2 {
         BillResponseDto bill = billService.findBillByStudent(userId, billId);
         return success(OK, BILL_FIND, bill);
     }
+
+    // 결제내역 삭제(tutor)
+    @DeleteMapping("/tutor/{billId}")
+    public ApiResponse<Void> deleteBillByTutor(
+            @AuthenticationPrincipal CustomUserDetails auth,
+            @PathVariable Long billId
+    ) {
+        Long userId = auth.getId();
+        billService.deleteBillByTutor(userId, billId);
+        return success(OK, BILL_DELETE);
+    }
+
+    // 결제내역 삭제(student)
+    @DeleteMapping("/student/{billId}")
+    public ApiResponse<Void> deleteBillByStudent(
+            @AuthenticationPrincipal CustomUserDetails auth,
+            @PathVariable Long billId
+    ) {
+        Long userId = auth.getId();
+        billService.deleteBillByStudent(userId, billId);
+        return success(OK, BILL_DELETE);
+    }
 }
