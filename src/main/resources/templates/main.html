@@ -29,18 +29,26 @@
         }
 
         .category-item {
-            border: 1px solid #ccc;
             display: inline-block;
             margin-right: 25px;
             vertical-align: top;
             text-align: center;
+            border-radius: 10px;
         }
-        .category-item img, .product-item img {
-            width: 80px;
-            height: 80px;
+
+        .category-item img {
+            width: 60px;
+            height: 60px;
             object-fit: cover;
             display: block;
-            margin: 0 auto 8px;
+        }
+
+
+        .product-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            display: block;
         }
 
         .product-item {
@@ -51,8 +59,8 @@
         }
 
         .product-left {
-            border: 1px solid #ccc;
             margin-right: 30px;
+            border-radius: 10px;
         }
 
         .product-right strong {
@@ -193,7 +201,7 @@
             const item = document.createElement('div');
             item.className = 'category-item';
             item.innerHTML = `
-            <img src="${game.imgUrl}" alt="${game.name}" />
+            <img src="/img/default-img.png" alt="${game.name}" />
         `;
             // 클릭 시 해당 게임 카테고리의 상품만 필터링
             item.onclick = () => filterProductsByGame(game.name); // 예시
@@ -218,11 +226,11 @@
 
             item.innerHTML = `
           <div class="product-left">
-            <img src="${product.imgUrl}" alt="${product.productName}" />
+            <img src="/img/default-img.png" alt="${product.productName}" />
           </div>
           <div class="product-right">
                <div><strong>${product.productName}</strong></div>
-               <div>가격: ${product.price}원</div>
+               <div>${product.price}원</div>
           </div>
         `;
             container.appendChild(item);

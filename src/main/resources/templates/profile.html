@@ -30,7 +30,6 @@
             height: 60px;
             border-radius: 50%;
             object-fit: cover;
-            background-color: #ddd;
         }
 
         .nickname {
@@ -74,7 +73,7 @@
         <!-- 상단 프로필 영역 -->
         <div class="profile-top">
             <div class="profile-info">
-                <img id="profileImg" src="" alt="프로필 이미지" class="profile-img" />
+                <img id="profileImg" src="/img/default-img.png" alt="프로필 이미지" class="profile-img" />
                 <div>
                     <div id="nickname" class="nickname"></div>
                 </div>
@@ -135,8 +134,8 @@
      */
     function displayUserProfile(user) {
         // 프로필 이미지
-        const img = document.getElementById("profileImg");
-        img.src = user.imgUrl || "";
+        // const img = document.getElementById("profileImg");
+        // img.src = user.imgUrl || "";
 
         // 닉네임
         document.getElementById("nickname").textContent = user.nickName || "닉네임 없음";
