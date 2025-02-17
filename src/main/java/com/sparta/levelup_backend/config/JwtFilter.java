@@ -30,6 +30,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
     private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
+        new AntPathRequestMatcher("/"),
+        new AntPathRequestMatcher("/v2/sign**")),
         new AntPathRequestMatcher("/oauth2/authorization/naver"),
         new AntPathRequestMatcher("/v2/sign**"));
     private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
@@ -48,22 +50,15 @@ public class JwtFilter extends OncePerRequestFilter {
         String refreshToken = extractToken(request, "refreshToken");
         accessToken = extractToken(request, "accessToken");
 
-        /**
-         * 위 리프레시 토큰과 코드가 중복되나, 액세스 토큰의 경우 테스트 환경에서만
-         * 쿠키에 저장하고, 실제 배포 환경에서는 로컬스토리지 영역에 저장하고 꺼내 써야 하므로,
-         * 중복 코드를 분리하지 않음.
-         */
 
         try {
             if(isTokenExpired(accessToken)){
                 String token = jwtUtils.refresingToken(refreshToken);
                 response.addHeader("Authorization", token);
                 response.addHeader("Set-Cookie","accessToken="+token);
-                System.out.println("accessToken regen");
             }else if(isTokenExpired(refreshToken)){
                 String token = jwtUtils.refresingToken(accessToken);
                 response.addHeader("Set-Cookie","refreshToken="+token);
-                System.out.println("refreshToken regen");
             }
 
             Claims accessTokenClaims = jwtUtils.extractClaims(jwtUtils.substringToken(accessToken));

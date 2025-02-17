@@ -68,13 +68,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 
         response.addHeader("Authorization", accessToken);
 
-        /**
-         * 일단 쿠키에 토큰 저장.
-         */
 
-//        Cookie cookie = new Cookie("Authorization",token);
-//        cookie.setDomain("kubernetes.docker.internal");
-//        response.addCookie(cookie);
         response.addHeader("Set-Cookie","accessToken="+accessToken);
         response.addHeader("Set-Cookie","refreshToken="+refreshToken);
         response.addHeader("Domain","localhost" );

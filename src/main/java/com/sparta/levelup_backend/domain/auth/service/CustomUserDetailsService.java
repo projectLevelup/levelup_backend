@@ -1,8 +1,6 @@
 package com.sparta.levelup_backend.domain.auth.service;
 
 import com.sparta.levelup_backend.exception.common.AlreadyDeletedUserException;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
-import com.sparta.levelup_backend.exception.common.MismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

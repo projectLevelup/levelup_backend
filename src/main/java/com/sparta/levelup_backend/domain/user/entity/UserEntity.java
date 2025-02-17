@@ -2,8 +2,14 @@ package com.sparta.levelup_backend.domain.user.entity;
 
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.utill.UserRole;
-import jakarta.persistence.*;
-import jdk.jshell.Snippet;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +33,6 @@ public class UserEntity extends BaseEntity {
 
     private String nickName;
 
-    @Column(nullable = true)
     private String imgUrl;
 
     private String password;
