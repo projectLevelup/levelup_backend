@@ -12,6 +12,8 @@ import com.sparta.levelup_backend.utill.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -33,10 +35,10 @@ public class AuthServiceImpl implements AuthService {
 				.imgUrl(signUpUserRequestDto.getImgUrl())
 				.role(UserRole.USER)
 				.phoneNumber(signUpUserRequestDto.getPhoneNumber())
+				.customerKey(UUID.randomUUID().toString())
 				.build();
 
 			userRepository.save(user);
 		}
-
 	}
 }

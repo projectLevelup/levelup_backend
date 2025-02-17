@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8"/>
+        <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" />
+        <link rel="stylesheet" type="text/css" href="/style.css" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Level UP</title>
+        <script src="http://js.tosspayments.com/v2/standard"></script>
+    </head>
+    <body>
+    <div id="payment-method"></div>
+    <div id="agreement"></div>
+    <button class="button" id="payments-button" style="margin-top: 30px">결제하기</button>
+
+    <script>
+        main();
+
+        async function main() {
+            const button = document.getElementById("payments-button");
+
+            const clientKey = await getClientKey();
+            const tossPayments = TossPayments(clientKey);
+
+            const customerKey = await getCustomerKey();
+            const widgets = tossPayments.widgets({
+                customerKey,
+            })
+        }
+
+        async function getClientKey() {
+            const response = await fetch("http://localhost:8080/v3/payments/client-key")
+            return await response.text();
+        }
+
+        async function getCustomerKey() {
+            const response = await  fetch("http://localhost:8080/v1/payments/customer-key")
+            return await response.text();
+        }
+    </script>
+
+    </body>
+</html>

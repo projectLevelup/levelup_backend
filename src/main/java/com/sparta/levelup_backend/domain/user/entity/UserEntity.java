@@ -3,12 +3,13 @@ package com.sparta.levelup_backend.domain.user.entity;
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.utill.UserRole;
 import jakarta.persistence.*;
-import jdk.jshell.Snippet;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -37,6 +38,8 @@ public class UserEntity extends BaseEntity {
 
     private String phoneNumber;
 
+    private String customerKey;
+
     public void updateEmail(String email){
         this.email = email;
     }
@@ -55,5 +58,9 @@ public class UserEntity extends BaseEntity {
 
     public void changePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public String generateCustomerKey() {
+        return "UUID-" + this.id + "-" + UUID.randomUUID().toString();
     }
 }
