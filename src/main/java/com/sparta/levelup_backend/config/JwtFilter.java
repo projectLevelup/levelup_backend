@@ -1,5 +1,10 @@
 package com.sparta.levelup_backend.config;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.EXPIRED_JWT_TOKEN;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.INVALID_FORMAT_TOKEN;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.INVALID_JWT_TOKEN;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.TOKEN_NOT_FOUND;
+
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
@@ -48,22 +53,15 @@ public class JwtFilter extends OncePerRequestFilter {
         String refreshToken = extractToken(request, "refreshToken");
         accessToken = extractToken(request, "accessToken");
 
-        /**
-         * 위 리프레시 토큰과 코드가 중복되나, 액세스 토큰의 경우 테스트 환경에서만
-         * 쿠키에 저장하고, 실제 배포 환경에서는 로컬스토리지 영역에 저장하고 꺼내 써야 하므로,
-         * 중복 코드를 분리하지 않음.
-         */
 
         try {
             if(isTokenExpired(accessToken)){
                 String token = jwtUtils.refresingToken(refreshToken);
                 response.addHeader("Authorization", token);
                 response.addHeader("Set-Cookie","accessToken="+token);
-                System.out.println("accessToken regen");
             }else if(isTokenExpired(refreshToken)){
                 String token = jwtUtils.refresingToken(accessToken);
                 response.addHeader("Set-Cookie","refreshToken="+token);
-                System.out.println("refreshToken regen");
             }
 
             Claims accessTokenClaims = jwtUtils.extractClaims(jwtUtils.substringToken(accessToken));
@@ -87,21 +85,21 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
             filterChain.doFilter(request, response);
         } catch (SecurityException | MalformedJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.INVALID_JWT_TOKEN.getStatus().value(),
-                ErrorCode.INVALID_JWT_TOKEN.getCode(),
-                ErrorCode.INVALID_JWT_TOKEN.getMessage());
+            filterResponse.responseErrorMsg(response, INVALID_JWT_TOKEN.getStatus().value(),
+                INVALID_JWT_TOKEN.getCode(),
+                INVALID_JWT_TOKEN.getMessage());
         } catch (ExpiredJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.EXPIRED_JWT_TOKEN.getStatus().value(),
-                ErrorCode.EXPIRED_JWT_TOKEN.getCode(),
-                ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
+            filterResponse.responseErrorMsg(response, EXPIRED_JWT_TOKEN.getStatus().value(),
+                EXPIRED_JWT_TOKEN.getCode(),
+                EXPIRED_JWT_TOKEN.getMessage());
         } catch (UnsupportedJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.INVALID_FORMAT_TOKEN.getStatus().value(),
-                ErrorCode.INVALID_FORMAT_TOKEN.getCode(),
-                ErrorCode.INVALID_FORMAT_TOKEN.getMessage());
+            filterResponse.responseErrorMsg(response, INVALID_FORMAT_TOKEN.getStatus().value(),
+                INVALID_FORMAT_TOKEN.getCode(),
+                INVALID_FORMAT_TOKEN.getMessage());
         } catch (NotFoundException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.TOKEN_NOT_FOUND.getStatus().value(),
-                ErrorCode.TOKEN_NOT_FOUND.getCode(),
-                ErrorCode.TOKEN_NOT_FOUND.getMessage());
+            filterResponse.responseErrorMsg(response, TOKEN_NOT_FOUND.getStatus().value(),
+                TOKEN_NOT_FOUND.getCode(),
+                TOKEN_NOT_FOUND.getMessage());
         } catch (Exception e) {
             filterResponse.responseErrorMsg(response,
                 ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value(),
@@ -130,11 +128,11 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
 
             if (token == null || token.isBlank()) {
-                throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
+                throw new NotFoundException(TOKEN_NOT_FOUND);
             }
             Claims claims = jwtUtils.extractClaims(jwtUtils.substringToken(token));
             if (claims == null) {
-                throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
+                throw new NotFoundException(TOKEN_NOT_FOUND);
             }
             return false;
 

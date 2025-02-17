@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JwtUtils jwtUtils;
-	private final CustomUserDetailsService userDetailsService;
 	private final FilterResponse filterResponse;
 
 	@Bean
