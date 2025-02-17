@@ -34,7 +34,6 @@ public class ChatController {
 	 * @param dto 메시지 전송 객체 (닉네임, 메시지 포함)
 	 */
 	@MessageMapping("/chats/{chatroomId}") // 메시지 전송 endpoint
-	@SendTo("/sub/chats/{chatroomId}") // 구독 endpoint
 	public ChatMessageDto handleMessage(
 		@DestinationVariable Long chatroomId,
 		@Payload ChatMessageDto dto,

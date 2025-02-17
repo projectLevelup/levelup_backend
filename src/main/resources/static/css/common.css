@@ -96,3 +96,7 @@ h1, h2 {
     margin-bottom: 3px;
     font-size: 14px;
 }
+
+.chat_input {
+    height: 45px;
+}

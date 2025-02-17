@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -19,21 +20,28 @@ import lombok.RequiredArgsConstructor;
 public class ChatServiceImpl implements ChatService {
 
 	private final ChatMongoRepository chatMongoRepository;
+	private final RedisPublisher redisPublisher;
 
 	@Override
 	public ChatMessageDto handleMessage(Long chatroomId, ChatMessageDto dto, Authentication authentication) {
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-		dto.setNickname(user.getUser().getNickName());
+
+		ChatMessageDto messageDto = new ChatMessageDto(
+			chatroomId,
+			user.getUser().getNickName(),
+			dto.getMessage()
+		);
 
 		ChatMessage chatMessage = new ChatMessage(
 			chatroomId,
-			dto.getNickname(),
-			dto.getMessage(),
+			messageDto.getNickname(),
+			messageDto.getMessage(),
 			LocalDateTime.now()
 		);
 
 		chatMongoRepository.save(chatMessage);
-		return dto;
+		redisPublisher.publish(getTopic(chatroomId), messageDto);
+		return messageDto;
 	}
 
 	@Override
@@ -41,12 +49,17 @@ public class ChatServiceImpl implements ChatService {
 		List<ChatMessage> messages = chatMongoRepository.findByChatroomId(chatroomId);
 		return messages.stream()
 			.map(msg -> {
-				ChatMessageDto dto = ChatMessageDto.builder()
-					.nickname(msg.getNickname())
-					.message(msg.getMessage())
-					.build();
+				ChatMessageDto dto = new ChatMessageDto(
+					chatroomId,
+					msg.getNickname(),
+					msg.getMessage()
+				);
 				return dto;
 			})
 			.collect(Collectors.toList());
+	}
+
+	public ChannelTopic getTopic(Long chatroomId) {
+		return new ChannelTopic("chatroom:" + chatroomId);
 	}
 }
