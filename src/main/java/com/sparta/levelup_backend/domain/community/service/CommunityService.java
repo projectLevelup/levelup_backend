@@ -11,4 +11,6 @@ public interface CommunityService {
 	CommunityListResponseDto findAll(int page, int size);
 
 	CommunityResponseDto update(Long userId, CommunityUpdateRequestDto dto);
+
+	void delete(Long userId, Long communityId);
 }

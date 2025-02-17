@@ -41,7 +41,7 @@ public class CommunityServiceImpl implements CommunityService {
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		GameEntity game = gameRepository.findByIdOrElseThrow(dto.getGameId());
-		checkIsDeleted(game);
+		checkGameIsDeleted(game);
 
 		CommunityEntity community = communityRepository.save(
 			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
@@ -75,9 +75,7 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public CommunityResponseDto update(Long userId, CommunityUpdateRequestDto dto) {
 		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
-		if (!community.getUser().getId().equals(userId) || !community.getUser().getRole().equals(ADMIN)) {
-			throw new ForbiddenException(FORBIDDEN_ACCESS);
-		}
+		checkAuth(community, userId);
 
 		if (community.getIsDeleted()) {
 			throw new DuplicateException(COMMUNITY_ISDELETED);
@@ -93,9 +91,31 @@ public class CommunityServiceImpl implements CommunityService {
 		return CommunityResponseDto.from(community);
 	}
 
-	private void checkIsDeleted(GameEntity game) {
+	@Override
+	public void delete(Long userId, Long communityId) {
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
+		checkAuth(community, userId);
+		checkCommunityIsDeleted(community);
+
+		community.deleteCommunity();
+	}
+
+	private void checkGameIsDeleted(GameEntity game) {
 		if (game.getIsDeleted()) {
 			throw new DuplicateException(GAME_ISDELETED);
+		}
+	}
+
+	private void checkCommunityIsDeleted(CommunityEntity community) {
+		if (community.getIsDeleted()) {
+			throw new DuplicateException(COMMUNITY_ISDELETED);
+		}
+	}
+
+	private void checkAuth(CommunityEntity community, Long userId) {
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+		if (!community.getUser().getId().equals(userId) && !user.getRole().equals(ADMIN)) {
+			throw new ForbiddenException(FORBIDDEN_ACCESS);
 		}
 	}
 }
