@@ -53,6 +53,7 @@ public enum ErrorCode {
 	CONFLICT_LOCK_GET(HttpStatus.CONFLICT, "ERR408", "락 획득 실패"),
 	CONFLICT_LOCK_ERROR(HttpStatus.CONFLICT, "ERR409", "락 획득 중 오류 발생"),
 	DUPLICATE_DELETED_BILL(HttpStatus.CONFLICT, "ERR412", "삭제된 결제내역입니다."),
+	COMMUNITY_ISDELETED(HttpStatus.CONFLICT, "ERR413", "이미 삭제된 커뮤니티입니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다.");
