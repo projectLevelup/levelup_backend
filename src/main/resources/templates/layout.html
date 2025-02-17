@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:insert="${title}">기본 타이틀</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <!-- 공통 Material Icons 폰트 링크 -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- 추가 공통 리소스 -->
+    <th:block th:replace="fragments :: head-extra"></th:block>
+</head>
+<body>
+<!-- 페이지별 내용이 들어갈 자리 -->
+<div th:insert="~{::body}"></div>
+</body>
+</html>

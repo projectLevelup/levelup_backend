@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>상품 상세</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+        .product-detail { display: flex; gap: 20px; margin-bottom: 30px; flex-direction: column; }
+
+        .product-left {
+            background: lightgray;
+            height: 200px;
+        }
+
+        .product-left img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+        .review-item {
+            border-bottom: 1px solid #ccc;
+            padding: 8px 0;
+        }
+        .review-nickname { font-weight: bold; margin-right: 5px; }
+        .star-score { color: #f1c40f; }
+        /* 신청하기 버튼 스타일 */
+        #applyButton {
+            display: block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="top-nav">
+        <h3>상품 상세 페이지</h3>
+    </div>
+    <div class="inner-con">
+
+
+
+        <!-- 상품 정보 영역 -->
+        <div class="product-detail">
+            <div class="product-left">
+                <img id="productImg" src="" alt="상품 이미지">
+            </div>
+            <div class="product-right">
+                <h2 id="productName"></h2>
+                <div id="productPrice"></div>
+                <div id="productContents"></div>
+                <!-- 신청하기 버튼 -->
+                <button id="applyButton" onclick="startChat()">신청하기</button>
+            </div>
+        </div>
+
+        <!-- 리뷰 영역 -->
+        <div>
+            <h3>리뷰 목록</h3>
+            <div id="reviewList"></div>
+        </div>
+    </div>
+
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
+
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Thymeleaf를 통해 서버에서 전달된 productId를 변수에 할당
+    const productId = /*[[${productId}]]*/ 0;
+    let sellerId = null; // 상품의 판매자 ID를 저장할 변수
+
+    window.onload = function() {
+        if (!productId) {
+            alert("상품 ID가 존재하지 않습니다.");
+            return;
+        }
+        loadProductDetail(productId);
+        loadReviews(productId);
+    };
+
+    /**
+     * 상품 상세 정보 불러오기 (GET /v1/products/{productId})
+     */
+    function loadProductDetail(id) {
+        fetch(`/v1/products/${id}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayProductDetail(result.data);
+                } else {
+                    console.error("상품 상세 불러오기 실패");
+                }
+            })
+            .catch(error => {
+                console.error("상품 상세 에러:", error);
+            });
+    }
+
+    /**
+     * 상품 상세 정보 화면 표시 및 판매자 ID 저장
+     */
+    function displayProductDetail(product) {
+        document.getElementById("productImg").src = product.imgUrl || "";
+        document.getElementById("productName").textContent = product.productName || "상품명 없음";
+        document.getElementById("productPrice").textContent = `가격: ${product.price}원`;
+        document.getElementById("productContents").textContent = product.contents || "";
+        // 판매자 ID는 product.userId (ProductResponseDto의 필드)로 가정
+        sellerId = product.userId;
+    }
+
+    /**
+     * 리뷰 목록 불러오기 (GET /v1/products/{productId}/reviews)
+     */
+    function loadReviews(id) {
+        fetch(`/v1/products/${id}/reviews`)
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    // Slice<ReviewResponseDto> 형태라면, result.data.content에 리뷰 배열이 있을 수 있음.
+                    // 예시에서는 result.data.content 또는 result.data가 바로 리뷰 배열이라고 가정합니다.
+                    const reviews = result.data.content || result.data || [];
+                    displayReviews(reviews);
+                } else {
+                    console.error("리뷰 목록 불러오기 실패");
+                }
+            })
+            .catch(error => {
+                console.error("리뷰 목록 에러:", error);
+            });
+    }
+
+    /**
+     * 리뷰 목록 화면 표시
+     */
+    function displayReviews(reviews) {
+        const reviewListDiv = document.getElementById("reviewList");
+        reviewListDiv.innerHTML = "";
+        if (reviews.length === 0) {
+            reviewListDiv.textContent = "아직 리뷰가 없습니다.";
+            return;
+        }
+        reviews.forEach(review => {
+            const item = document.createElement("div");
+            item.className = "review-item";
+            item.innerHTML = `
+        <div>
+          <span class="star-score">★ ${review.starScore || 0}</span>
+          <span class="review-nickname">${review.nickname}</span>
+        </div>
+        <div>${review.contents}</div>
+      `;
+            reviewListDiv.appendChild(item);
+        });
+    }
+
+    /**
+     * 신청하기 버튼 클릭 시 호출되는 함수
+     * 판매자와 채팅을 시작하기 위해 채팅방 생성 API 호출 후, 채팅방 페이지로 이동
+     */
+    function startChat() {
+        if (!sellerId) {
+            alert("판매자 정보가 없습니다.");
+            return;
+        }
+        // 채팅방 생성 API 호출 (POST /v1/chats?targetUserId=sellerId)
+        // 로그인한 사용자가 신청하는 경우, 현재 사용자의 인증 정보가 자동으로 포함되어야 함.
+        fetch(`/v1/chats?targetUserId=${sellerId}`, {
+            method: 'POST',
+            credentials: 'include', // 필요에 따라 쿠키 포함
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data && result.data.chatroomId) {
+                    // 채팅방 생성 성공: 생성된 채팅방 ID를 사용해 채팅방 페이지로 이동
+                    window.location.href = `/chatroom?chatroomId=${result.data.chatroomId}`;
+                } else {
+                    alert("채팅방 생성에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("채팅방 생성 에러:", error);
+                alert("채팅방 생성 중 오류가 발생했습니다.");
+            });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

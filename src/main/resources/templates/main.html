@@ -2,6 +2,9 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     <title>메인 페이지</title>
     <style>
         /* 간단한 스타일 예시 */
@@ -9,21 +12,26 @@
             margin: 0;
             font-family: sans-serif;
         }
+
+        .logo {
+            width: 120px;
+        }
+
         header {
-            padding: 10px;
-            background-color: #eee;
             display: flex;
             gap: 8px;
             align-items: center;
         }
-        #categoryContainer, #productContainer {
-            padding: 10px;
+
+        #categoryContainer {
+            margin-top: 15px;
+            margin-bottom: 30px;
         }
-        .category-item, .product-item {
+
+        .category-item {
             border: 1px solid #ccc;
-            margin: 5px;
-            padding: 8px;
             display: inline-block;
+            margin-right: 25px;
             vertical-align: top;
             text-align: center;
         }
@@ -34,46 +42,74 @@
             display: block;
             margin: 0 auto 8px;
         }
-        nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 50px;
-            background-color: #ddd;
+
+        .product-item {
             display: flex;
-            justify-content: space-around;
-            align-items: center;
+            padding-bottom: 20px;
+            padding-top: 20px;
+            border-bottom: 1px solid #f0f0f0;
         }
-        nav div {
+
+        .product-left {
+            border: 1px solid #ccc;
+            margin-right: 30px;
+        }
+
+        .product-right strong {
+            font-size: 18px;
+        }
+
+        .create-product-btn {
+            position: fixed;
+            bottom: 75px; /* 네비게이션 바(50px) 위에 10px 여유 */
+            right: calc((100% - 400px) / 2 + 25px); /* 중앙 컨테이너의 오른쪽 끝에서 10px 안쪽 */
+            padding: 10px 20px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
             cursor: pointer;
+            z-index: 1100; /* 네비게이션보다 위에 표시 */
         }
+
     </style>
 </head>
 <body>
 <!-- 상단 검색창 -->
-<header>
-    <input type="text" id="searchInput" placeholder="검색어를 입력하세요" />
-    <button onclick="searchProducts()">검색</button>
-</header>
 
-<!-- 게임 카테고리 영역 -->
-<div id="categoryContainer">
-    <!-- /games API로 받아온 게임 목록을 표시할 예정 -->
+
+<div class="container">
+    <div class="inner-con">
+        <img th:src="@{/img/levelup-logo.png}" alt="Levelup 로고" class="logo">
+        <header>
+            <input type="text" id="searchInput" placeholder="검색어를 입력하세요" />
+            <button class="btn search-icon" onclick="searchProducts()">
+                <i class="material-icons">search</i>
+            </button>
+
+        </header>
+        <!-- 게임 카테고리 영역 -->
+        <div id="categoryContainer">
+            <!-- /games API로 받아온 게임 목록을 표시할 예정 -->
+        </div>
+
+        <!-- 상품 목록 영역 -->
+        <div id="productContainer">
+            <!-- /v1/products API로 받아온 상품 목록을 표시할 예정 -->
+        </div>
+
+
+
+
+    </div>
+
+
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
 </div>
 
-<!-- 상품 목록 영역 -->
-<div id="productContainer">
-    <!-- /v1/products API로 받아온 상품 목록을 표시할 예정 -->
-</div>
-
-<!-- 하단 공통 메뉴 -->
-<nav>
-    <div onclick="goHome()">홈</div>
-    <div onclick="goEvent()">이벤트</div>
-    <div onclick="goChat()">채팅</div>
-    <div onclick="goProfile()">프로필</div>
-</nav>
-
+<button class="create-product-btn" onclick="location.href='/product-create'">강의개설</button>
 <script>
     // 1. 페이지 로드시 게임 목록과 상품 목록을 불러온다.
     window.onload = function() {
@@ -157,9 +193,7 @@
             const item = document.createElement('div');
             item.className = 'category-item';
             item.innerHTML = `
-          <img src="${game.imgUrl}" alt="${game.name}" />
-          <div>${game.name}</div>
-          <div style="font-size:0.8em; color:gray;">${game.genre}</div>
+            <img src="${game.imgUrl}" alt="${game.name}" />
         `;
             // 클릭 시 해당 게임 카테고리의 상품만 필터링
             item.onclick = () => filterProductsByGame(game.name); // 예시
@@ -177,13 +211,19 @@
         productList.forEach(product => {
             const item = document.createElement('div');
             item.className = 'product-item';
-            // 단순 예시로만 구성. 필요한 정보(별점, 할인, 참여자 수 등)는 추가 필드 사용
+            // 클릭 시 상품 상세 페이지로 이동하는 이벤트 추가
+            item.onclick = () => {
+                window.location.href = `/product-detail?productId=${product.productId}`;
+            };
+
             item.innerHTML = `
-          <img src="${product.imgUrl}" alt="${product.productName}" />
-          <div><strong>${product.productName}</strong></div>
-          <div>가격: ${product.price}원</div>
-          <div>재고: ${product.amount}개</div>
-          <div>상태: ${product.status}</div>
+          <div class="product-left">
+            <img src="${product.imgUrl}" alt="${product.productName}" />
+          </div>
+          <div class="product-right">
+               <div><strong>${product.productName}</strong></div>
+               <div>가격: ${product.price}원</div>
+          </div>
         `;
             container.appendChild(item);
         });
@@ -198,21 +238,7 @@
         // 실제로는 별도의 API를 호출하거나, productList를 로컬에서 필터링할 수 있습니다.
     }
 
-    /**
-     * 8. 하단 메뉴 (탭) 이동 함수 예시
-     */
-    function goHome() {
-        alert('홈으로 이동 (예시)');
-    }
-    function goEvent() {
-        alert('이벤트 페이지로 이동 (예시)');
-    }
-    function goChat() {
-        alert('채팅 페이지로 이동 (예시)');
-    }
-    function goProfile() {
-        alert('프로필 페이지로 이동 (예시)');
-    }
+
 </script>
 </body>
 </html>

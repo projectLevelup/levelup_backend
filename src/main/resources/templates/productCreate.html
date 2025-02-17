@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>상품 생성</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="number"] {
+            padding: 5px;
+            margin-top: 5px;
+        }
+        /* 게임 목록을 이미지 박스로 가로 정렬 */
+        .game-box-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            margin-top: 10px;
+            padding-bottom: 10px;
+        }
+        .game-box {
+            flex: 0 0 auto;
+            width: 70px;
+            height: 70px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .game-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .game-box.selected {
+            border-color: #4285F4;
+        }
+        select, .btn, .cancel-btn {
+            padding: 5px;
+            margin-top: 5px;
+        }
+        .btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 8px 16px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #357ae8;
+        }
+        .cancel-btn {
+            background-color: #aaa;
+        }
+
+        #contents {
+            height: 250px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <h1>상품 생성</h1>
+        <form id="productForm">
+            <label>
+                <div id="gameContainer" class="game-box-container">
+                    <!-- loadGames() 함수가 API 호출 후 게임 박스를 동적으로 추가 -->
+                </div>
+            </label>
+            <label>
+                <p>제목</p>
+                <input type="text" id="productName" required maxlength="255" />
+            </label>
+            <label>
+                <p>가격</p>
+                <input type="text" id="price" required />
+            </label>
+            <label>
+                <p>자세한 설명</p>
+                <input type="text" id="contents" required maxlength="1000" />
+            </label>
+            <label>
+                <p>인원 제한</p>
+                <input type="text" id="amount" required />
+            </label>
+            <label>
+                <p>상태</p>
+                <select id="status" required>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                </select>
+            </label>
+            <label>
+                <p>이미지</p>
+                <input type="text" id="imgUrl" />
+            </label>
+
+            <button type="button" class="btn" onclick="createProduct()">상품 등록</button>
+            <button type="button" class="btn cancel-btn" onclick="cancel()">취소</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+    // 전역 변수: 선택된 게임 ID
+    let selectedGameId = null;
+
+    // 페이지 로드 시 게임 목록을 불러옵니다.
+    window.onload = function() {
+        loadGames();
+    };
+
+    /**
+     * 게임 목록 불러오기 (GET /v1/games)
+     * API 응답 예시: { status, message, data: { gameListResponseDto: [ { id, name, imgUrl, ... }, ... ] } }
+     */
+    function loadGames() {
+        fetch('/v1/games')
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    const gameList = result.data.gameListResponseDto;
+                    displayGameBoxes(gameList);
+                } else {
+                    console.error('게임 목록 불러오기 실패');
+                }
+            })
+            .catch(error => {
+                console.error('게임 목록 불러오기 에러:', error);
+            });
+    }
+
+    /**
+     * 게임 목록을 이미지 박스로 가로로 표시
+     */
+    function displayGameBoxes(gameList) {
+        const container = document.getElementById('gameContainer');
+        container.innerHTML = ''; // 초기화
+
+        gameList.forEach(game => {
+            const box = document.createElement('div');
+            box.className = 'game-box';
+            box.innerHTML = `<img src="${game.imgUrl}" alt="${game.name}" title="${game.name}">`;
+
+            // 클릭 시 선택 처리
+            box.onclick = function() {
+                // 모든 박스에서 'selected' 클래스 제거
+                document.querySelectorAll('.game-box').forEach(b => b.classList.remove('selected'));
+                // 클릭한 박스에 'selected' 클래스 추가
+                box.classList.add('selected');
+                // 선택된 게임 ID 저장
+                selectedGameId = game.gameId;
+                console.log("선택된 게임 ID:", selectedGameId);
+            };
+
+            container.appendChild(box);
+        });
+    }
+
+    /**
+     * 상품 생성 요청 (POST /v1/products)
+     */
+    function createProduct() {
+        // 선택된 게임 ID 확인
+        if (!selectedGameId) {
+            alert("게임을 선택해주세요.");
+            return;
+        }
+        const productName = document.getElementById('productName').value;
+        const contents = document.getElementById('contents').value;
+        const price = document.getElementById('price').value;
+        const amount = document.getElementById('amount').value;
+        const status = document.getElementById('status').value;
+        const imgUrl = document.getElementById('imgUrl').value;
+
+        // 간단한 유효성 검사
+        if (!productName || !contents || !price || !amount || !status) {
+            alert("필수 항목을 모두 입력해주세요.");
+            return;
+        }
+
+        const requestData = {
+            gameId: Number(selectedGameId),
+            productName: productName,
+            contents: contents,
+            price: Number(price),
+            amount: Number(amount),
+            status: status,
+            imgUrl: imgUrl
+        };
+
+        fetch('/v1/products', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    alert("상품이 생성되었습니다: " + result.data.productId);
+                    window.location.href = "/";
+                } else {
+                    alert("상품 생성 실패: " + (result.message || "알 수 없는 오류"));
+                }
+            })
+            .catch(error => {
+                console.error('상품 생성 중 에러:', error);
+                alert("상품 생성 중 오류가 발생했습니다.");
+            });
+    }
+
+    /**
+     * 취소 버튼 클릭 시
+     */
+    function cancel() {
+        window.location.href = "/";
+    }
+</script>
+</body>
+</html>
