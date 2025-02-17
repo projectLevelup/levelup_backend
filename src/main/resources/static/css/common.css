@@ -69,3 +69,30 @@ input[type="text"] {
 h1, h2 {
     margin-bottom: 16px;
 }
+
+.my-message {
+    text-align: right;       /* 오른쪽 정렬 */
+    margin: 5px 0;
+}
+
+.other-message {
+    text-align: left;        /* 왼쪽 정렬 */
+    margin: 5px 0;
+}
+
+.message-text {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background-color: #f1f1f1; /* 메시지 말풍선 색 */
+}
+
+.my-message .message-text {
+    background-color: #b8d2f6; /* 내 메시지 말풍선 색 */
+}
+
+.nickname {
+    font-weight: bold;
+    margin-bottom: 3px;
+    font-size: 14px;
+}

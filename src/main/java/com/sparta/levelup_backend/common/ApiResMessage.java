@@ -39,5 +39,6 @@ public class ApiResMessage {
     // Chat
     public static final String CHATROOM_CREATE = "채팅방이 생성되었습니다";
     public static final String CHATROOM_LEAVE = "채팅방을 떠났습니다";
+    public static final String MESSAGE_SAVE_SUCCESS = "메시지를 저장하였습니다";
 }
 
