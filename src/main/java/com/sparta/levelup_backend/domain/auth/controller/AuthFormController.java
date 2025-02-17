@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class AuthFormController {
 
-    @GetMapping("/v1/signin")
+    @GetMapping("/v2/signin")
     public String loginPage(HttpServletRequest request){
         return "signin";
     }

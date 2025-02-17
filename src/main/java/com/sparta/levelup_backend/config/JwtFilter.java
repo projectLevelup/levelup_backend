@@ -31,7 +31,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
         new AntPathRequestMatcher("/"),
-        new AntPathRequestMatcher("/v1/sign**"));
+        new AntPathRequestMatcher("/v2/sign**"));
     private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
     private final FilterResponse filterResponse;
 
