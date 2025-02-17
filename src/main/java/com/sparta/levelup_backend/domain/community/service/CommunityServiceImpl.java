@@ -74,7 +74,7 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	public CommunityResponseDto update(Long userId, CommunityUpdateRequestDto dto) {
-		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getId());
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
 		if (!community.getUser().getId().equals(userId) || !community.getUser().getRole().equals(ADMIN)) {
 			throw new ForbiddenException(FORBIDDEN_ACCESS);
 		}

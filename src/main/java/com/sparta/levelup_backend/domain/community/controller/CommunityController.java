@@ -56,7 +56,7 @@ public class CommunityController {
 
 	@PatchMapping
 	public ApiResponse<CommunityResponseDto> updateCommunity(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommunityUpdateRequestDto dto) {
+		@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody CommunityUpdateRequestDto dto) {
 
 		Long userId = customUserDetails.getId();
 
