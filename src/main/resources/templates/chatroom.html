@@ -8,6 +8,12 @@
     <!-- SockJS와 Stomp.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var currentUserNickname = /*[[${nickname}]]*/ "guest";
+        console.log(currentUserNickname);
+        /*]]>*/
+    </script>
 </head>
 <body>
 <div class="container">
@@ -87,13 +93,60 @@
 
     function showMessage(message) {
         const chatDiv = document.getElementById("chat");
-        const p = document.createElement("p");
-        p.innerHTML = `<strong>${message.nickname}:</strong> ${message.message}`;
-        chatDiv.appendChild(p);
+
+        // 메시지 전체를 감쌀 컨테이너 div 생성
+        const messageContainer = document.createElement("div");
+
+        if (message.nickname === currentUserNickname) {
+            // 내 메시지 (오른쪽 정렬, 닉네임 숨김)
+            messageContainer.classList.add("my-message");
+            messageContainer.innerHTML = `
+            <div class="message-text">
+                ${message.message}
+            </div>
+        `;
+        } else {
+            // 상대 메시지 (왼쪽 정렬, 닉네임 표시)
+            messageContainer.classList.add("other-message");
+            messageContainer.innerHTML = `
+            <div class="nickname">
+                ${message.nickname}
+            </div>
+            <div class="message-text">
+                ${message.message}
+            </div>
+        `;
+        }
+
+        chatDiv.appendChild(messageContainer);
         chatDiv.scrollTop = chatDiv.scrollHeight;
     }
 
-    window.onload = connect;
+
+
+    function loadChatHistory() {
+        fetch(`/v1/chats/${chatroomId}/history`)
+            .then(response => response.json())
+            .then(result => {
+                // 응답 객체에서 data 프로퍼티를 추출
+                if (result && result.data) {
+                    result.data.forEach(message => {
+                        showMessage(message);
+                    });
+                } else {
+                    console.error('채팅 기록 불러오기 실패: 응답 데이터가 없습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('채팅 기록 불러오기 실패', error);
+            });
+    }
+
+
+    window.onload = function() {
+        connect();
+        loadChatHistory();
+    };
 </script>
 </body>
 </html>

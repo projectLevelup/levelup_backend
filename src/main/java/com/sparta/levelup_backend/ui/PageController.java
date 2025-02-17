@@ -47,6 +47,7 @@ public class PageController {
 		}
 
 		model.addAttribute("chatroomId", chatroomId);
+		model.addAttribute("nickname", authUser.getUser().getNickName());
 		return "chatroom";
 	}
 
