@@ -8,6 +8,8 @@ import lombok.Setter;
 @Getter
 @Builder
 public class ChatMessageDto {
+
+	private Long chatroomId;
 	private String nickname;
 	private String message;
 }
