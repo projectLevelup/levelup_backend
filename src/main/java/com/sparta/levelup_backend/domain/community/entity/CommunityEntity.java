@@ -42,6 +42,10 @@ public class CommunityEntity extends BaseEntity {
 		this.content = content;
 	}
 
+	public void deleteCommunity() {
+		this.delete();
+	}
+
 	public CommunityEntity(String title, String content, UserEntity user, GameEntity game) {
 		this.title = title;
 		this.content = content;

@@ -5,6 +5,7 @@ import static com.sparta.levelup_backend.common.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,11 +57,22 @@ public class CommunityController {
 
 	@PatchMapping
 	public ApiResponse<CommunityResponseDto> updateCommunity(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody CommunityUpdateRequestDto dto) {
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@Valid @RequestBody CommunityUpdateRequestDto dto) {
 
 		Long userId = customUserDetails.getId();
 
 		CommunityResponseDto requestDto = communityService.update(userId, dto);
 		return success(OK, COMMUNITY_UPDATE_SUCCESS, requestDto);
+	}
+
+	@DeleteMapping
+	public ApiResponse<Void> deleteCommunity(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@RequestParam Long communityId) {
+
+		Long userId = customUserDetails.getId();
+
+		communityService.delete(userId, communityId);
+		return success(OK, COMMUNITY_DELETE_SUCCESS);
 	}
 }
