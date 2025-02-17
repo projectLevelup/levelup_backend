@@ -15,6 +15,7 @@ import com.sparta.levelup_backend.domain.community.dto.request.CommnunityCreateR
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityResponseDto;
 import com.sparta.levelup_backend.domain.community.service.CommunityService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,7 +26,7 @@ public class CommunityController {
 
 	@PostMapping
 	public ApiResponse<CommunityResponseDto> SaveCommunity(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestBody CommnunityCreateRequestDto dto) {
+		@Valid @RequestBody CommnunityCreateRequestDto dto) {
 
 		Long userId = customUserDetails.getId();
 		CommunityResponseDto responseDto = communityService.saveCommunity(userId, dto);
