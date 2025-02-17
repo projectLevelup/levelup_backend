@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JwtUtils jwtUtils;
-	private final CustomUserDetailsService userDetailsService;
 	private final FilterResponse filterResponse;
 
 	@Bean
@@ -46,13 +45,15 @@ public class SecurityConfig {
 
 		http
 			.csrf((csrf) -> csrf.disable())
-			.formLogin((form) -> form.disable())
+			.headers(headers -> headers.disable())
+			.formLogin((form) -> form
+				.loginPage("/v2/signin"))
 			.httpBasic((basic) -> basic.disable());
 
 		http.
 			authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/","/v1/signin","v1/signup").permitAll()
-				.requestMatchers("/v1/admin/**").hasRole("ADMIN")
+				.requestMatchers("/","/v2/signin","/v2/signinSend","v2/signup").permitAll()
+				.requestMatchers("/v2/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated());
 
 		http.exceptionHandling(exceptionHandling ->
@@ -63,7 +64,7 @@ public class SecurityConfig {
 
 		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
 			authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
-		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v1/signin");
+		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v2/signinSend");
 
 		http.
 			addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

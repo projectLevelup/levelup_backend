@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.user.service;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.FORBIDDEN_ACCESS;
+
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserImgUrlReqeustDto;
@@ -8,9 +10,7 @@ import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.CurrentPasswordNotMatchedException;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.exception.common.PasswordConfirmNotMatchedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
             UserEntity user = userRepository.findByIdOrElseThrow(id);
             return UserResponseDto.from(user);
         }
-        throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        throw new ForbiddenException(FORBIDDEN_ACCESS);
     }
 
     @Override

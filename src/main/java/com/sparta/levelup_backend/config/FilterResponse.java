@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.config;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.http.HttpStatus;
@@ -12,7 +14,7 @@ public class FilterResponse {
     public void responseErrorMsg(HttpServletResponse response,int statusCode,String code, String msg){
         try {
             response.setStatus(statusCode);
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
 
             response.getWriter().write("{\n"
@@ -30,7 +32,7 @@ public class FilterResponse {
     public void responseSuccessMsg(HttpServletResponse response, HttpStatus statusCode,String msg, String data){
         try {
             response.setStatus(statusCode.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
 
             response.getWriter().write("{\n"

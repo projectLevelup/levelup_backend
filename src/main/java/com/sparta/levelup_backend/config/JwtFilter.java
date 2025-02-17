@@ -1,25 +1,16 @@
 package com.sparta.levelup_backend.config;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.EXPIRED_JWT_TOKEN;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.INVALID_FORMAT_TOKEN;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.INVALID_JWT_TOKEN;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.TOKEN_NOT_FOUND;
+
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
-import com.sparta.levelup_backend.utill.UserRole;
-import java.io.IOException;
-
-import io.jsonwebtoken.Claims;
-
-import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.sparta.levelup_backend.domain.auth.service.CustomUserDetailsService;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.utill.JwtUtils;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
+import com.sparta.levelup_backend.utill.UserRole;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -27,38 +18,58 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-    private final RequestMatcher WHITE_LIST = new AntPathRequestMatcher("/v1/sign**");
+    private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
+        new AntPathRequestMatcher("/"),
+        new AntPathRequestMatcher("/v2/sign**"));
+    private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
     private final FilterResponse filterResponse;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException, NotFoundException {
-        if (WHITE_LIST.matches(request)) {
+
+        if (orRequestMatcher.matches(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwt = request.getHeader("Authorization");
+        String accessToken = request.getHeader("Authorization");
+        String refreshToken = extractToken(request, "refreshToken");
+        accessToken = extractToken(request, "accessToken");
+
 
         try {
-            if (jwt == null || jwt.isBlank()) {
-                throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
-            }
-            Claims claims = jwtUtils.extractClaims(jwtUtils.substringToken(jwt));
-            if (claims == null) {
-                throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
+            if(isTokenExpired(accessToken)){
+                String token = jwtUtils.refresingToken(refreshToken);
+                response.addHeader("Authorization", token);
+                response.addHeader("Set-Cookie","accessToken="+token);
+            }else if(isTokenExpired(refreshToken)){
+                String token = jwtUtils.refresingToken(accessToken);
+                response.addHeader("Set-Cookie","refreshToken="+token);
             }
 
-            String email = claims.getSubject();
-            String role = claims.get("role", String.class);
+            Claims accessTokenClaims = jwtUtils.extractClaims(jwtUtils.substringToken(accessToken));
+
+            String email = accessTokenClaims.getSubject();
+            String role = accessTokenClaims.get("role", String.class);
             role = role.substring(5);
-            Long id = Long.parseLong(claims.get("id", String.class));
+            Long id = Long.parseLong(accessTokenClaims.get("id", String.class));
 
             UserEntity tokenUser = UserEntity.builder()
                 .id(id)
@@ -74,21 +85,21 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
             filterChain.doFilter(request, response);
         } catch (SecurityException | MalformedJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.INVALID_JWT_TOKEN.getStatus().value(),
-                ErrorCode.INVALID_JWT_TOKEN.getCode(),
-                ErrorCode.INVALID_JWT_TOKEN.getMessage());
+            filterResponse.responseErrorMsg(response, INVALID_JWT_TOKEN.getStatus().value(),
+                INVALID_JWT_TOKEN.getCode(),
+                INVALID_JWT_TOKEN.getMessage());
         } catch (ExpiredJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.EXPIRED_JWT_TOKEN.getStatus().value(),
-                ErrorCode.EXPIRED_JWT_TOKEN.getCode(),
-                ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
+            filterResponse.responseErrorMsg(response, EXPIRED_JWT_TOKEN.getStatus().value(),
+                EXPIRED_JWT_TOKEN.getCode(),
+                EXPIRED_JWT_TOKEN.getMessage());
         } catch (UnsupportedJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.INVALID_FORMAT_TOKEN.getStatus().value(),
-                ErrorCode.INVALID_FORMAT_TOKEN.getCode(),
-                ErrorCode.INVALID_FORMAT_TOKEN.getMessage());
+            filterResponse.responseErrorMsg(response, INVALID_FORMAT_TOKEN.getStatus().value(),
+                INVALID_FORMAT_TOKEN.getCode(),
+                INVALID_FORMAT_TOKEN.getMessage());
         } catch (NotFoundException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.TOKEN_NOT_FOUND.getStatus().value(),
-                ErrorCode.TOKEN_NOT_FOUND.getCode(),
-                ErrorCode.TOKEN_NOT_FOUND.getMessage());
+            filterResponse.responseErrorMsg(response, TOKEN_NOT_FOUND.getStatus().value(),
+                TOKEN_NOT_FOUND.getCode(),
+                TOKEN_NOT_FOUND.getMessage());
         } catch (Exception e) {
             filterResponse.responseErrorMsg(response,
                 ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value(),
@@ -97,12 +108,36 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
-    private void sendError(HttpServletResponse response, int errorCode, String msg)
-        throws IOException {
-        response.setStatus(errorCode);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(msg);
-        response.getWriter().flush();
+    public String extractToken(HttpServletRequest request, String tokenName){
+        String token = null;
+        if(request.getHeader("Cookie")!=null) {
+            String cookie = request.getHeader("Cookie");
+            String[] cookies = cookie.split("; ");
+            for(String cookiedata : cookies){
+                if(cookiedata.startsWith(tokenName)){
+                    int index = cookiedata.indexOf("=");
+                    token = cookiedata.substring(index+1);
+                }
+            }
+        }
+        return token;
+    }
+
+    public boolean isTokenExpired(String token) throws Exception {
+
+        try {
+
+            if (token == null || token.isBlank()) {
+                throw new NotFoundException(TOKEN_NOT_FOUND);
+            }
+            Claims claims = jwtUtils.extractClaims(jwtUtils.substringToken(token));
+            if (claims == null) {
+                throw new NotFoundException(TOKEN_NOT_FOUND);
+            }
+            return false;
+
+        }catch(ExpiredJwtException e){
+            return true;
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.config;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.FORBIDDEN_ACCESS;
+
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,8 +19,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
         filterResponse.responseErrorMsg(response,
-            ErrorCode.FORBIDDEN_ACCESS.getStatus().value(),
-            ErrorCode.FORBIDDEN_ACCESS.getCode(),
-            ErrorCode.FORBIDDEN_ACCESS.getMessage());
+            FORBIDDEN_ACCESS.getStatus().value(),
+            FORBIDDEN_ACCESS.getCode(),
+            FORBIDDEN_ACCESS.getMessage());
     }
 }

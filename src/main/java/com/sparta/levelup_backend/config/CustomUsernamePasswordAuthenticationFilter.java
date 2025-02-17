@@ -2,9 +2,6 @@ package com.sparta.levelup_backend.config;
 
 import static com.sparta.levelup_backend.common.ApiResMessage.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.levelup_backend.common.ApiResMessage;
-import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.JwtUtils;
 import jakarta.servlet.FilterChain;
@@ -14,10 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,7 +26,6 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private final FilterResponse filterResponse;
 
 
@@ -39,36 +33,13 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     public Authentication attemptAuthentication(HttpServletRequest request,
         HttpServletResponse response) throws
         AuthenticationException {
+        request.getCookies();
 
-        String email;
-        String password;
+        setUsernameParameter("email");
 
-        if (request.getContentType() != null && request.getContentType()
-            .equals(MediaType.APPLICATION_JSON_VALUE)) {
-            try {
-                SignInUserRequestDto signInUserRequestDto = objectMapper.readValue(
-                    request.getReader().lines().collect(Collectors.joining()),
-                    SignInUserRequestDto.class);
+        String email = obtainUsername(request);
+        String password = obtainPassword(request);
 
-                email = signInUserRequestDto.getEmail();
-                password = signInUserRequestDto.getPassword();
-
-            } catch (IOException e) {
-                email = " ";
-                password = " ";
-                filterResponse.responseErrorMsg(response,
-                    ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),
-                    ErrorCode.INVALID_JSON_FORMAT.getCode(),
-                    ErrorCode.INVALID_JSON_FORMAT.getMessage());
-            }
-        } else {
-            filterResponse.responseErrorMsg(response,
-                ErrorCode.INVALID_JSON_FORMAT.getStatus().value(),
-                ErrorCode.INVALID_JSON_FORMAT.getCode(),
-                ErrorCode.INVALID_JSON_FORMAT.getMessage());
-            email = " ";
-            password = " ";
-        }
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(email,
             password);
 
@@ -79,19 +50,28 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     protected void successfulAuthentication(HttpServletRequest request,
         HttpServletResponse response, FilterChain chain,
         Authentication authentication) throws IOException {
+
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         String username = customUserDetails.getUsername();
         Long id = customUserDetails.getId();
+
+
 
         Collection<? extends GrantedAuthority> authorites = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorites.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String token = jwtUtils.createToken(username, id, role);
+        String accessToken = jwtUtils.createAccessToken(username, id, role);
+        String refreshToken = jwtUtils.createRefreshToken(username, id, role);
 
-        response.addHeader("Authorization", token);
-        filterResponse.responseSuccessMsg(response, HttpStatus.OK, LOGIN_SUCCESS, token);
+        response.addHeader("Authorization", accessToken);
+
+
+        response.addHeader("Set-Cookie","accessToken="+accessToken);
+        response.addHeader("Set-Cookie","refreshToken="+refreshToken);
+        response.addHeader("Domain","localhost" );
+        filterResponse.responseSuccessMsg(response, HttpStatus.OK, LOGIN_SUCCESS, accessToken);
 
     }
 

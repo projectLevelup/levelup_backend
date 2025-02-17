@@ -5,6 +5,7 @@ import static com.sparta.levelup_backend.domain.user.dto.UserValidMessage.PASSWO
 import static com.sparta.levelup_backend.domain.user.dto.UserValidMessage.PHONE_NUMBER_NOT_VALID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sparta.levelup_backend.config.annotaion.FormToJson;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import org.hibernate.validator.constraints.URL;
 
 @Getter
 @NoArgsConstructor
+@FormToJson
 public class SignUpUserRequestDto {
 
 	@JsonProperty(value = "email")
