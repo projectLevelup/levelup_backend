@@ -14,6 +14,11 @@ public class RedisPublisher {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 
+	/**
+	 * 메시지 발행 메서드
+	 * @param topic 발행할 채널(Topic)
+	 * @param dto 채널ID, nickname, message
+	 */
 	public void publish(ChannelTopic topic, ChatMessageDto dto) {
 		redisTemplate.convertAndSend(topic.getTopic(), dto);
 	}

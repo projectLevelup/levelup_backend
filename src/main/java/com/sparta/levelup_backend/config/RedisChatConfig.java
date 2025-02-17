@@ -15,6 +15,12 @@ import com.sparta.levelup_backend.domain.chat.service.RedisSubscriber;
 @Configuration
 public class RedisChatConfig {
 
+	/**
+	 * Redis 메시지 구성 설정
+	 * @param redisConnectionFactory Redis 연결
+	 * @param redisSubscriber 수신된 메시지 처리 서비스
+	 * @param channelTopic 수신할 채널(Topic)
+	 */
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
 		RedisConnectionFactory redisConnectionFactory,
@@ -27,6 +33,11 @@ public class RedisChatConfig {
 		return container;
 	}
 
+	/**
+	 * Redis 기본 설정
+	 * key: String 문자열
+	 * value: ChatMessageDto
+	 */
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<String, Object> template = new RedisTemplate<>();

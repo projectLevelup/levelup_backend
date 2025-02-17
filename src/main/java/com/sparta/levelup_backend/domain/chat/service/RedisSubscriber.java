@@ -14,9 +14,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener {
 
-	private RedisTemplate<String, Object> redisTemplate;
-	private SimpMessagingTemplate messagingTemplate;
+	private final RedisTemplate<String, Object> redisTemplate;
+	private final SimpMessagingTemplate messagingTemplate;
 
+	/**
+	 * 수신받은 메시지 역직렬화 -> ChatMessageDto 로 변환
+	 * /sub/chats/{chatroomId} 채널로 전파
+	 */
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
 		ChatMessageDto chatMessage = (ChatMessageDto) redisTemplate.getValueSerializer().deserialize(message.getBody());
