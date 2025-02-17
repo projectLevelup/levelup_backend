@@ -2,60 +2,217 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>채팅 서비스 메인 페이지</title>
-    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>메인 페이지</title>
+    <style>
+        /* 간단한 스타일 예시 */
+        body {
+            margin: 0;
+            font-family: sans-serif;
+        }
+        header {
+            padding: 10px;
+            background-color: #eee;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        #categoryContainer, #productContainer {
+            padding: 10px;
+        }
+        .category-item, .product-item {
+            border: 1px solid #ccc;
+            margin: 5px;
+            padding: 8px;
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
+        }
+        .category-item img, .product-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto 8px;
+        }
+        nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 50px;
+            background-color: #ddd;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        nav div {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>채팅 서비스</h1>
-    <!-- 채팅하기 섹션 -->
-    <div class="sub-container">
-        <h2>채팅하기</h2>
-        <input class="input" type="text" id="targetUserId" placeholder="상대방 ID 입력" />
-        <button onclick="startChat()">채팅하기</button>
-    </div>
+<!-- 상단 검색창 -->
+<header>
+    <input type="text" id="searchInput" placeholder="검색어를 입력하세요" />
+    <button onclick="searchProducts()">검색</button>
+</header>
 
-    <!-- 채팅방 보기 섹션 -->
-    <div class="sub-container">
-        <h2>채팅방 목록</h2>
-        <button onclick="location.href='/chatroomList'">채팅방 보기</button>
-    </div>
+<!-- 게임 카테고리 영역 -->
+<div id="categoryContainer">
+    <!-- /games API로 받아온 게임 목록을 표시할 예정 -->
 </div>
 
-<script>
-    function startChat() {
-        const targetUserId = document.getElementById("targetUserId").value;
-        if (!targetUserId) {
-            alert("채팅할 상대방의 ID를 입력하세요.");
-            return;
-        }
+<!-- 상품 목록 영역 -->
+<div id="productContainer">
+    <!-- /v1/products API로 받아온 상품 목록을 표시할 예정 -->
+</div>
 
-        fetch(`/v1/chats?targetUserId=${targetUserId}&title=`, { // ✅ 쿼리 파라미터로 전달
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("채팅방 생성 실패");
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("채팅방 생성 성공:", data);
-                if (data.data && data.data.chatroomId) {
-                    window.location.href = `/chatroom?chatroomId=${data.data.chatroomId}`;
+<!-- 하단 공통 메뉴 -->
+<nav>
+    <div onclick="goHome()">홈</div>
+    <div onclick="goEvent()">이벤트</div>
+    <div onclick="goChat()">채팅</div>
+    <div onclick="goProfile()">프로필</div>
+</nav>
+
+<script>
+    // 1. 페이지 로드시 게임 목록과 상품 목록을 불러온다.
+    window.onload = function() {
+        loadGames();
+        loadProducts();
+    };
+
+    /**
+     * 2. 게임 카테고리 목록 불러오기
+     * GET /games => { status, message, data: { gameListResponseDto: [ {name, imgUrl, genre}, ... ] } }
+     */
+    function loadGames() {
+        fetch('/v1/games')
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    const gameList = result.data.gameListResponseDto;
+                    displayGames(gameList);
                 } else {
-                    alert("채팅방 ID를 가져올 수 없습니다.");
+                    console.error('게임 목록 불러오기 실패');
                 }
             })
             .catch(error => {
-                console.error(error);
-                alert("채팅방 생성 중 오류 발생");
+                console.error('게임 목록 불러오기 에러:', error);
             });
     }
 
+    /**
+     * 3. 상품 목록 불러오기
+     * GET /v1/products => { status, message, data: [ { userId, gameId, productName, ... }, ... ] }
+     */
+    function loadProducts() {
+        fetch('/v1/products')
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayProducts(result.data);
+                } else {
+                    console.error('상품 목록 불러오기 실패');
+                }
+            })
+            .catch(error => {
+                console.error('상품 목록 불러오기 에러:', error);
+            });
+    }
+
+    /**
+     * 4. 검색 기능 (단순 예시)
+     * 실제로는 서버에서 검색 API를 구현하거나, 프론트엔드에서 필터링할 수 있음
+     */
+    function searchProducts() {
+        const keyword = document.getElementById('searchInput').value;
+        if (!keyword) {
+            // 검색어가 없으면 전체 목록 재로드
+            loadProducts();
+            return;
+        }
+        // 예: /v1/products?search=keyword 와 같은 API가 있다고 가정
+        fetch(`/v1/products?search=${encodeURIComponent(keyword)}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayProducts(result.data);
+                } else {
+                    console.error('검색 실패');
+                }
+            })
+            .catch(error => {
+                console.error('검색 에러:', error);
+            });
+    }
+
+    /**
+     * 5. 게임 목록 UI 표시
+     */
+    function displayGames(gameList) {
+        const container = document.getElementById('categoryContainer');
+        container.innerHTML = ''; // 초기화
+
+        gameList.forEach(game => {
+            const item = document.createElement('div');
+            item.className = 'category-item';
+            item.innerHTML = `
+          <img src="${game.imgUrl}" alt="${game.name}" />
+          <div>${game.name}</div>
+          <div style="font-size:0.8em; color:gray;">${game.genre}</div>
+        `;
+            // 클릭 시 해당 게임 카테고리의 상품만 필터링
+            item.onclick = () => filterProductsByGame(game.name); // 예시
+            container.appendChild(item);
+        });
+    }
+
+    /**
+     * 6. 상품 목록 UI 표시
+     */
+    function displayProducts(productList) {
+        const container = document.getElementById('productContainer');
+        container.innerHTML = ''; // 초기화
+
+        productList.forEach(product => {
+            const item = document.createElement('div');
+            item.className = 'product-item';
+            // 단순 예시로만 구성. 필요한 정보(별점, 할인, 참여자 수 등)는 추가 필드 사용
+            item.innerHTML = `
+          <img src="${product.imgUrl}" alt="${product.productName}" />
+          <div><strong>${product.productName}</strong></div>
+          <div>가격: ${product.price}원</div>
+          <div>재고: ${product.amount}개</div>
+          <div>상태: ${product.status}</div>
+        `;
+            container.appendChild(item);
+        });
+    }
+
+    /**
+     * 7. 특정 게임 카테고리로 상품 필터링 (클라이언트 단 예시)
+     * 실제로는 /v1/products?gameId=xxx API 호출 등으로 서버에서 필터링할 수 있음
+     */
+    function filterProductsByGame(gameName) {
+        alert(gameName + ' 카테고리 상품 필터링 (예시)');
+        // 실제로는 별도의 API를 호출하거나, productList를 로컬에서 필터링할 수 있습니다.
+    }
+
+    /**
+     * 8. 하단 메뉴 (탭) 이동 함수 예시
+     */
+    function goHome() {
+        alert('홈으로 이동 (예시)');
+    }
+    function goEvent() {
+        alert('이벤트 페이지로 이동 (예시)');
+    }
+    function goChat() {
+        alert('채팅 페이지로 이동 (예시)');
+    }
+    function goProfile() {
+        alert('프로필 페이지로 이동 (예시)');
+    }
 </script>
 </body>
 </html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 - 게임 목록</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; }
+        header, main { padding: 10px; }
+        .game-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .game-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 150px;
+            text-align: center;
+        }
+        .game-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            margin-bottom: 5px;
+        }
+        .add-button {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>관리자 페이지 - 게임 목록</h1>
+</header>
+
+<main>
+    <button class="add-button" onclick="goAddGamePage()">게임 추가</button>
+    <div id="gameList" class="game-list">
+        <!-- 게임 목록이 표시될 영역 -->
+    </div>
+</main>
+
+<script>
+    // 페이지 로드 시 게임 목록 불러오기
+    window.onload = function() {
+        loadGames();
+    };
+
+    // 게임 목록 불러오기 (GET /games)
+    function loadGames() {
+        fetch('/v1/games')  // 실제 서버 경로에 맞게 수정
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayGames(result.data.gameListResponseDto);
+                } else {
+                    console.error('게임 목록 로드 실패');
+                }
+            })
+            .catch(error => {
+                console.error('에러 발생:', error);
+            });
+    }
+
+    // 게임 목록 UI 표시
+    function displayGames(gameList) {
+        const gameListDiv = document.getElementById('gameList');
+        gameListDiv.innerHTML = '';
+
+        gameList.forEach(game => {
+            const item = document.createElement('div');
+            item.className = 'game-item';
+            item.innerHTML = `
+        <img src="${game.imgUrl}" alt="${game.name}" />
+        <div><strong>${game.name}</strong></div>
+        <div style="font-size:0.8em; color:gray;">${game.genre}</div>
+      `;
+            gameListDiv.appendChild(item);
+        });
+    }
+
+    // "게임 추가" 버튼 클릭 시 게임 추가 페이지로 이동
+    function goAddGamePage() {
+        window.location.href = 'adminAddGame.html';
+    }
+</script>
+</body>
+</html>
