@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -19,17 +20,15 @@ public class RedisChatConfig {
 	 * Redis 메시지 구성 설정
 	 * @param redisConnectionFactory Redis 연결
 	 * @param redisSubscriber 수신된 메시지 처리 서비스
-	 * @param channelTopic 수신할 채널(Topic)
 	 */
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
 		RedisConnectionFactory redisConnectionFactory,
-		RedisSubscriber redisSubscriber,
-		ChannelTopic channelTopic
+		RedisSubscriber redisSubscriber
 	) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(redisConnectionFactory);
-		container.addMessageListener(redisSubscriber, channelTopic);
+		container.addMessageListener(redisSubscriber, new PatternTopic("chatroom:*"));
 		return container;
 	}
 
@@ -47,8 +46,4 @@ public class RedisChatConfig {
 		return template;
 	}
 
-	@Bean
-	public ChannelTopic topic() {
-		return new ChannelTopic("chatroom");
-	}
 }

@@ -21,7 +21,6 @@ public class ChatServiceImpl implements ChatService {
 
 	private final ChatMongoRepository chatMongoRepository;
 	private final RedisPublisher redisPublisher;
-	private final ChannelTopic topic;
 
 	@Override
 	public ChatMessageDto handleMessage(Long chatroomId, ChatMessageDto dto, Authentication authentication) {
@@ -41,7 +40,7 @@ public class ChatServiceImpl implements ChatService {
 		);
 
 		chatMongoRepository.save(chatMessage);
-		redisPublisher.publish(topic, messageDto);
+		redisPublisher.publish(getTopic(chatroomId), messageDto);
 		return messageDto;
 	}
 
@@ -58,5 +57,9 @@ public class ChatServiceImpl implements ChatService {
 				return dto;
 			})
 			.collect(Collectors.toList());
+	}
+
+	public ChannelTopic getTopic(Long chatroomId) {
+		return new ChannelTopic("chatroom:" + chatroomId);
 	}
 }
