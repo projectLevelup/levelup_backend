@@ -34,6 +34,14 @@ public class CommunityEntity extends BaseEntity {
 	@JoinColumn(name = "game_id")
 	private GameEntity game;
 
+	public void updateTitle(String title) {
+		this.title = title;
+	}
+
+	public void updateContent(String content) {
+		this.content = content;
+	}
+
 	public CommunityEntity(String title, String content, UserEntity user, GameEntity game) {
 		this.title = title;
 		this.content = content;
