@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AuthFormController {
 
     @GetMapping("/v2/signin")
-    public String loginPage(){
+    public String signInPage(){
         return "signin";
     }
 
