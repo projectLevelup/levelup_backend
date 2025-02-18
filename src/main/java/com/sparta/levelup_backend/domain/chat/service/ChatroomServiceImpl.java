@@ -97,11 +97,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 	 */
 	@Override
 	public List<ChatroomListResponseDto> findChatrooms(Long userId) {
-		List<ChatroomParticipantEntity> chatroomInfoList = cpRepository.findAllByUserId(userId);
-
-		return chatroomInfoList.stream()
-			.map(participant -> ChatroomListResponseDto.from(participant.getChatroom(), userId))
-			.toList();
+		return chatroomQueryRepository.findAllChatrooms(userId);
 	}
 
 }
