@@ -7,13 +7,10 @@ import com.sparta.levelup_backend.domain.auth.dto.response.NaverResponse;
 import com.sparta.levelup_backend.domain.auth.dto.response.OAuth2Response;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.AlreadyDeletedUserException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
-import com.sparta.levelup_backend.exception.common.MismatchException;
 import com.sparta.levelup_backend.utill.UserRole;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -27,7 +24,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException,MismatchException {
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
