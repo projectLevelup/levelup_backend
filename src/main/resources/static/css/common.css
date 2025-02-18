@@ -72,9 +72,6 @@ button {
     margin-bottom: 20px;
 }
 
-button:hover {
-    background-color: #0051a8;
-}
 
 /* 입력창 스타일 */
 input[type="text"] {
@@ -157,3 +154,40 @@ nav div {
 #chatroomTableBody {
     padding-top: 20px;
 }
+
+.send-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.send-btn .material-icons {
+    font-size: 24px;
+    color: #007aff;
+}
+
+.leave-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 5px;
+}
+
+.leave-btn .material-icons {
+    font-size: 24px;
+    color: lightgray; /* 원하시는 색상으로 변경 가능 */
+}
+
+.chatroom-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.chatroom-header h2 {
+    margin: 0;
+}
+

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>채팅방</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <!-- SockJS와 Stomp.js CDN -->
@@ -18,12 +19,18 @@
 <body>
 <div class="container">
     <div class="inner-con">
-        <h1>채팅방</h1>
+        <div class="chatroom-header">
+            <h2>채팅방</h2>
+            <button onclick="leaveChatroom()" class="leave-btn">
+                <i class="material-icons">exit_to_app</i>
+            </button>
+        </div>
         <div id="chat" style="height: 300px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #eee; padding: 10px;"></div>
         <div class="chat_input" style="display: flex; gap: 8px;">
             <input type="text" id="messageInput" placeholder="메시지 입력" />
-            <button onclick="sendMessage()">전송</button>
-            <button onclick="leaveChatroom()">나가기</button>
+            <button onclick="sendMessage()" class="send-btn">
+                <i class="material-icons">send</i>
+            </button>
         </div>
     </div>
 </div>
@@ -60,6 +67,10 @@
     function leaveChatroom() {
         if (!chatroomId) {
             alert("채팅방 ID가 없습니다.");
+            return;
+        }
+
+        if (!confirm("채팅방을 나가시겠습니까?")) {
             return;
         }
 

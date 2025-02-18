@@ -183,34 +183,55 @@
      * 신청하기 버튼 클릭 시 호출되는 함수
      * 판매자와 채팅을 시작하기 위해 채팅방 생성 API 호출 후, 채팅방 페이지로 이동
      */
-    function startChat() {
-        if (!sellerId) {
-            alert("판매자 정보가 없습니다.");
-            return;
-        }
-        // 채팅방 생성 API 호출 (POST /v1/chats?targetUserId=sellerId)
-        // 로그인한 사용자가 신청하는 경우, 현재 사용자의 인증 정보가 자동으로 포함되어야 함.
-        fetch(`/v1/chats?targetUserId=${sellerId}`, {
-            method: 'POST',
-            credentials: 'include', // 필요에 따라 쿠키 포함
-            headers: {
-                'Content-Type': 'application/json'
+    async function startChat() {
+        try {
+            // 주문 생성 API 호출
+            const orderResult = await createOrder(productId);
+            if (!(orderResult && orderResult.data)) {
+                alert("주문 생성에 실패했습니다.");
+                return; // 주문 생성 실패 시 채팅방 생성 중단
             }
-        })
-            .then(response => response.json())
-            .then(result => {
-                if (result && result.data && result.data.chatroomId) {
-                    // 채팅방 생성 성공: 생성된 채팅방 ID를 사용해 채팅방 페이지로 이동
-                    window.location.href = `/chatroom?chatroomId=${result.data.chatroomId}`;
-                } else {
-                    alert("채팅방 생성에 실패했습니다.");
+            console.log("주문 생성 완료:", orderResult.data);
+
+            if (!sellerId) {
+                alert("판매자 정보가 없습니다.");
+                return;
+            }
+            // 주문 생성 성공 후 채팅방 생성 API 호출
+            const chatResponse = await fetch(`/v1/chats?targetUserId=${sellerId}`, {
+                method: 'POST',
+                credentials: 'include', // 필요에 따라 쿠키 포함
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-            })
-            .catch(error => {
-                console.error("채팅방 생성 에러:", error);
-                alert("채팅방 생성 중 오류가 발생했습니다.");
             });
+            const chatResult = await chatResponse.json();
+            if (chatResult && chatResult.data && chatResult.data.chatroomId) {
+                // 채팅방 생성 성공: 생성된 채팅방 ID를 사용해 채팅방 페이지로 이동
+                window.location.href = `/chatroom?chatroomId=${chatResult.data.chatroomId}`;
+            } else {
+                alert("채팅방 생성에 실패했습니다.");
+            }
+        } catch (error) {
+            console.error("처리 중 에러 발생:", error);
+            alert("처리 중 오류가 발생했습니다.");
+        }
     }
+
+    async function createOrder(productId) {
+        const response = await fetch('/v1/orders', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId: productId })
+        });
+        return response.json();
+    }
+
+
+
+
+
     /*]]>*/
 </script>
 </body>
