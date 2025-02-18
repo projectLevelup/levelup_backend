@@ -62,4 +62,10 @@ public class PageController {
 	public String chatroomList() {
 		return "chatroomList";
 	}
+
+	@GetMapping("/product-detail")
+	public String productDetail(@RequestParam("productId") Long productId, Model model) {
+		model.addAttribute("productId", productId);
+		return "productDetail";
+	}
 }
