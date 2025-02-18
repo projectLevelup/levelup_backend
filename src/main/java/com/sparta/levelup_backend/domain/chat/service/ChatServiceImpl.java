@@ -21,9 +21,10 @@ public class ChatServiceImpl implements ChatService {
 
 	private final ChatMongoRepository chatMongoRepository;
 	private final RedisPublisher redisPublisher;
+	private final ChatroomService chatroomService;
 
 	@Override
-	public ChatMessageDto handleMessage(Long chatroomId, ChatMessageDto dto, Authentication authentication) {
+	public ChatMessageDto handleMessage(String chatroomId, ChatMessageDto dto, Authentication authentication) {
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
 		ChatMessageDto messageDto = new ChatMessageDto(
@@ -39,13 +40,16 @@ public class ChatServiceImpl implements ChatService {
 			.timestamp(LocalDateTime.now())
 			.build();
 
+		// 메시지 발행시 마지막 메시지, 안 읽음수 업데이트
+		chatroomService.updateUnreadCountAndLastMessage(chatroomId, user.getUser().getId(), dto.getMessage());
+
 		redisPublisher.publish(getTopic(chatroomId), messageDto);
 		chatMongoRepository.save(chatMessage);
 		return messageDto;
 	}
 
 	@Override
-	public List<ChatMessageDto> findChatHistory(Long chatroomId) {
+	public List<ChatMessageDto> findChatHistory(String chatroomId) {
 		List<ChatMessage> messages = chatMongoRepository.findByChatroomId(chatroomId);
 		return messages.stream()
 			.map(msg -> {
@@ -59,7 +63,7 @@ public class ChatServiceImpl implements ChatService {
 			.collect(Collectors.toList());
 	}
 
-	public ChannelTopic getTopic(Long chatroomId) {
+	public ChannelTopic getTopic(String chatroomId) {
 		return new ChannelTopic("chatroom:" + chatroomId);
 	}
 }
