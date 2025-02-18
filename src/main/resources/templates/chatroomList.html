@@ -3,23 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>채팅방 목록</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
 </head>
 <body>
 <div class="container">
-    <h1>채팅방 목록</h1>
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-        <tr style="background-color: #f1f1f1;">
-            <th style="padding: 8px; border-bottom: 1px solid #eee;">채팅방 ID</th>
-            <th style="padding: 8px; border-bottom: 1px solid #eee;">제목</th>
-        </tr>
-        </thead>
-        <tbody id="chatroomTableBody">
-        <!-- 채팅방 목록이 여기에 채워집니다 -->
-        </tbody>
-    </table>
+    <div class="inner-con">
+        <h2>채팅방</h2>
+            <div id="chatroomTableBody">
+            <!-- 채팅방 목록이 여기에 채워집니다 -->
+            </div>
+    </div>
+
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
 </div>
 
 <script>
@@ -41,14 +39,16 @@
         const tbody = document.getElementById("chatroomTableBody");
         tbody.innerHTML = "";
         chatrooms.forEach(room => {
-            const tr = document.createElement("tr");
+            const tr = document.createElement("div");
             tr.style.cursor = "pointer";
             tr.onclick = function() {
                 window.location.href = "/chatroom?chatroomId=" + room.chatroomId;
             };
             tr.innerHTML = `
-                <td style="padding: 8px; border-bottom: 1px solid #eee;">${room.chatroomId}</td>
-                <td style="padding: 8px; border-bottom: 1px solid #eee;">${room.nickname}</td>
+                <div class="chatroom-box">
+                    <div class="profile-img"></div>
+                    <div>${room.nickname}</div>
+                </div>
             `;
             tbody.appendChild(tr);
         });

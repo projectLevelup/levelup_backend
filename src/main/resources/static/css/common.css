@@ -17,13 +17,33 @@ body {
     max-width: 400px;
     margin: 0 auto;
     background: #fff;
-    padding: 20px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     margin-bottom: 20px;
 
     height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+.inner-con {
+    padding: 20px;
+}
+
+.top-nav {
+    border-bottom: 1px solid #f0f0f0;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-icon {
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    font-size: 24px;
+    color: #000;
 }
 
 .sub-container {
@@ -52,9 +72,6 @@ button {
     margin-bottom: 20px;
 }
 
-button:hover {
-    background-color: #0051a8;
-}
 
 /* 입력창 스타일 */
 input[type="text"] {
@@ -68,6 +85,25 @@ input[type="text"] {
 /* 제목 스타일 */
 h1, h2 {
     margin-bottom: 16px;
+}
+
+nav {
+    position: fixed;
+    bottom: 0;
+    width: 400px;
+    height: 50px;
+    background-color: #fff;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+nav div {
+    cursor: pointer;
+}
+
+.main-nav i {
+    color: #3b9cff;
 }
 
 .my-message {
@@ -100,3 +136,58 @@ h1, h2 {
 .chat_input {
     height: 45px;
 }
+
+.chatroom-box {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.chatroom-box .profile-img {
+    background: lightblue;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+#chatroomTableBody {
+    padding-top: 20px;
+}
+
+.send-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.send-btn .material-icons {
+    font-size: 24px;
+    color: #007aff;
+}
+
+.leave-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    outline: none;
+    padding: 5px;
+}
+
+.leave-btn .material-icons {
+    font-size: 24px;
+    color: lightgray; /* 원하시는 색상으로 변경 가능 */
+}
+
+.chatroom-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.chatroom-header h2 {
+    margin: 0;
+}
+

@@ -25,8 +25,14 @@ public class PageController {
 
 	// 메인 페이지
 	@GetMapping("/")
-	public String index() {
+	public String mainPage() {
 		return "main";
+	}
+
+	// 메인 페이지
+	@GetMapping("/chat-main")
+	public String chatMainPage() {
+		return "chatMain";
 	}
 
 	@GetMapping("/signup")
