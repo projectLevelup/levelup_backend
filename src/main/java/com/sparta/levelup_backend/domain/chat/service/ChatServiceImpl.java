@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.chat.dto.ChatMessageDto;
-import com.sparta.levelup_backend.domain.chat.entity.ChatMessage;
+import com.sparta.levelup_backend.domain.chat.document.ChatMessage;
 import com.sparta.levelup_backend.domain.chat.repository.ChatMongoRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -32,12 +32,12 @@ public class ChatServiceImpl implements ChatService {
 			dto.getMessage()
 		);
 
-		ChatMessage chatMessage = new ChatMessage(
-			chatroomId,
-			messageDto.getNickname(),
-			messageDto.getMessage(),
-			LocalDateTime.now()
-		);
+		ChatMessage chatMessage = ChatMessage.builder()
+			.chatroomId(chatroomId)
+			.nickname(messageDto.getNickname())
+			.message(messageDto.getMessage())
+			.timestamp(LocalDateTime.now())
+			.build();
 
 		chatMongoRepository.save(chatMessage);
 		redisPublisher.publish(getTopic(chatroomId), messageDto);
