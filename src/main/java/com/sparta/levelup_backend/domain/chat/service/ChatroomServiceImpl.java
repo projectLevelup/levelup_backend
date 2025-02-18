@@ -2,23 +2,26 @@ package com.sparta.levelup_backend.domain.chat.service;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.sparta.levelup_backend.domain.chat.document.ChatroomDocument;
+import com.sparta.levelup_backend.domain.chat.document.Participant;
+import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomResponseDto;
-import com.sparta.levelup_backend.domain.chat.entity.ChatroomEntity;
-import com.sparta.levelup_backend.domain.chat.entity.ChatroomParticipantEntity;
-import com.sparta.levelup_backend.domain.chat.repository.ChatroomParticipantRepository;
-import com.sparta.levelup_backend.domain.chat.repository.ChatroomQueryRepository;
-import com.sparta.levelup_backend.domain.chat.repository.ChatroomRepository;
+import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
+import com.sparta.levelup_backend.exception.common.BadRequestException;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,78 +29,104 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatroomServiceImpl implements ChatroomService {
 
+	private final ChatroomMongoRepository chatroomMongoRepository;
 	private final UserRepository userRepository;
-	private final ChatroomRepository chatroomRepository;
-	private final ChatroomParticipantRepository cpRepository;
-	private final ChatroomQueryRepository chatroomQueryRepository;
 
-	@Transactional
 	@Override
-	public ChatroomResponseDto createChatroom(Long userId, Long targetUserId, String title) {
+	public ChatroomCreateResponseDto createChatroom(Long userId, Long targetUserId, String title) {
 
-		if(chatroomQueryRepository.existsChatroomByUsers(userId, targetUserId)){
-			throw new DuplicateException(DUPLICATE_CHATROOM);
+		// 채팅방 생성자과 상대가 같은지 확인
+		if (userId.equals(targetUserId)) {
+			throw new BadRequestException(INVALID_CHATROOM_CREATE);
 		}
 
-		UserEntity authUser = userRepository.findByIdOrElseThrow(userId);
+		// 상대와의 채팅방이 이미 존재하는 지 확인
+		if (chatroomMongoRepository.countByParticipantsUserIds(Arrays.asList(targetUserId, userId)) > 0) {
+			throw new BadRequestException(DUPLICATE_CHATROOM);
+		}
+
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		UserEntity targetUser = userRepository.findByIdOrElseThrow(targetUserId);
 
-		String chatroomTitle = (StringUtils.hasText(title))
-			? authUser.getNickName() + ", " + targetUser.getNickName()
-			: title;
+		// 제목을 적지 않았을 경우 참여자 닉네임으로 자동 생성
+		String chatroomTitle = StringUtils.hasText(title)
+			? title
+			: user.getNickName() + ", " + targetUser.getNickName();
 
-		ChatroomEntity chatroom = chatroomRepository.save(
-			ChatroomEntity.builder()
-				.title(chatroomTitle)
-				.build()
-		);
+		// 안 읽은 메시지값 기본값 0 으로 설정
+		Map<String, Integer> unreadMessages = new HashMap<>();
+		unreadMessages.put(userId.toString(), 0);
+		unreadMessages.put(targetUserId.toString(), 0);
 
-		ChatroomParticipantEntity authParticipant = ChatroomParticipantEntity.builder()
-			.user(authUser)
-			.chatroom(chatroom)
+		Participant participant = new Participant(user);
+		Participant participant1 = new Participant(targetUser);
+
+		ChatroomDocument chatroom = ChatroomDocument.builder()
+			.title(chatroomTitle)
+			.participants(Arrays.asList(participant, participant1))
+			.lastMessage("")
+			.unreadMessages(unreadMessages)
 			.build();
 
-		ChatroomParticipantEntity targetParticipant = ChatroomParticipantEntity.builder()
-			.user(targetUser)
-			.chatroom(chatroom)
+		ChatroomDocument savedChatroom = chatroomMongoRepository.save(chatroom);
+
+		return ChatroomCreateResponseDto.builder()
+			.chatroomId(savedChatroom.getId())
+			.title(chatroomTitle)
+			.participants(savedChatroom.getParticipants())
 			.build();
-
-		chatroom.getUserSet().add(authParticipant);
-		chatroom.getUserSet().add(targetParticipant);
-		chatroom.updateParticipantsCount(chatroom.getUserSet().size());
-
-		return ChatroomResponseDto.from(chatroom);
 	}
 
 	@Transactional
 	@Override
-	public void leaveChatroom(Long userId, Long chatroomId) {
-		ChatroomEntity chatroom = chatroomRepository.findByIdOrElseThrow(chatroomId);
+	public void leaveChatroom(Long userId, String chatroomId) {
+		ChatroomDocument chatroom = chatroomMongoRepository.findByIdOrThrow(chatroomId);
 
-		// 채팅방 참가 여부 확인
-		if (!cpRepository.existsByUserIdAndChatroomId(userId, chatroomId)) {
-			throw new NotFoundException(PARTICIPANT_ISDELETED);
+		// 채팅방에 참여자로 존재하는 지 확인
+		boolean isParticipant = chatroom.getParticipants().stream()
+			.anyMatch(user -> user.getUserId().equals(userId));
+
+		if(!isParticipant) {
+			throw new DuplicateException(PARTICIPANT_ISDELETED);
 		}
 
-		// 채팅방 참가 이력 삭제
-		cpRepository.deleteByUserIdAndChatroomId(userId, chatroomId);
+		// 채팅방 참여자 목록 업데이트
+		List<Participant> participants = chatroom.getParticipants().stream()
+			.filter(user -> !user.getUserId().equals(userId))
+			.collect(Collectors.toList());
+		chatroom.getUnreadMessages().remove(userId,toString());
+		chatroom.updateParticipants(participants);
 
-		// 채팅방에 남은 인원 1명 이하일때 채팅방 삭제
-		if (cpRepository.countByChatroomId(chatroomId) <= 1) {
-			chatroom.delete(); //
-			cpRepository.deleteByChatroomId(chatroomId);
+		// 채팅방에 남은 인원이 1명이하일때 채팅방 제거
+		if (participants.size() <= 1) {
+			chatroom.updateDeleted();
 		}
 
-		chatroomRepository.save(chatroom);
+		chatroomMongoRepository.save(chatroom);
 
 	}
 
-	/**
-	 * 채팅방 리스트 조회
-	 */
 	@Override
 	public List<ChatroomListResponseDto> findChatrooms(Long userId) {
-		return chatroomQueryRepository.findAllChatrooms(userId);
+		List<ChatroomDocument> chatrooms = chatroomMongoRepository.findChatroomsByUserId(userId);
+
+		return chatrooms.stream().map(chatroom -> {
+			Integer unreadCount = chatroom.getUnreadMessages().getOrDefault(userId.toString(), 0);
+			Participant participant = chatroom.getParticipants().stream()
+				.filter(user -> !user.getUserId().equals(userId))
+				.findFirst()
+				.orElse(null);
+			String nickname = (participant != null) ? participant.getNickname() : "";
+			String profileImgUrl = (participant != null) ? participant.getProfileImgUrl() : "";
+
+			return ChatroomListResponseDto.builder()
+				.chatroomId(chatroom.getId())
+				.nickname(nickname)
+				.ProfileImgUrl(profileImgUrl)
+				.lastMessage(chatroom.getLastMessage())
+				.unreadMessageCount(unreadCount)
+				.build();
+		}).collect(Collectors.toList());
 	}
 
 }

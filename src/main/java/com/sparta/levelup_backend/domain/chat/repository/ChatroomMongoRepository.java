@@ -18,4 +18,8 @@ public interface ChatroomMongoRepository extends MongoRepository<ChatroomDocumen
 		return findById(id)
 			.orElseThrow(() -> new NotFoundException(ErrorCode.CHATROOM_NOT_FOUND));
 	}
+
+	@Query("{ 'participants.userId' : ?0 }")
+	List<ChatroomDocument> findChatroomsByUserId(Long userId);
+
 }

@@ -2,14 +2,14 @@ package com.sparta.levelup_backend.domain.chat.service;
 
 import java.util.List;
 
+import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomResponseDto;
 
 public interface ChatroomService {
 
-	ChatroomResponseDto createChatroom(Long userId, Long targetUserId, String title);
+	ChatroomCreateResponseDto createChatroom(Long userId, Long targetUserId, String title);
 
-	void leaveChatroom(Long id, Long chatroomId);
+	void leaveChatroom(Long id, String chatroomId);
 
 	List<ChatroomListResponseDto> findChatrooms(Long id);
 }

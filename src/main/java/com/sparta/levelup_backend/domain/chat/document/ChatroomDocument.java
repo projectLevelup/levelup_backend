@@ -23,7 +23,9 @@ public class ChatroomDocument {
 	private List<Participant> participants;
 	private String lastMessage;
 	private Map<String, Integer> unreadMessages;
-	private boolean isDeleted;
+
+	@Builder.Default
+	private Boolean isDeleted = false;
 
 	@CreatedDate
 	private LocalDateTime createdAt;
