@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -28,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ChatroomServiceImpl implements ChatroomService {
 
+	private final MongoTemplate mongoTemplate;
 	private final ChatroomMongoRepository chatroomMongoRepository;
 	private final UserRepository userRepository;
 
@@ -111,10 +116,13 @@ public class ChatroomServiceImpl implements ChatroomService {
 
 		return chatrooms.stream().map(chatroom -> {
 			Integer unreadCount = chatroom.getUnreadMessages().getOrDefault(userId.toString(), 0);
+
+			// 본인이 아닌 참여자 목록
 			Participant participant = chatroom.getParticipants().stream()
 				.filter(user -> !user.getUserId().equals(userId))
 				.findFirst()
 				.orElse(null);
+
 			String nickname = (participant != null) ? participant.getNickname() : "";
 			String profileImgUrl = (participant != null) ? participant.getProfileImgUrl() : "";
 
@@ -126,6 +134,41 @@ public class ChatroomServiceImpl implements ChatroomService {
 				.unreadMessageCount(unreadCount)
 				.build();
 		}).collect(Collectors.toList());
+	}
+
+	@Override
+	public void updateUnreadCountAndLastMessage(String chatroomId, Long publisherId, String Message) {
+		ChatroomDocument chatroom = chatroomMongoRepository.findByIdOrThrow(chatroomId);
+
+		// 마지막 메시지 업데이트
+		Update update = new Update();
+		update.set("lastMessage", Message);
+
+		// 발행자가 아닌 사용자의 unreadMessageCount 증가
+		for (Participant participant : chatroom.getParticipants()) {
+			if (!participant.getUserId().equals(publisherId)) {
+				update.inc("unreadMessages." + participant.getUserId(), 1);
+			}
+		}
+
+		Query query = new Query(Criteria.where("_id").is(chatroomId));
+		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
+	}
+
+	@Override
+	public void updateUnreadCountZero(String chatroomId, Long readUserId) {
+		ChatroomDocument chatroom = chatroomMongoRepository.findByIdOrThrow(chatroomId);
+
+		// 읽은 사람의 unreadMessageCount 0으로 초기화
+		Update update = new Update();
+		for (Participant participant : chatroom.getParticipants()) {
+			if (participant.getUserId().equals(readUserId)) {
+				update.set("unreadMessages." + participant.getUserId(), 0);
+			}
+		}
+
+		Query query = new Query(Criteria.where("_id").is(chatroomId));
+		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
 }
