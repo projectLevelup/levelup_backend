@@ -50,15 +50,16 @@ public class JwtFilter extends OncePerRequestFilter {
         String refreshToken = extractToken(request, "refreshToken");
         accessToken = extractToken(request, "accessToken");
 
-
         try {
-            if(isTokenExpired(accessToken)){
-                String token = jwtUtils.refresingToken(refreshToken);
-                response.addHeader("Authorization", token);
-                response.addHeader("Set-Cookie","accessToken="+token);
-            }else if(isTokenExpired(refreshToken)){
-                String token = jwtUtils.refresingToken(accessToken);
-                response.addHeader("Set-Cookie","refreshToken="+token);
+            if (refreshToken != null) {
+                if (isTokenExpired(accessToken)) {
+                    String token = jwtUtils.refresingToken(refreshToken);
+                    response.addHeader("Authorization", token);
+                    response.addHeader("Set-Cookie", "accessToken=" + token);
+                } else if (isTokenExpired(refreshToken)) {
+                    String token = jwtUtils.refresingToken(accessToken);
+                    response.addHeader("Set-Cookie", "refreshToken=" + token);
+                }
             }
 
             Claims accessTokenClaims = jwtUtils.extractClaims(jwtUtils.substringToken(accessToken));
@@ -67,7 +68,7 @@ public class JwtFilter extends OncePerRequestFilter {
             String role = accessTokenClaims.get("role", String.class);
             role = role.substring(5);
             Long id = Long.parseLong(accessTokenClaims.get("id", String.class));
-            String nickName = accessTokenClaims.get("nickName",String.class);
+            String nickName = accessTokenClaims.get("nickName", String.class);
 
             UserEntity tokenUser = UserEntity.builder()
                 .id(id)
@@ -84,15 +85,18 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
             filterChain.doFilter(request, response);
         } catch (SecurityException | MalformedJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.INVALID_JWT_TOKEN.getStatus().value(),
+            filterResponse.responseErrorMsg(response,
+                ErrorCode.INVALID_JWT_TOKEN.getStatus().value(),
                 ErrorCode.INVALID_JWT_TOKEN.getCode(),
                 ErrorCode.INVALID_JWT_TOKEN.getMessage());
         } catch (ExpiredJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.EXPIRED_JWT_TOKEN.getStatus().value(),
+            filterResponse.responseErrorMsg(response,
+                ErrorCode.EXPIRED_JWT_TOKEN.getStatus().value(),
                 ErrorCode.EXPIRED_JWT_TOKEN.getCode(),
                 ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
         } catch (UnsupportedJwtException e) {
-            filterResponse.responseErrorMsg(response, ErrorCode.INVALID_FORMAT_TOKEN.getStatus().value(),
+            filterResponse.responseErrorMsg(response,
+                ErrorCode.INVALID_FORMAT_TOKEN.getStatus().value(),
                 ErrorCode.INVALID_FORMAT_TOKEN.getCode(),
                 ErrorCode.INVALID_FORMAT_TOKEN.getMessage());
         } catch (NotFoundException e) {
@@ -107,15 +111,15 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
-    public String extractToken(HttpServletRequest request, String tokenName){
+    public String extractToken(HttpServletRequest request, String tokenName) {
         String token = null;
-        if(request.getHeader("Cookie")!=null) {
+        if (request.getHeader("Cookie") != null) {
             String cookie = request.getHeader("Cookie");
             String[] cookies = cookie.split("; ");
-            for(String cookiedata : cookies){
-                if(cookiedata.startsWith(tokenName)){
+            for (String cookiedata : cookies) {
+                if (cookiedata.startsWith(tokenName)) {
                     int index = cookiedata.indexOf("=");
-                    token = cookiedata.substring(index+1);
+                    token = cookiedata.substring(index + 1);
                 }
             }
         }
@@ -135,7 +139,7 @@ public class JwtFilter extends OncePerRequestFilter {
             }
             return false;
 
-        }catch(ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             return true;
         }
     }
