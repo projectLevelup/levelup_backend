@@ -63,7 +63,7 @@
 
 
 
-        <!-- 상품 정보 영역 -->
+        <!-- 상품 상세 영역 -->
         <div class="product-detail">
             <div class="product-left">
                 <img id="productImg" src="/img/default-img.png" alt="상품 이미지">
@@ -72,12 +72,15 @@
                 <h2 id="productName"></h2>
                 <div id="productPrice"></div>
                 <!-- 신청하기 버튼 -->
-                <button id="applyButton" onclick="startChat()">신청하기</button>
+                <button id="applyButton" onclick="applyProduct()">신청하기</button>
+                <!-- 채팅하기 버튼 -->
+                <button id="chatButton" onclick="openChat()">채팅하기</button>
             </div>
             <div class="contents-box">
                 <div id="productContents"></div>
             </div>
         </div>
+
 
         <!-- 리뷰 영역 -->
         <div class="review-box">
@@ -92,9 +95,8 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    // Thymeleaf를 통해 서버에서 전달된 productId를 변수에 할당
     const productId = /*[[${productId}]]*/ 0;
-    let sellerId = null; // 상품의 판매자 ID를 저장할 변수
+    let sellerId = null; // 상품의 판매자 ID 저장
 
     window.onload = function() {
         if (!productId) {
@@ -102,12 +104,9 @@
             return;
         }
         loadProductDetail(productId);
-        loadReviews(productId);
+        // 리뷰 로드 등 추가 로직이 있을 수 있음
     };
 
-    /**
-     * 상품 상세 정보 불러오기 (GET /v1/products/{productId})
-     */
     function loadProductDetail(id) {
         fetch(`/v1/products/${id}`)
             .then(response => response.json())
@@ -118,119 +117,72 @@
                     console.error("상품 상세 불러오기 실패");
                 }
             })
-            .catch(error => {
-                console.error("상품 상세 에러:", error);
-            });
+            .catch(error => console.error("상품 상세 에러:", error));
     }
 
-    /**
-     * 상품 상세 정보 화면 표시 및 판매자 ID 저장
-     */
     function displayProductDetail(product) {
         document.getElementById("productName").textContent = product.productName || "상품명 없음";
         document.getElementById("productPrice").textContent = `${product.price}원`;
         document.getElementById("productContents").textContent = product.contents || "";
-        // 판매자 ID는 product.userId (ProductResponseDto의 필드)로 가정
         sellerId = product.userId;
     }
 
-    /**
-     * 리뷰 목록 불러오기 (GET /v1/products/{productId}/reviews)
-     */
-    function loadReviews(id) {
-        fetch(`/v1/products/${id}/reviews`)
-            .then(response => response.json())
-            .then(result => {
-                if (result && result.data) {
-                    // Slice<ReviewResponseDto> 형태라면, result.data.content에 리뷰 배열이 있을 수 있음.
-                    // 예시에서는 result.data.content 또는 result.data가 바로 리뷰 배열이라고 가정합니다.
-                    const reviews = result.data.content || result.data || [];
-                    displayReviews(reviews);
-                } else {
-                    console.error("리뷰 목록 불러오기 실패");
-                }
-            })
-            .catch(error => {
-                console.error("리뷰 목록 에러:", error);
-            });
-    }
-
-    /**
-     * 리뷰 목록 화면 표시
-     */
-    function displayReviews(reviews) {
-        const reviewListDiv = document.getElementById("reviewList");
-        reviewListDiv.innerHTML = "";
-        if (reviews.length === 0) {
-            reviewListDiv.textContent = "아직 리뷰가 없습니다.";
-            return;
-        }
-        reviews.forEach(review => {
-            const item = document.createElement("div");
-            item.className = "review-item";
-            item.innerHTML = `
-        <div>
-          <span class="star-score">★ ${review.starScore || 0}</span>
-          <span class="review-nickname">${review.nickname}</span>
-        </div>
-        <div>${review.contents}</div>
-      `;
-            reviewListDiv.appendChild(item);
-        });
-    }
-
-    /**
-     * 신청하기 버튼 클릭 시 호출되는 함수
-     * 판매자와 채팅을 시작하기 위해 채팅방 생성 API 호출 후, 채팅방 페이지로 이동
-     */
-    async function startChat() {
+    async function createChatroom() {
         try {
-            // 주문 생성 API 호출
-            const orderResult = await createOrder(productId);
-            if (!(orderResult && orderResult.data)) {
-                alert("주문 생성에 실패했습니다.");
-                return; // 주문 생성 실패 시 채팅방 생성 중단
-            }
-            console.log("주문 생성 완료:", orderResult.data);
-
             if (!sellerId) {
                 alert("판매자 정보가 없습니다.");
-                return;
+                return null;
             }
-            // 주문 생성 성공 후 채팅방 생성 API 호출
-            const chatResponse = await fetch(`/v1/chats?targetUserId=${sellerId}`, {
-                method: 'POST',
-                credentials: 'include', // 필요에 따라 쿠키 포함
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+            const response = await fetch(`/v1/chats?targetUserId=${sellerId}`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" }
             });
-            const chatResult = await chatResponse.json();
-            if (chatResult && chatResult.data && chatResult.data.chatroomId) {
-                // 채팅방 생성 성공: 생성된 채팅방 ID를 사용해 채팅방 페이지로 이동
-                window.location.href = `/chatroom?chatroomId=${chatResult.data.chatroomId}`;
+            const result = await response.json();
+            if (result && result.data && result.data.chatroomId) {
+                return result.data.chatroomId;
             } else {
                 alert("채팅방 생성에 실패했습니다.");
+                return null;
             }
         } catch (error) {
-            console.error("처리 중 에러 발생:", error);
-            alert("처리 중 오류가 발생했습니다.");
+            console.error("채팅방 생성 중 에러:", error);
+            alert("채팅방 생성 중 오류가 발생했습니다.");
+            return null;
         }
     }
 
-    async function createOrder(productId) {
-        const response = await fetch('/v1/orders', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId: productId })
-        });
-        return response.json();
+    // 기존 채팅방이 있는지 확인 후, 있으면 바로 이동하고 없으면 생성하여 이동하는 함수
+    async function openChat() {
+        try {
+            // 먼저 채팅방 목록 조회 (GET /v1/chats)
+            const response = await fetch("/v1/chats", {
+                method: "GET",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" }
+            });
+            const result = await response.json();
+            // 1:1 채팅의 경우, participants 배열에 판매자 정보가 포함되어 있으면 해당 채팅방으로 간주합니다.
+            // 예시로, 참가자 중 하나의 userId가 sellerId와 일치하는지를 확인합니다.
+            const existingChatroom = result.find(room => {
+                return room && room.chatroomId && room.participants &&
+                    room.participants.some(p => p.userId == sellerId);
+            });
+            if (existingChatroom) {
+                // 이미 생성된 채팅방이 있으면 해당 채팅방으로 이동
+                window.location.href = "/chatroom?chatroomId=" + existingChatroom.chatroomId;
+            } else {
+                // 기존 채팅방이 없으면 새로 생성
+                const newChatroomId = await createChatroom();
+                if (newChatroomId) {
+                    window.location.href = "/chatroom?chatroomId=" + newChatroomId;
+                }
+            }
+        } catch (error) {
+            console.error("채팅방 조회/생성 중 에러:", error);
+            alert("채팅방 처리 중 오류가 발생했습니다.");
+        }
     }
-
-
-
-
 
     /*]]>*/
 </script>
