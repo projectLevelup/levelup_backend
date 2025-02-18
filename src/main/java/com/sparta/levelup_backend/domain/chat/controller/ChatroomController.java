@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomResponseDto;
 import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
 
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class ChatroomController {
 	 * @return
 	 */
 	@PostMapping
-	public ApiResponse<ChatroomResponseDto> createChatroom(
+	public ApiResponse<ChatroomCreateResponseDto> createChatroom(
 		@AuthenticationPrincipal CustomUserDetails authUser,
 		@RequestParam Long targetUserId,
 		@RequestParam(required = false) String title
@@ -48,7 +48,7 @@ public class ChatroomController {
 	 * 채팅방 나가기 API
 	 */
 	@DeleteMapping("/{chatroomId}")
-	public ApiResponse<Void> leaveChatroom(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable Long chatroomId) {
+	public ApiResponse<Void> leaveChatroom(@AuthenticationPrincipal CustomUserDetails authUser, @PathVariable String chatroomId) {
 		chatroomService.leaveChatroom(authUser.getId(), chatroomId);
 		return success(OK, CHATROOM_LEAVE);
 	}

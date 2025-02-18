@@ -1,28 +1,18 @@
 package com.sparta.levelup_backend.domain.chat.dto;
 
-import com.sparta.levelup_backend.domain.chat.entity.ChatroomEntity;
-import com.sparta.levelup_backend.domain.chat.entity.ChatroomParticipantEntity;
-import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
+@Builder
 @RequiredArgsConstructor
 public class ChatroomListResponseDto {
 
-	private final Long chatroomId;
+	private final String chatroomId;
 	private final String nickname;
+	private final String ProfileImgUrl;
+	private final String lastMessage;
+	private final Integer unreadMessageCount;
 
-	public static ChatroomListResponseDto from(ChatroomEntity chatroom, Long userId) {
-
-		String nickname = chatroom.getUserSet().stream()
-			.map(ChatroomParticipantEntity::getUser)
-			.filter(user -> !user.getId().equals(userId))
-			.map(UserEntity::getNickName)
-			.findFirst()
-			.orElse(chatroom.getTitle());
-
-		return new ChatroomListResponseDto(chatroom.getId(), nickname);
-	}
 }
