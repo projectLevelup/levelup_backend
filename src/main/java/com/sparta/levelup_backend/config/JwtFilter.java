@@ -33,8 +33,10 @@ import lombok.RequiredArgsConstructor;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
-    private final RequestMatcher WHITE_LIST = new AntPathRequestMatcher("/v1/sign**");
+//    private final RequestMatcher WHITE_LIST = new AntPathRequestMatcher("/v1/sign**");
+    private final RequestMatcher WHITE_LIST = new AntPathRequestMatcher("/**");
     private final FilterResponse filterResponse;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

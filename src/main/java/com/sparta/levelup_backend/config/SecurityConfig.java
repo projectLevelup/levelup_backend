@@ -51,9 +51,9 @@ public class SecurityConfig {
 
 		http.
 			authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/","/v1/signin","v1/signup").permitAll()
-				.requestMatchers("/v1/admin/**").hasRole("ADMIN")
-				.anyRequest().authenticated());
+//				.requestMatchers("/","/v1/signin","v1/signup").permitAll()
+//				.requestMatchers("/v1/admin/**").hasRole("ADMIN")
+				.anyRequest().permitAll());
 
 		http.exceptionHandling(exceptionHandling ->
 			exceptionHandling.accessDeniedHandler(accessDeniedHandler()));

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+        <meta charset="utf-8"/>
+        <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" />
+        <link rel="stylesheet" type="text/css" href="/style.css" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Level UP</title>
+        <script src="http://js.tosspayments.com/v2/standard"></script>
+</head>
+
+<body>
+<!--주문서 영역-->
+<div class="wrapper">
+     <div class="box_section" style="padding: 40px 30px 50px 30px; margin-top: 30px; margin-bottom: 50px">
+         <h1>일반 결제</h1>
+         <!--결제 UI-->
+         <div id = "payment-method" style="display: flex">
+             <button id = "CARD" class="button2" onclick="selectPaymentMethod('CARD')">카드</button>
+             <button id = "TRANSFER" class="button2" onclick="selectPaymentMethod('TRANSFER')">계좌이체</button>
+         </div>
+         <!--결제하기 버튼-->
+         <button class="button" style="margin-top: 30px" onclick="requestPayment()">결제하기</button>
+     </div>
+</div>
+
+<script>
+
+    const amount = {
+        currency: "KRW",
+        value: 50000,
+    };
+
+    let selectedPaymentMethod = null;
+
+    function selectPaymentMethod(method) {
+        if (selectedPaymentMethod != null) {
+            document.getElementById(selectedPaymentMethod).style.backgroundColor = "#ffffff";
+        }
+
+        selectedPaymentMethod = method;
+
+        document.getElementById(selectedPaymentMethod).style.backgroundColor = "rgb(229 239 255)";
+    }
+
+    async function getClientKey() {
+        const response = await fetch("http://localhost:8080/v2/bills/client-key")
+        return await response.text();
+    }
+
+    async function getCustomerKey() {
+        const response = await fetch("http://localhost:8080/v1/payments/customer-key")
+        return await response.text();
+    }
+
+    // ------------결제하기 버튼 누르면 결제창 띄우기 -------------
+    async function requestPayment() {
+
+        // SDK 초기화
+        const clientKey = await getClientKey();
+        const customerKey = await generateRandomString();
+        const tossPayments = TossPayments(clientKey);
+
+        // 회원결제
+        const payment = tossPayments.payment({
+            customerKey,
+        })
+
+        // 비회원 결제
+        // const payment = tossPayments.payment({customerKey: TossPayments.ANONYMOUS});
+
+        // 결제를 요청하기 전에 orderId, amount를 서버에 저장
+        // 결제 과정에서 악의적으로 결제 금액이 바뀌는 것을 확인하는 용도
+        switch (selectedPaymentMethod) {
+            case "CARD":
+                await payment.requestPayment({
+                    method: "CARD", // 카드 및 간편결제
+                    amount,
+                    orderId: generateRandomString(),
+                    orderName: "롤 피드백",
+                    successUrl: window.location.origin + "/payment/success.html", // 결제 요청이 성공하면 리다이렉트되는 URL
+                    failUrl: window.location.origin + "/fail.html", // 결제 요청이 실패하면 리다이렉트되는 URL
+                    customerEmail: "customer123@gmail.com",
+                    customerName: "페이커",
+                    card: {
+                        useEscrow: false,
+                        flowMode: "DEFAULT",
+                        useCardPoint: false,
+                        useAppCardOnly: false,
+                    },
+                });
+
+            case "TRANSFER":
+                await payment.requestPayment({
+                    method: "TRANSFER", // 계좌이체 결제
+                    amount,
+                    orderId: generateRandomString(),
+                    orderName: "롤 피드백",
+                    successUrl: window.location.origin + "/payment/success.html",
+                    failUrl: window.location.origin + "/fail.html",
+                    customerEmail: "customer123@gmail.com",
+                    customerName: "페이커",
+                    transfer: {
+                        cashReceipt: {
+                            type: "소득공제",
+                        },
+                        useEscrow: false,
+                    },
+                });
+        }
+    }
+
+    function generateRandomString() {
+        return window.btoa(Math.random()).slice(0, 20);
+    }
+</script>
+</body>
+</html>

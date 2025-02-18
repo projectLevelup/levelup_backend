@@ -5,6 +5,7 @@ import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.bill.dto.responseDto.BillResponseDto;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,6 +22,14 @@ import static org.springframework.http.HttpStatus.*;
 public class BillControllerV2 {
 
     private final BillServiceImplV2 billService;
+
+    @Value("${toss.client.key}")
+    private String tossClientKey;
+
+    @GetMapping("/client-key")
+    public String getClientKey() {
+        return tossClientKey;
+    }
 
     // 결제내역 페이징 조회(tutor 전용)
     @GetMapping("/tutor")
