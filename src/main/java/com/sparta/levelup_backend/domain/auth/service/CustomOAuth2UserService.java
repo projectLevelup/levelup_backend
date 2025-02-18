@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.domain.auth.service;
 
 import com.sparta.levelup_backend.config.CustomOAuth2User;
 import com.sparta.levelup_backend.domain.auth.dto.response.GoogleResponse;
+import com.sparta.levelup_backend.domain.auth.dto.response.KakaoResponse;
 import com.sparta.levelup_backend.domain.auth.dto.response.NaverResponse;
 import com.sparta.levelup_backend.domain.auth.dto.response.OAuth2Response;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -18,17 +19,15 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-    private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException,MismatchException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
@@ -43,6 +42,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
 
+        }else {
+            oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         }
 
 
@@ -51,10 +52,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if(userRepository.existsByEmail(oAuth2Response.getEmail())){
             user = userRepository.findByEmailOrElseThrow(oAuth2Response.getEmail());
             if(user.getIsDeleted()){
-                throw new AlreadyDeletedUserException();
+                throw new OAuth2AuthenticationException(ErrorCode.ALREADY_DELETED_USER.toString());
             }
-            if(bCryptPasswordEncoder.matches(registrationId,user.getPassword())){
-                throw new MismatchException(ErrorCode.AUTH_TYPE_MISMATCH);
+            if(!user.getProvider().startsWith(registrationId)){
+                throw new OAuth2AuthenticationException(ErrorCode.AUTH_TYPE_MISMATCH.toString());
             }
 
 
@@ -63,7 +64,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .email(oAuth2Response.getEmail())
                 .nickName(oAuth2Response.getNickName())
                 .role(UserRole.USER)
-                .password(bCryptPasswordEncoder.encode(registrationId))
+                .provider(registrationId+"new")
                 .build();
             userRepository.save(user);
         }

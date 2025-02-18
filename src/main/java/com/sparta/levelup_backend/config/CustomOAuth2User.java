@@ -3,7 +3,6 @@ package com.sparta.levelup_backend.config;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,12 +33,9 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return null;
-    }
-
-    public String getUsername() {
         return user.getEmail();
     }
+
 
     public Long getId() {
         return user.getId();
@@ -47,6 +43,36 @@ public class CustomOAuth2User implements OAuth2User {
 
     public String getNickName(){
         return user.getNickName();
+    }
+
+    public String getProvider(){
+        String google = providerCheck(user.getProvider(),"google");
+        String kakao = providerCheck(user.getProvider(),"kakao");
+        String naver = providerCheck(user.getProvider(),"naver");
+        if(!google.equals("mismatch")){
+            return google;
+        }else if(!kakao.equals("mismatch")){
+            return kakao;
+        }else if(!naver.equals("mismatch")){
+            return naver;
+        }else {
+            return "mismatch";
+        }
+        }
+
+
+
+
+
+    private String providerCheck(String provider, String providerType){
+        if(provider.startsWith(providerType)){
+            if(provider.startsWith(providerType+"new")){
+                return providerType+"new";
+            }else {
+               return providerType;
+            }
+        }
+        return "mismatch";
     }
 
 }

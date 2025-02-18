@@ -31,9 +31,9 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
         new AntPathRequestMatcher("/"),
-        new AntPathRequestMatcher("/v2/sign**")),
+        new AntPathRequestMatcher("/v2/sign**"),
         new AntPathRequestMatcher("/oauth2/authorization/naver"),
-        new AntPathRequestMatcher("/v2/sign**"));
+        new AntPathRequestMatcher("/v2/oauth2sign*"));
     private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
     private final FilterResponse filterResponse;
 

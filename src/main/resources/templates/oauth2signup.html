@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div class="container">
+
+  <div class="py-4 text-center">
+    <h2>Test Form</h2>
+  </div>
+
+  <form th:action="@{/v2/oauth2signupSend}" method="post">
+    <div>
+      <label for="email">이메일:</label>
+      <input type="text" readonly id="email" name="email" th:value="${email}" required>
+    </div>
+    <div>
+      <label for="nickName">이름:</label>
+      <input type="text" id="nickName" name="nickName" th:value="${nickName}" required>
+    </div>
+    <div>
+      <label for="phoneNumber">전화번호:</label>
+      <input type="text" id="phoneNumber" name="phoneNumber" th:value="${phoneNumber}" required>
+    </div>
+    <button type="submit">회원가입</button>
+  </form>
+
+</div>
+</body>
+</html>

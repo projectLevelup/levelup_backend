@@ -1,13 +1,13 @@
 package com.sparta.levelup_backend.domain.auth.service;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.AUTH_TYPE_MISMATCH;
+
 import com.sparta.levelup_backend.exception.common.AlreadyDeletedUserException;
-import org.springframework.http.HttpStatus;
+import com.sparta.levelup_backend.exception.common.MismatchException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 public class CustomUserDetailsService implements UserDetailsService {
 
 	private final UserRepository userRepository;
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -28,11 +27,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 		if(user.getIsDeleted()){
 			throw new AlreadyDeletedUserException();
 		}
-		String password = user.getPassword();
-		if(bCryptPasswordEncoder.matches("google",password) ||
-		bCryptPasswordEncoder.matches("kakao",password) ||
-		bCryptPasswordEncoder.matches("naver",password) ) {
-			throw new MismatchException(ErrorCode.AUTH_TYPE_MISMATCH);
+		String provider = user.getProvider();
+		if(!provider.startsWith("none")) {
+			throw new MismatchException(AUTH_TYPE_MISMATCH);
 		}
 
 		return new CustomUserDetails(user);

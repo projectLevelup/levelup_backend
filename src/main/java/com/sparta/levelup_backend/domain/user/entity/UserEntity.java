@@ -42,6 +42,8 @@ public class UserEntity extends BaseEntity {
 
     private String phoneNumber;
 
+    private String provider;
+
     public void updateEmail(String email){
         this.email = email;
     }
@@ -60,5 +62,9 @@ public class UserEntity extends BaseEntity {
 
     public void changePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void updateProvider(String provider) {
+        this.provider = provider;
     }
 }

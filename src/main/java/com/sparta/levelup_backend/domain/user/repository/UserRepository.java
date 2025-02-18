@@ -5,7 +5,6 @@ import static com.sparta.levelup_backend.exception.common.ErrorCode.USER_NOT_FOU
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.exception.common.EmailDuplicatedException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
-import jakarta.validation.constraints.NotBlank;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

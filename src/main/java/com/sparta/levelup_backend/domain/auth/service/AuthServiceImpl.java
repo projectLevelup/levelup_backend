@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.auth.service;
 
+import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,9 +33,20 @@ public class AuthServiceImpl implements AuthService {
 				.imgUrl(signUpUserRequestDto.getImgUrl())
 				.role(UserRole.USER)
 				.phoneNumber(signUpUserRequestDto.getPhoneNumber())
+				.provider("none")
 				.build();
 
 			userRepository.save(user);
 		}
 
+	@Override
+	@Transactional
+	public void oAuth2signUpUser(OAuthUserRequestDto dto) {
+		UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
+		user.updateProvider(user.getProvider().substring(0,user.getProvider().length()-3));
+		user.updatePhoneNumber(dto.getPhoneNumber());
+		user.updateEmail(dto.getEmail());
+		user.updateNickName(dto.getNickName());
 	}
+
+}

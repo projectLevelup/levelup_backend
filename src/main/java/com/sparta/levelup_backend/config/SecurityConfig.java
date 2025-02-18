@@ -1,7 +1,6 @@
 package com.sparta.levelup_backend.config;
 
 import com.sparta.levelup_backend.domain.auth.service.CustomOAuth2UserService;
-import com.sparta.levelup_backend.domain.auth.service.CustomUserDetailsService;
 import com.sparta.levelup_backend.utill.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +14,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -24,6 +25,7 @@ public class SecurityConfig {
 	private final JwtUtils jwtUtils;
 	private final CustomOAuth2UserService customOAuth2UserService;
 	private final FilterResponse filterResponse;
+	private final CustomOAuth2Handler OAuth2Handler;
 
 
 
@@ -52,10 +54,8 @@ public class SecurityConfig {
 				.loginPage("/v2/signin"))
 			.httpBasic((basic) -> basic.disable());
 
-		/**
-		 * 이 부분에서 customOAuth2UserService를 연결해줍니다.
-		 * 데이터를 받으면 이쪽 서비스로 자동적으로 넣어줍니다.
-		 */
+
+
 		http.
 					oauth2Login((oauth2)
 						-> oauth2.userInfoEndpoint((userInfoEndpointConfig)
@@ -64,13 +64,15 @@ public class SecurityConfig {
 
 		http.oauth2Login((auth)
 				-> auth.authorizationEndpoint((authorizationEndPointConfig)
-				-> authorizationEndPointConfig.baseUri("/v2/signin/oauth2/authorization") )
+				-> authorizationEndPointConfig.baseUri("/v2/signin/oauth2/authorization")
+				).failureHandler(OAuth2Handler)
+				.successHandler(OAuth2Handler)
 			);
 
 
 		http.
 			authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/","/v2/sign**").permitAll()
+				.requestMatchers("/","/v2/sign**","/v2/oauth2sign*").permitAll()
 				.requestMatchers("/v2/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated());
 
@@ -82,7 +84,7 @@ public class SecurityConfig {
 
 		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
 			authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
-		customUsernamePasswordAuthenticationFilter.setFilterProcessesUrl("/v2/signinSend");
+		customUsernamePasswordAuthenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/v2/signin","POST"));
 
 		http.
 			addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
