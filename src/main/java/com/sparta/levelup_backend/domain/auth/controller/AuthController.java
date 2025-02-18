@@ -30,7 +30,7 @@ public class AuthController {
 		return success(CREATED, SIGNUP_SUCCESS);
 	}
 
-	@PostMapping("/oauth2signupSend")
+	@PostMapping("/oauth2signup")
 	public ApiResponse<Void> oAuth2signUpUser(@Valid @RequestBody OAuthUserRequestDto dto) {
 		authService.oAuth2signUpUser(dto);
 		return success(CREATED, SIGNUP_SUCCESS);

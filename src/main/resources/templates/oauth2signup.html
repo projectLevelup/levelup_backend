@@ -2,16 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
+  <title>회원가입</title>
 </head>
 <body>
 <div class="container">
 
   <div class="py-4 text-center">
-    <h2>Test Form</h2>
+    <h2>회원가입</h2>
   </div>
 
-  <form th:action="@{/v2/oauth2signupSend}" method="post">
+  <form th:action="@{/v2/oauth2signup}" method="post">
     <div>
       <label for="email">이메일:</label>
       <input type="text" readonly id="email" name="email" th:value="${email}" required>
@@ -29,4 +29,17 @@
 
 </div>
 </body>
+<script>
+  document.getElementById("phoneNumber").oninput = function() {
+    let phoneregex = /^(010)[-]?\d{3,4}[-]?\d{4}$/;
+    let number =  /^-?\d+$/;
+    let phone = document.getElementById("phoneNumber");
+    if(number.test(phone.value.toString())){
+      if(phone.value.toString().length==11){
+        phone.value = phone.value.substring(0,3)+"-"+phone.value.substring(3,7)+"-"+phone.value.substring(7,11);
+      }
+    }
+  }
+
+</script>
 </html>

@@ -2,19 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
+  <title>로그인</title>
 </head>
 <body>
 <div class="container">
 
   <div class="py-4 text-center">
-    <h2>Test Form</h2>
+    <h2>로그인</h2>
   </div>
-
-  <form action="/v2/signin" method="post">
-    User ID: <input type="text" name="email">
-    Password: <input type="password" name="password">
-    <button type="submit">signin</button>
+  <form th:action="@{/v2/signin}" method="post">
+    <div>
+      <label for="email">이메일:</label>
+      <input type="text" id="email" name="email" th:value="${email}" required>
+    </div>
+    <div>
+      <label for="password">비밀번호:</label>
+      <input type="password" id="password" name="nickName" th:value="${password}" required>
+    </div>
+    <button type="submit">로그인</button>
   </form>
   <a href="/v2/signin/oauth2/authorization/naver">
     <img height="50"
