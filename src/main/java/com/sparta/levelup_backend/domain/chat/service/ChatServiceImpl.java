@@ -39,8 +39,8 @@ public class ChatServiceImpl implements ChatService {
 			.timestamp(LocalDateTime.now())
 			.build();
 
-		chatMongoRepository.save(chatMessage);
 		redisPublisher.publish(getTopic(chatroomId), messageDto);
+		chatMongoRepository.save(chatMessage);
 		return messageDto;
 	}
 
