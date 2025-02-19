@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>크몽 스타일 메인 페이지</title>
+</head>
+<body>
+<h1>테스트 메인페이지</h1>
+<a href="/v2/signin">
+    로그인
+</a>
+</body>
+<script>
+    function getCookie(name) {
+        const cookies = document.cookie.split('; ');
+        for (let cookie of cookies) {
+            const [key, value] = cookie.split('=');
+            if (key === name) {
+                return decodeURIComponent(value);
+            }
+        }
+        return null; // 쿠키가 없을 경우 null 반환
+    }
+
+    let autoLogin = getCookie("autoLogin");
+    if (autoLogin === null) {
+        let date = new Date();
+        date.setTime(date.getTime());
+        document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+</script>
+</html>

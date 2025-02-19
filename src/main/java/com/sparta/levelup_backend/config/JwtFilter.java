@@ -23,6 +23,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,8 +33,9 @@ import lombok.RequiredArgsConstructor;
 public class JwtFilter extends OncePerRequestFilter {
 
 	private final JwtUtils jwtUtils;
+	private final RequestMatcher HOME_PAGE = new AntPathRequestMatcher("/");
 	private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
-		new AntPathRequestMatcher("/"),
+		new AntPathRequestMatcher("/v2/home"),
 		new AntPathRequestMatcher("/v2/sign**"),
 		new AntPathRequestMatcher("/oauth2/authorization/naver"),
 		new AntPathRequestMatcher("/v2/oauth2sign*"));
@@ -45,6 +47,12 @@ public class JwtFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException, NotFoundException {
 
 		if (orRequestMatcher.matches(request)) {
+			filterChain.doFilter(request, response);
+			return;
+		}
+		if (HOME_PAGE.matches(request)) {
+			RequestDispatcher requestDispatcher = request.getRequestDispatcher("/v2/home");
+			requestDispatcher.forward(request, response);
 			filterChain.doFilter(request, response);
 			return;
 		}

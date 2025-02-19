@@ -15,6 +15,7 @@ import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.JwtUtils;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,7 +46,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request,
 		HttpServletResponse response, FilterChain chain,
-		Authentication authentication) throws IOException {
+		Authentication authentication) throws IOException, ServletException {
 
 		CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
 		String username = customUserDetails.getUsername();
@@ -58,9 +59,12 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 		String refreshToken = jwtUtils.createRefreshToken(username, id, nickName, role);
 
 		response.addHeader("Authorization", accessToken);
-		response.addHeader("Set-Cookie", "accessToken=" + accessToken);
-		response.addHeader("Set-Cookie", "refreshToken=" + refreshToken);
-		response.addHeader("Domain", "localhost");
+		response.addHeader("Set-Cookie",
+			"accessToken=" + accessToken + "; " + "Path=/; Domain=localhost; Max-Age=" + 30 * 60 + "; ");
+		response.addHeader("Set-Cookie",
+			"refreshToken=" + refreshToken + "; " + "Path=/; Domain=localhost; Max-Age=" + 12 * 60 * 60 + "; ");
+		RequestDispatcher requestDispatcher = request.getRequestDispatcher("/v2/home");
+		requestDispatcher.forward(request, response);
 		filterResponse.responseSuccessMsg(response, HttpStatus.OK, LOGIN_SUCCESS, accessToken);
 
 	}

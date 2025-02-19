@@ -33,4 +33,10 @@ public class AuthFormController {
 		return "oauth2signup";
 	}
 
+	@GetMapping("/home")
+	public String homePage() {
+
+		return "home";
+	}
+
 }
