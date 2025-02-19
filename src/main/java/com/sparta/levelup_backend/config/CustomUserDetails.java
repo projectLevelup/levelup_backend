@@ -12,21 +12,25 @@ public class CustomUserDetails implements UserDetails {
 
 	UserEntity user;
 
-	public CustomUserDetails(UserEntity user){
-	this.user = user;
+	public CustomUserDetails(UserEntity user) {
+		this.user = user;
 	}
-	
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Collection<GrantedAuthority> grantedAuthority = new ArrayList<>();
 		grantedAuthority.add(new GrantedAuthority() {
 			@Override
 			public String getAuthority() {
-				return "ROLE_"+user.getRole().toString();
+				return "ROLE_" + user.getRole().toString();
 			}
 		});
 
 		return grantedAuthority;
+	}
+
+	public UserEntity getUser() {
+		return user;
 	}
 
 	@Override
@@ -42,8 +46,8 @@ public class CustomUserDetails implements UserDetails {
 	public Long getId() {
 		return user.getId();
 	}
-
-	public String getNickname() {
+  
+	public String getNickName() {
 		return user.getNickName();
 	}
 
