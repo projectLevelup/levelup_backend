@@ -35,9 +35,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product")
-@Document(indexName = "products") // Elasticsearch 인덱스 설정
+@Document(indexName = "products")
 public class ProductEntity extends BaseEntity {
 
+	@Getter
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -54,13 +55,13 @@ public class ProductEntity extends BaseEntity {
 	private String productName;
 
 	@Column(nullable = false, length = 1000)
-	@Field(type = FieldType.Text, analyzer = "standard") // Elasticsearch에서 분석할 필드
+	@Field(type = FieldType.Text, analyzer = "standard")
 	private String contents;
 
 	@Column(nullable = false)
 	private Long price;
 
-	@Column(nullable = true)
+	@Column(nullable = false)
 	private Integer amount;
 
 	@Enumerated(EnumType.STRING)
@@ -71,7 +72,6 @@ public class ProductEntity extends BaseEntity {
 	@Column(nullable = true)
 	private String imgUrl;
 
-	// 📌 생성자
 	public ProductEntity(ProductCreateRequestDto dto, UserEntity user, GameEntity game) {
 		this.user = user;
 		this.game = game;
@@ -83,27 +83,25 @@ public class ProductEntity extends BaseEntity {
 		this.imgUrl = dto.getImgUrl();
 	}
 
-	// 📌 기존 메서드 유지
+	public void update(ProductUpdateRequestDto dto) {
+		this.productName = dto.getProductName();
+		this.contents = dto.getContents();
+		this.price = dto.getPrice();
+		this.amount = dto.getAmount();
+		this.status = ProductStatus.valueOf(dto.getStatus());
+		this.imgUrl = dto.getImgUrl();
+	}
+
 	public void decreaseAmount() {
-		if (this.amount <= 0) {
+		if (this.amount == null || this.amount <= 0) {
 			throw new ProductOutOfAmount();
 		}
-		this.amount = this.amount - 1;
+		this.amount -= 1;
 	}
 
 	public void increaseAmount() {
-		this.amount = this.amount + 1;
+		if (this.amount != null) {
+			this.amount += 1;
+		}
 	}
-
-	public void update(ProductUpdateRequestDto requestDto) {
-		this.productName = requestDto.getProductName();
-		this.contents = requestDto.getContents();
-		this.price = requestDto.getPrice();
-		this.amount = requestDto.getAmount();
-		this.status = requestDto.getStatus();
-	}
-
-	public void setStatus(ProductStatus productStatus) {
-	}
-
 }

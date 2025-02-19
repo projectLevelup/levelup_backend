@@ -1,30 +1,43 @@
 package com.sparta.levelup_backend.domain.product.dto.requestDto;
 
+import static com.sparta.levelup_backend.domain.product.dto.ProductValidMessage.*;
+
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ProductRequestAllDto {
-	private Long productId;
-	private String productName;
-	private String contents;
-	private Long price;
-	private Integer amount;
-	private String status;
-	private String imgUrl;
-	private Double sentimentScore;
 
-	// ✅ fromDocument 메서드 추가 (Elasticsearch → DTO 변환)
+	@NotNull(message = PRODUCT_NAME_REQUIRED)
+	@Size(max = 255, message = PRODUCT_NAME_LENGTH)
+	private final String productName;
+
+	@NotNull(message = CONTENTS_REQUIRED)
+	@Size(max = 1000, message = CONTENTS_LENGTH)
+	private final String contents;
+
+	@NotNull(message = PRICE_REQUIRED)
+	private final Long price;
+
+	@NotNull(message = AMOUNT_REQUIRED)
+	private final Integer amount;
+
+	@NotNull(message = STATUS_REQUIRED)
+	private final String status;
+
+	private final String imgUrl;
+
+	private final Double sentimentScore;
+
 	public static ProductRequestAllDto fromDocument(ProductDocument document) {
 		return new ProductRequestAllDto(
-			document.getProductId(),
 			document.getProductName(),
 			document.getContents(),
 			document.getPrice(),

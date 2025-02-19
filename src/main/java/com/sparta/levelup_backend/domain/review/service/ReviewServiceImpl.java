@@ -23,8 +23,6 @@ import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.MismatchException;
 import com.sparta.levelup_backend.utill.UserRole;
 
-import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -36,8 +34,6 @@ public class ReviewServiceImpl implements ReviewService {
 	private final UserRepository userRepository;
 	private final ProductRepository productRepository;
 	private final OrderRepository orderRepository;
-	private final ElasticsearchClient elasticsearchClient;
-	private final ElasticsearchAsyncClient elasticsearchAsyncClient;
 
 	@Override
 	@Transactional

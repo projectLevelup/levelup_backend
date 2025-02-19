@@ -7,7 +7,6 @@ import static org.springframework.http.HttpStatus.*;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -53,18 +52,20 @@ public class ProductController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		Long userId = userDetails.getId();
-		ProductCreateResponseDto productCreateResponseDto = productService.saveProduct(userId, dto);
-		return success(OK, PRODUCT_CREATE, productCreateResponseDto);
+		ProductCreateResponseDto responseDto = productService.saveProduct(userId, dto);
+		return success(OK, PRODUCT_CREATE, responseDto);
 	}
 
+	// 전체 상품 조회 → findAllProducts
 	@GetMapping
-	public ApiResponse<List<ProductResponseDto>> getAllProducts() {
+	public ApiResponse<List<ProductResponseDto>> findAllProducts() {
 		List<ProductResponseDto> productList = productService.getAllProducts();
 		return success(OK, PRODUCT_READ, productList);
 	}
 
+	// 상품 ID로 상품 조회 → findProductById
 	@GetMapping("/{id}")
-	public ApiResponse<ProductResponseDto> getProductById(
+	public ApiResponse<ProductResponseDto> findProductById(
 		@PathVariable Long id,
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
@@ -73,6 +74,7 @@ public class ProductController {
 		return success(OK, PRODUCT_READ, responseDto);
 	}
 
+	// 상품 수정
 	@PatchMapping("/{id}")
 	public ApiResponse<ProductUpdateResponseDto> updateProduct(
 		@PathVariable Long id,
@@ -84,113 +86,119 @@ public class ProductController {
 		return success(OK, PRODUCT_UPDATE, responseDto);
 	}
 
+	// 상품 삭제
 	@DeleteMapping("/{id}")
 	public ApiResponse<ProductDeleteResponseDto> deleteProduct(
 		@PathVariable Long id,
-		@AuthenticationPrincipal CustomUserDetails userDetails) {
+		@AuthenticationPrincipal CustomUserDetails userDetails
+	) {
 		Long userId = userDetails.getId();
 		ProductDeleteResponseDto responseDto = productService.deleteProduct(id, userId);
 		return success(OK, PRODUCT_DELETE, responseDto);
 	}
 
+	// 유저 데이터 생성 (테스트용)
 	@PostMapping("/users/{count}")
-	public ResponseEntity<String> createUsers(@PathVariable int count) {
+	public ResponseEntity<String> generateUsers(@PathVariable int count) {
 		productmakedataService.generateUsers(count);
 		return ResponseEntity.ok(count + "명의 유저 데이터가 생성되었습니다.");
 	}
 
+	// 게임 데이터 생성 (테스트용)
 	@PostMapping("/games/{count}")
-	public ResponseEntity<String> createGames(@PathVariable int count) {
+	public ResponseEntity<String> generateGames(@PathVariable int count) {
 		productmakedataService.generateGames(count);
 		return ResponseEntity.ok(count + "개의 게임 데이터가 생성되었습니다.");
 	}
 
+	// 상품 데이터 생성 (테스트용)
 	@PostMapping("/products/{count}")
-	public ResponseEntity<String> createProducts(@PathVariable int count) {
+	public ResponseEntity<String> generateProducts(@PathVariable int count) {
 		productmakedataService.generateProducts(count);
 		return ResponseEntity.ok(count + "개의 상품 데이터가 생성되었습니다.");
 	}
 
-	@GetMapping("/search")
-	public ApiResponse<List<ProductDocument>> getAllProductsES() {
+	// Elasticsearch를 활용한 전체 상품 검색 (ES)
+	@GetMapping("/es")
+	public ApiResponse<List<ProductDocument>> findAllProductsES() {
 		List<ProductDocument> productList = productService.getAllProductsES();
-		return ApiResponse.success(HttpStatus.OK, PRODUCT_READ, productList);
+		return ApiResponse.success(OK, PRODUCT_READ, productList);
 	}
 
-	@GetMapping("/search/{id}")
-	public ApiResponse<ProductDocument> getProductByIdES(@PathVariable Long id) {
-		ProductDocument responseDto = productService.getProductByIdES(id);
-		return success(OK, PRODUCT_READ, responseDto);
+	// Elasticsearch를 활용한 상품 ID로 상품 조회 (ES)
+	@GetMapping("/es/{id}")
+	public ApiResponse<ProductDocument> findProductByIdES(@PathVariable Long id) {
+		ProductDocument product = productService.getProductByIdES(id);
+		return success(OK, PRODUCT_READ, product);
 	}
 
 	/**
-	 * 상품명 검색 (부분 검색)
-	 * GET /search/productName
+	 * 상품명으로 상품 부분 검색 (ES)
+	 * GET /v1/products/es/productName?productName=...
 	 */
-	@GetMapping("/search/productName")
-	public ResponseEntity<List<ProductDocument>> searchByProductName(@RequestParam String productName) {
+	@GetMapping("/es/productName")
+	public ResponseEntity<List<ProductDocument>> findProductsByName(@RequestParam String productName) {
 		List<ProductDocument> products = productService.searchByProductNameES(productName);
 		return ResponseEntity.ok(products);
 	}
 
 	/**
-	 * 특정 게임에 속한 상품 검색
-	 * GET /search/game/{gameId}
+	 * 특정 게임에 속한 상품 조회 (ES)
+	 * GET /v1/products/es/game/{gameId}
 	 */
-	@GetMapping("/game/{gameId}")
-	public ApiResponse<List<ProductDocument>> searchByGameId(@PathVariable Long gameId) {
+	@GetMapping("/es/game/{gameId}")
+	public ApiResponse<List<ProductDocument>> findProductsByGameId(@PathVariable Long gameId) {
 		List<ProductDocument> products = productService.searchByGameIdES(gameId);
-		return ApiResponse.success(HttpStatus.OK, PRODUCT_READ, products);
+		return ApiResponse.success(OK, PRODUCT_READ, products);
 	}
 
 	/**
-	 * 특정 상태의 상품 검색
-	 * GET /search/status/{productStatus}
+	 * 특정 상태의 상품 조회 (ES)
+	 * GET /v1/products/es/status/{productStatus}
 	 */
-	@GetMapping("/status/{productStatus}")
-	public ApiResponse<List<ProductDocument>> searchByStatus(@PathVariable String productStatus) {
+	@GetMapping("/es/status/{productStatus}")
+	public ApiResponse<List<ProductDocument>> findProductsByStatus(@PathVariable String productStatus) {
 		List<ProductDocument> products = productService.searchByStatusES(productStatus);
-		return ApiResponse.success(HttpStatus.OK, PRODUCT_READ, products);
+		return ApiResponse.success(OK, PRODUCT_READ, products);
 	}
 
 	/**
-	 * 특정 사용자가 등록한 상품 조회
-	 * GET /search/user/{userId}
+	 * 특정 사용자가 등록한 상품 조회 (ES)
+	 * GET /v1/products/es/user/{userId}
 	 */
-	@GetMapping("/user/{userId}")
-	public ApiResponse<List<ProductDocument>> searchByUserId(@PathVariable Long userId) {
+	@GetMapping("/es/user/{userId}")
+	public ApiResponse<List<ProductDocument>> findProductsByUserId(@PathVariable Long userId) {
 		List<ProductDocument> products = productService.searchByUserIdES(userId);
-		return ApiResponse.success(HttpStatus.OK, PRODUCT_READ, products);
+		return ApiResponse.success(OK, PRODUCT_READ, products);
 	}
 
 	/**
-	 * 카테고리별 상품 개수 집계
-	 * GET /search/aggregations/category
+	 * 카테고리별 상품 개수 집계 (ES)
+	 * GET /v1/products/es/aggregations/category
 	 */
-	@GetMapping("/aggregations/category")
-	public ApiResponse<Map<String, Long>> getCategoryAggregations() {
+	@GetMapping("/es/aggregations/category")
+	public ApiResponse<Map<String, Long>> findCategoryAggregations() {
 		Map<String, Long> categoryCounts = productService.getGenreAggregationsES();
-		return ApiResponse.success(HttpStatus.OK, PRODUCT_READ, categoryCounts);
+		return ApiResponse.success(OK, PRODUCT_READ, categoryCounts);
 	}
 
 	/**
-	 * 감성 분석 결과 상위 3개 상품 조회 API
-	 * GET /products/top3
+	 * 감성 분석 결과 상위 3개 상품 조회 (ES)
+	 * GET /v1/products/es/sentimentanalysis/top3
 	 */
-	@GetMapping("/top3")
-	public ApiResponse<List<ProductRequestAllDto>> getTop3Products() {
+	@GetMapping("/es/sentimentanalysis/top3")
+	public ApiResponse<List<ProductRequestAllDto>> findTop3Products() {
 		List<ProductRequestAllDto> top3Products = productService.getTop3Products();
-		return ApiResponse.success(HttpStatus.OK, PRODUCT_READ, top3Products);
+		return ApiResponse.success(OK, PRODUCT_READ, top3Products);
 	}
 
 	/**
-	 * 인기 상품 Top 10 반환 API
-	 * GET /search/popular
+	 * 인기 상품 Top 10 조회 (ES)
+	 * GET /v1/products/es/aggregations/popular
 	 */
-	@GetMapping("/popular")
-	public ApiResponse<List<ProductDocument>> getTop10PopularProducts() {
+	@GetMapping("/es/aggregations/popular")
+	public ApiResponse<List<ProductDocument>> findTop10PopularProducts() {
 		List<ProductDocument> top10Products = productService.getTop10PopularProductsES();
-		return ApiResponse.success(HttpStatus.OK, PRODUCT_READ, top10Products);
+		return ApiResponse.success(OK, PRODUCT_READ, top10Products);
 	}
 }
-

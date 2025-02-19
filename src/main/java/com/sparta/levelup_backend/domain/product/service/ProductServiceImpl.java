@@ -184,7 +184,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 
 		ProductDocument document = ProductDocument.fromEntity(product);
-		document.setIsDeleted(true);
+		document.updateIsDeleted(true);
 		productESRepository.save(document);
 		return new ProductDeleteResponseDto(document);
 	}
@@ -370,7 +370,7 @@ public class ProductServiceImpl implements ProductService {
 			SearchResponse<Void> searchResponse = elasticsearchClient.search(searchRequest, Void.class);
 			Aggregate aggregate = searchResponse.aggregations().get("important_keywords");
 
-			if (aggregate.isSigsterms()) { // ✅ isSigsterms()로 변경
+			if (aggregate.isSigsterms()) {
 				SignificantStringTermsAggregate significantTermsAggResult = aggregate.sigsterms();
 				if (significantTermsAggResult == null) {
 					throw new IllegalStateException("Significant terms aggregation result is null");

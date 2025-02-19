@@ -25,7 +25,7 @@ public class ProductDocument {
 	@Field(type = FieldType.Long)
 	private Long productId;
 
-	@Field(type = FieldType.Text, analyzer = "standard") // 왜 standard : 공백으로 뛴다. 소문자로 바뀐다.
+	@Field(type = FieldType.Text, analyzer = "standard") // standard : 공백으로 기준 형태소 분리
 	private String productName;
 
 	@Field(type = FieldType.Text)
@@ -95,7 +95,7 @@ public class ProductDocument {
 			.build();
 	}
 
-	public void setIsDeleted(boolean isDeleted) {
+	public void updateIsDeleted(boolean isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 
