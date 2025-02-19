@@ -80,10 +80,7 @@ public class CommunityServiceImpl implements CommunityService {
 	public CommunityResponseDto update(Long userId, CommunityUpdateRequestDto dto) {
 		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
 		checkAuth(community, userId);
-
-		if (community.getIsDeleted()) {
-			throw new DuplicateException(COMMUNITY_ISDELETED);
-		}
+		checkCommunityIsDeleted(community);
 
 		if (Objects.nonNull(dto.getTitle())) {
 			community.updateTitle(dto.getTitle());
@@ -110,9 +107,9 @@ public class CommunityServiceImpl implements CommunityService {
 		GameEntity game = gameRepository.findByIdOrElseThrow(dto.getGameId());
 		CommunityEntity community = communityRepository.save(
 			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
-		communityESRepository.save(CommunityDocument.from(community));
+		CommunityDocument communityDocument = communityESRepository.save(CommunityDocument.from(community));
 
-		return CommunityResponseDto.from(community);
+		return CommunityResponseDto.from(communityDocument);
 	}
 
 	@Override
@@ -134,6 +131,32 @@ public class CommunityServiceImpl implements CommunityService {
 		}
 
 		return responseDto;
+	}
+
+	@Override
+	public CommunityResponseDto updateCommunityES(Long userId, CommunityUpdateRequestDto dto) {
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
+		CommunityDocument communityDocument = communityESRepository.findByIdOrElseThrow(
+			String.valueOf(dto.getCommunityId()));
+		checkAuth(community, userId);
+		checkCommunityIsDeleted(community);
+
+		if (communityDocument.getIsDeleted()) {
+			throw new DuplicateException(COMMUNITY_ISDELETED);
+		}
+
+		if (Objects.nonNull(dto.getTitle())) {
+			community.updateTitle(dto.getTitle());
+			communityDocument.updateTitle(dto.getTitle());
+		}
+		if (Objects.nonNull(dto.getContent())) {
+			community.updateContent(dto.getContent());
+			communityDocument.updateContent(dto.getContent());
+		}
+
+		communityESRepository.save(communityDocument);
+
+		return CommunityResponseDto.from(communityDocument);
 	}
 
 	private void checkGameIsDeleted(GameEntity game) {

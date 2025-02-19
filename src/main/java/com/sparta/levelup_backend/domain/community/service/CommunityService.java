@@ -17,4 +17,6 @@ public interface CommunityService {
 	CommunityListResponseDto findCommunityES(String searchKeyword, int page, int size);
 
 	CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto);
+
+	CommunityResponseDto updateCommunityES(Long userId, CommunityUpdateRequestDto dto);
 }

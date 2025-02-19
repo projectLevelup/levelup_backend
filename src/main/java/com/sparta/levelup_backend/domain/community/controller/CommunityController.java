@@ -80,7 +80,9 @@ public class CommunityController {
 	public ApiResponse<CommunityResponseDto> saveCommunityES(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@RequestBody CommnunityCreateRequestDto dto) {
+
 		Long userId = customUserDetails.getId();
+
 		CommunityResponseDto responseDto = communityService.saveCommunityES(userId, dto);
 		return success(OK, COMMUNITY_SAVE_SUCCESS, responseDto);
 	}
@@ -91,5 +93,15 @@ public class CommunityController {
 
 		CommunityListResponseDto responseDtoList = communityService.findCommunityES(searchKeyword, page, size);
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
+	}
+
+	@PatchMapping("/es")
+	public ApiResponse<CommunityResponseDto> updateCommunityES(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody CommunityUpdateRequestDto dto) {
+
+		Long userId = customUserDetails.getId();
+
+		CommunityResponseDto responseDto = communityService.updateCommunityES(userId, dto);
+		return success(OK, COMMUNITY_UPDATE_SUCCESS, responseDto);
 	}
 }
