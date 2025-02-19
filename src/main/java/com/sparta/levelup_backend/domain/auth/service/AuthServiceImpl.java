@@ -1,52 +1,49 @@
 package com.sparta.levelup_backend.domain.auth.service;
 
 import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.sparta.levelup_backend.domain.auth.dto.request.SignUpUserRequestDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.BusinessException;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.UserRole;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-	private final UserRepository userRepository;
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-	@Override
-	@Transactional
-	public void signUpUser(SignUpUserRequestDto signUpUserRequestDto) {
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-			userRepository.existsByEmailOrElseThrow(signUpUserRequestDto.getEmail());
+    @Override
+    @Transactional
+    public void signUpUser(SignUpUserRequestDto signUpUserRequestDto) {
 
-			UserEntity user = UserEntity.builder().
-				email(signUpUserRequestDto.getEmail())
-				.nickName(signUpUserRequestDto.getNickName())
-				.password(bCryptPasswordEncoder.encode(signUpUserRequestDto.getPassword()))
-				.imgUrl(signUpUserRequestDto.getImgUrl())
-				.role(UserRole.USER)
-				.phoneNumber(signUpUserRequestDto.getPhoneNumber())
-				.provider("none")
-				.build();
+        userRepository.existsByEmailOrElseThrow(signUpUserRequestDto.getEmail());
 
-			userRepository.save(user);
-		}
+        UserEntity user = UserEntity.builder().
+            email(signUpUserRequestDto.getEmail())
+            .nickName(signUpUserRequestDto.getNickName())
+            .password(bCryptPasswordEncoder.encode(signUpUserRequestDto.getPassword()))
+            .imgUrl(signUpUserRequestDto.getImgUrl())
+            .role(UserRole.USER)
+            .phoneNumber(signUpUserRequestDto.getPhoneNumber())
+            .provider("none")
+            .build();
 
-	@Override
-	@Transactional
-	public void oAuth2signUpUser(OAuthUserRequestDto dto) {
-		UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
-		user.updateProvider(user.getProvider().substring(0,user.getProvider().length()-3));
-		user.updatePhoneNumber(dto.getPhoneNumber());
-		user.updateEmail(dto.getEmail());
-		user.updateNickName(dto.getNickName());
-	}
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void oAuth2signUpUser(OAuthUserRequestDto dto) {
+        UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
+        user.updateProvider(user.getProvider().substring(0, user.getProvider().length() - 3));
+        user.updatePhoneNumber(dto.getPhoneNumber());
+        user.updateEmail(dto.getEmail());
+        user.updateNickName(dto.getNickName());
+    }
 
 }

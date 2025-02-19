@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class GoogleResponse implements OAuth2Response {
 
-    private final Map<String,Object> attribute;
+    private final Map<String, Object> attribute;
 
     @Override
     public String getProvider() {

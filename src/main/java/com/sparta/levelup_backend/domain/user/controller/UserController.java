@@ -1,6 +1,9 @@
 package com.sparta.levelup_backend.domain.user.controller;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.ApiResMessage.DELETE_SUCCESS;
+import static com.sparta.levelup_backend.common.ApiResMessage.FIND_SUCCESS;
+import static com.sparta.levelup_backend.common.ApiResMessage.PASSWORD_CHANGE_SUCCESS;
+import static com.sparta.levelup_backend.common.ApiResMessage.UPDATE_SUCCESS;
 import static com.sparta.levelup_backend.common.ApiResponse.success;
 
 import com.sparta.levelup_backend.common.ApiResponse;
@@ -72,8 +75,8 @@ public class UserController {
     public ApiResponse<UserResponseDto> updateImgUrl(
         @AuthenticationPrincipal CustomUserDetails customUserDetails,
         @Valid @RequestBody UpdateUserImgUrlReqeustDto dto
-    ){
-        UserResponseDto responseDto = userService.updateImgUrl(customUserDetails.getId(),dto);
+    ) {
+        UserResponseDto responseDto = userService.updateImgUrl(customUserDetails.getId(), dto);
         return success(HttpStatus.OK, UPDATE_SUCCESS, responseDto);
     }
 
@@ -81,8 +84,8 @@ public class UserController {
     public ApiResponse<Void> deleteUser(
         @AuthenticationPrincipal CustomUserDetails customUserDetails,
         @Valid @RequestBody DeleteUserRequestDto dto
-    ){
-        userService.deleteUser(customUserDetails.getId(),dto);
+    ) {
+        userService.deleteUser(customUserDetails.getId(), dto);
         return ApiResponse.success(HttpStatus.OK, DELETE_SUCCESS);
     }
 

@@ -20,8 +20,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor( access = AccessLevel.PROTECTED)
-@Table( name = "user")
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "user")
 public class UserEntity extends BaseEntity {
 
     @Id
@@ -44,19 +44,19 @@ public class UserEntity extends BaseEntity {
 
     private String provider;
 
-    public void updateEmail(String email){
+    public void updateEmail(String email) {
         this.email = email;
     }
 
-    public void updateImgUrl(String imgUrl){
+    public void updateImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
     }
 
-    public void updateNickName(String nickName){
+    public void updateNickName(String nickName) {
         this.nickName = nickName;
     }
 
-    public void updatePhoneNumber(String phoneNumber){
+    public void updatePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 

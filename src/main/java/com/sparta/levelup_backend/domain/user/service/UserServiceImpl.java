@@ -98,9 +98,9 @@ public class UserServiceImpl implements UserService {
 
         UserEntity user = userRepository.findByIdOrElseThrow(id);
 
-        if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())){
+        if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
             user.delete();
-        }else {
+        } else {
             throw new CurrentPasswordNotMatchedException();
         }
 

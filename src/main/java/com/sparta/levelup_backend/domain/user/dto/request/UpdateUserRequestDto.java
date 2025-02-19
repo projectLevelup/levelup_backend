@@ -14,7 +14,7 @@ import org.hibernate.validator.constraints.URL;
 public class UpdateUserRequestDto {
 
     @JsonProperty(value = "email")
-    @Pattern(regexp = "^[\\w!#$%&'*+/=?`{|}~^.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = EMAIL_NOT_VALID )
+    @Pattern(regexp = "^[\\w!#$%&'*+/=?`{|}~^.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = EMAIL_NOT_VALID)
     private String email;
 
     @JsonProperty(value = "nickName")

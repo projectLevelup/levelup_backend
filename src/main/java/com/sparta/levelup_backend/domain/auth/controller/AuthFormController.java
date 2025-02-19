@@ -11,22 +11,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AuthFormController {
 
     @GetMapping("/signin")
-    public String signInPage(HttpServletRequest request){
+    public String signInPage(HttpServletRequest request) {
         return "signin";
     }
 
     @GetMapping("/signup")
-    public String signUpUserPage(){
+    public String signUpUserPage() {
 
         return "signup";
     }
 
     @GetMapping("/oauth2signup")
-    public String oAuth2SignUpUserPage(Model model , HttpServletRequest request){
+    public String oAuth2SignUpUserPage(Model model, HttpServletRequest request) {
 
-        model.addAttribute("email",request.getAttribute("email"));
-        model.addAttribute("nickName",request.getAttribute("nickName"));
-        model.addAttribute("phoneNummber",request.getAttribute("phoneNumber"));
+        model.addAttribute("email", request.getAttribute("email"));
+        model.addAttribute("nickName", request.getAttribute("nickName"));
+        model.addAttribute("phoneNummber", request.getAttribute("phoneNumber"));
 
         return "oauth2signup";
     }

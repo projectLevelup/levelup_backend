@@ -14,94 +14,92 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtils {
-	private final String BEARER_PREFIX = "Bearer ";
 
-	private final Long REFRESH_TOKEN_EXPIRE_TIME =  12L * 60L * 60L * 1000L;
+    private final String BEARER_PREFIX = "Bearer ";
 
-	private final Long ACCESS_TOKEN_EXPIRE_TIME = 30L * 60L * 1000L;
+    private final Long REFRESH_TOKEN_EXPIRE_TIME = 12L * 60L * 60L * 1000L;
 
-	private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
+    private final Long ACCESS_TOKEN_EXPIRE_TIME = 30L * 60L * 1000L;
 
-
-	private final String SECRET_KEY;
-
-	private final Key KEY;
+    private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS256;
 
 
-	JwtUtils(@Value("${jwt.secret.key}") String SECRET_KEY){
-		this.SECRET_KEY = SECRET_KEY;
-		byte [] secret_key_bytes = Base64.getDecoder().decode(SECRET_KEY.getBytes());
-		KEY = Keys.hmacShaKeyFor(secret_key_bytes);
-	}
+    private final String SECRET_KEY;
 
-	public String createAccessToken(String email, Long id, String nickName, String role){
-		Date date = new Date();
+    private final Key KEY;
 
 
-		return BEARER_PREFIX +
-			Jwts.builder()
-				.setSubject(email)
-				.claim("role",role)
-				.claim("id",id.toString())
-				.claim("nickName",nickName)
-				.claim("type","ACCESS")
-				.setExpiration(
-					new Date(date.getTime() + ACCESS_TOKEN_EXPIRE_TIME))
-				.setIssuedAt(date)
-				.signWith(KEY, SIGNATURE_ALGORITHM)
-				.compact();
-	}
+    JwtUtils(@Value("${jwt.secret.key}") String SECRET_KEY) {
+        this.SECRET_KEY = SECRET_KEY;
+        byte[] secret_key_bytes = Base64.getDecoder().decode(SECRET_KEY.getBytes());
+        KEY = Keys.hmacShaKeyFor(secret_key_bytes);
+    }
 
-	public String createRefreshToken(String email, Long id, String nickName, String role){
-		Date date = new Date();
+    public String createAccessToken(String email, Long id, String nickName, String role) {
+        Date date = new Date();
 
+        return BEARER_PREFIX +
+            Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .claim("id", id.toString())
+                .claim("nickName", nickName)
+                .claim("type", "ACCESS")
+                .setExpiration(
+                    new Date(date.getTime() + ACCESS_TOKEN_EXPIRE_TIME))
+                .setIssuedAt(date)
+                .signWith(KEY, SIGNATURE_ALGORITHM)
+                .compact();
+    }
 
-		return BEARER_PREFIX +
-			Jwts.builder()
-				.setSubject(email)
-				.claim("role",role)
-				.claim("id",id.toString())
-				.claim("nickName",nickName)
-				.claim("type","REFRESH")
-				.setExpiration(
-					new Date(date.getTime() + REFRESH_TOKEN_EXPIRE_TIME))
-				.setIssuedAt(date)
-				.signWith(KEY, SIGNATURE_ALGORITHM)
-				.compact();
-	}
+    public String createRefreshToken(String email, Long id, String nickName, String role) {
+        Date date = new Date();
 
-	public String substringToken(String token){
-		if(token.startsWith(BEARER_PREFIX)){
-			return token.substring(7);
-		}
-		throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
-	}
+        return BEARER_PREFIX +
+            Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .claim("id", id.toString())
+                .claim("nickName", nickName)
+                .claim("type", "REFRESH")
+                .setExpiration(
+                    new Date(date.getTime() + REFRESH_TOKEN_EXPIRE_TIME))
+                .setIssuedAt(date)
+                .signWith(KEY, SIGNATURE_ALGORITHM)
+                .compact();
+    }
 
-	public Claims extractClaims(String token){
-		return Jwts.parserBuilder()
-			.setSigningKey(KEY)
-			.build()
-			.parseClaimsJws(token)
-			.getBody();
-	}
+    public String substringToken(String token) {
+        if (token.startsWith(BEARER_PREFIX)) {
+            return token.substring(7);
+        }
+        throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
+    }
 
-	public String refresingToken(String validToken) throws Exception {
-		Claims claims = extractClaims(substringToken(validToken));
+    public Claims extractClaims(String token) {
+        return Jwts.parserBuilder()
+            .setSigningKey(KEY)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+    }
 
-		String email = claims.getSubject();
-		String role = claims.get("role", String.class);
-		Long id = Long.parseLong(claims.get("id", String.class));
-		String nickName = claims.get("nickName", String.class);
-		String type = claims.get("type", String.class);
+    public String refresingToken(String validToken) throws Exception {
+        Claims claims = extractClaims(substringToken(validToken));
 
-		if(type.equals("ACCESS")){
-			return createRefreshToken(email, id, nickName, role);
-		}else {
-			return createAccessToken(email, id, nickName, role);
-		}
+        String email = claims.getSubject();
+        String role = claims.get("role", String.class);
+        Long id = Long.parseLong(claims.get("id", String.class));
+        String nickName = claims.get("nickName", String.class);
+        String type = claims.get("type", String.class);
 
-	}
+        if (type.equals("ACCESS")) {
+            return createRefreshToken(email, id, nickName, role);
+        } else {
+            return createAccessToken(email, id, nickName, role);
+        }
 
+    }
 
 
 }

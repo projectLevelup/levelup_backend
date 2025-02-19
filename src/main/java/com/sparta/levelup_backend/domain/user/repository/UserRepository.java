@@ -8,23 +8,26 @@ import com.sparta.levelup_backend.exception.common.NotFoundException;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserRepository extends JpaRepository<UserEntity,Long> {
-	boolean existsByEmail(String email);
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
-	default void existsByEmailOrElseThrow(String email){
-		if(existsByEmail(email)){
-			throw new EmailDuplicatedException();
-		}
-	}
+    boolean existsByEmail(String email);
 
-	Optional<UserEntity> findByEmail(String email);
+    default void existsByEmailOrElseThrow(String email) {
+        if (existsByEmail(email)) {
+            throw new EmailDuplicatedException();
+        }
+    }
 
-	default UserEntity findByEmailOrElseThrow(String email){
-		return findByEmail(email).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
-	};
+    Optional<UserEntity> findByEmail(String email);
 
-	default UserEntity findByIdOrElseThrow(Long userId) {
-		return findById(userId)
-			.orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
-	}
+    default UserEntity findByEmailOrElseThrow(String email) {
+        return findByEmail(email).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+    }
+
+    ;
+
+    default UserEntity findByIdOrElseThrow(Long userId) {
+        return findById(userId)
+            .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+    }
 }

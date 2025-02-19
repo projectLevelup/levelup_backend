@@ -30,44 +30,40 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         OAuth2Response oAuth2Response = null;
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        if(registrationId.equals("naver")){
+        if (registrationId.equals("naver")) {
 
             oAuth2Response = new NaverResponse(
                 (Map<String, Object>) oAuth2User.getAttributes().get("response"));
 
-        }else if(registrationId.equals("google")){
+        } else if (registrationId.equals("google")) {
 
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
 
-        }else {
+        } else {
             oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
         }
 
-
         UserEntity user = null;
 
-        if(userRepository.existsByEmail(oAuth2Response.getEmail())){
+        if (userRepository.existsByEmail(oAuth2Response.getEmail())) {
             user = userRepository.findByEmailOrElseThrow(oAuth2Response.getEmail());
-            if(user.getIsDeleted()){
+            if (user.getIsDeleted()) {
                 throw new OAuth2AuthenticationException(ErrorCode.ALREADY_DELETED_USER.toString());
             }
-            if(!user.getProvider().startsWith(registrationId)){
+            if (!user.getProvider().startsWith(registrationId)) {
                 throw new OAuth2AuthenticationException(ErrorCode.AUTH_TYPE_MISMATCH.toString());
             }
 
 
-        }else {
+        } else {
             user = UserEntity.builder()
                 .email(oAuth2Response.getEmail())
                 .nickName(oAuth2Response.getNickName())
                 .role(UserRole.USER)
-                .provider(registrationId+"new")
+                .provider(registrationId + "new")
                 .build();
             userRepository.save(user);
         }
-
-
-
 
         return new CustomOAuth2User(user);
     }

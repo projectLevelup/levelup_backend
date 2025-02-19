@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class OAuthUserRequestDto {
 
     @JsonProperty(value = "email")
-    @Pattern(regexp = "^[\\w!#$%&'*+/=?`{|}~^.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = EMAIL_NOT_VALID )
+    @Pattern(regexp = "^[\\w!#$%&'*+/=?`{|}~^.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = EMAIL_NOT_VALID)
     @NotBlank
     private String email;
 
