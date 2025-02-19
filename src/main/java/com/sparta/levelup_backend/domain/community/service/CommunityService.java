@@ -19,4 +19,6 @@ public interface CommunityService {
 	CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto);
 
 	CommunityResponseDto updateCommunityES(Long userId, CommunityUpdateRequestDto dto);
+
+	void deleteCommunityES(Long userId, Long communityId);
 }
