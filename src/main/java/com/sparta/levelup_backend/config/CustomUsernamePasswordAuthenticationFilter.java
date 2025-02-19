@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.config;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.ApiResMessage.LOGIN_SUCCESS;
 
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.utill.JwtUtils;
@@ -9,15 +9,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
@@ -28,15 +25,11 @@ public class CustomUsernamePasswordAuthenticationFilter extends
     private final JwtUtils jwtUtils;
     private final FilterResponse filterResponse;
 
-
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
         HttpServletResponse response) throws
         AuthenticationException {
-        request.getCookies();
-
         setUsernameParameter("email");
-
         String email = obtainUsername(request);
         String password = obtainPassword(request);
 
@@ -55,23 +48,16 @@ public class CustomUsernamePasswordAuthenticationFilter extends
         String username = customUserDetails.getUsername();
         Long id = customUserDetails.getId();
         String nickName = customUserDetails.getNickName();
-
-
-
-        Collection<? extends GrantedAuthority> authorites = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorites.iterator();
-        GrantedAuthority auth = iterator.next();
-        String role = auth.getAuthority();
+        String role = authentication.getAuthorities()
+            .iterator().next().getAuthority();
 
         String accessToken = jwtUtils.createAccessToken(username, id, nickName, role);
         String refreshToken = jwtUtils.createRefreshToken(username, id, nickName, role);
 
         response.addHeader("Authorization", accessToken);
-
-
-        response.addHeader("Set-Cookie","accessToken="+accessToken);
-        response.addHeader("Set-Cookie","refreshToken="+refreshToken);
-        response.addHeader("Domain","localhost" );
+        response.addHeader("Set-Cookie", "accessToken=" + accessToken);
+        response.addHeader("Set-Cookie", "refreshToken=" + refreshToken);
+        response.addHeader("Domain", "localhost");
         filterResponse.responseSuccessMsg(response, HttpStatus.OK, LOGIN_SUCCESS, accessToken);
 
     }
@@ -84,7 +70,6 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 
         if (response.getStatus() == 200 && failed.getCause() != null) {
             ErrorCode errorCode = ErrorCode.from(failed.getCause().getMessage());
-
             filterResponse.responseErrorMsg(response,
                 errorCode.getStatus().value(),
                 errorCode.getCode(),
@@ -96,6 +81,5 @@ public class CustomUsernamePasswordAuthenticationFilter extends
                 ErrorCode.LOGIN_FAILED.getMessage());
         }
     }
-
 
 }

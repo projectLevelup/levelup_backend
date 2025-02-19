@@ -22,8 +22,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomOAuth2Handler implements AuthenticationSuccessHandler,
     AuthenticationFailureHandler {
-        private final JwtUtils jwtUtils;
-        private final FilterResponse filterResponse;
+
+    private final JwtUtils jwtUtils;
+    private final FilterResponse filterResponse;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -35,18 +36,16 @@ public class CustomOAuth2Handler implements AuthenticationSuccessHandler,
         String nickName = customOAuth2User.getNickName();
         String provider = customOAuth2User.getProvider();
 
-        if(provider.endsWith("new"))
-        {
+        if (provider.endsWith("new")) {
             request.setAttribute("id", id);
             request.setAttribute("email", email);
             request.setAttribute("nickName", nickName);
             request.setAttribute("provider", provider);
 
             RequestDispatcher requestDispatcher = request.getRequestDispatcher("/v2/oauth2signup");
-            requestDispatcher.forward(request,response);
+            requestDispatcher.forward(request, response);
 
-        }
-        else {
+        } else {
             Collection<? extends GrantedAuthority> authorites = authentication.getAuthorities();
             Iterator<? extends GrantedAuthority> iterator = authorites.iterator();
             GrantedAuthority auth = iterator.next();
@@ -61,7 +60,7 @@ public class CustomOAuth2Handler implements AuthenticationSuccessHandler,
             response.addHeader("Set-Cookie", "refreshToken=" + refreshToken);
             response.addHeader("Domain", "localhost");
             RequestDispatcher requestDispatcher = request.getRequestDispatcher("/v2/signin");
-            requestDispatcher.forward(request,response);
+            requestDispatcher.forward(request, response);
         }
     }
 
@@ -69,8 +68,9 @@ public class CustomOAuth2Handler implements AuthenticationSuccessHandler,
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
         AuthenticationException exception) throws IOException, ServletException {
         OAuth2AuthenticationException superException = (OAuth2AuthenticationException) exception;
-        ErrorCode error = ErrorCode.valueOf( superException.getError().getErrorCode());
+        ErrorCode error = ErrorCode.valueOf(superException.getError().getErrorCode());
 
-        filterResponse.responseErrorMsg(response, error.getStatus().value(),error.getCode(),error.getMessage());
+        filterResponse.responseErrorMsg(response, error.getStatus().value(), error.getCode(),
+            error.getMessage());
     }
 }

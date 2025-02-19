@@ -12,6 +12,7 @@ public class AuthFormController {
 
     @GetMapping("/signin")
     public String signInPage(HttpServletRequest request) {
+
         return "signin";
     }
 

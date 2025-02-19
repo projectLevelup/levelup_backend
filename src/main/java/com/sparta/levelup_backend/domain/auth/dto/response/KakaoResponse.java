@@ -16,16 +16,19 @@ public class KakaoResponse implements OAuth2Response {
 
     @Override
     public String getProvider() {
+
         return "kakao";
     }
 
     @Override
     public String getEmail() {
+
         return account.get("email").toString();
     }
 
     @Override
     public String getNickName() {
+
         return profile.get("nickname").toString();
     }
 }

@@ -20,7 +20,6 @@ public class HttpMessageConverterConfigurer implements WebMvcConfigurer {
         MediaType media = new MediaType(APPLICATION_FORM_URLENCODED, UTF_8);
         converter.setSupportedMediaTypes(List.of(media));
         converters.add(converter);
-
     }
 
 }

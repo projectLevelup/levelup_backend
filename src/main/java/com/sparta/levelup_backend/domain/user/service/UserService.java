@@ -11,7 +11,6 @@ public interface UserService {
 
     UserResponseDto findUserById(String role, Long id);
 
-
     UserResponseDto findUser(Long id);
 
     UserResponseDto updateUser(Long id, UpdateUserRequestDto dto);

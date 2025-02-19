@@ -21,12 +21,12 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
 
     default UserEntity findByEmailOrElseThrow(String email) {
+
         return findByEmail(email).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
     }
 
-    ;
-
     default UserEntity findByIdOrElseThrow(Long userId) {
+
         return findById(userId)
             .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
     }

@@ -13,26 +13,26 @@ import org.springframework.util.MultiValueMap;
 
 public class FormToJsonHttpMessageConverter<T> extends AbstractHttpMessageConverter<T> {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final FormHttpMessageConverter converter = new FormHttpMessageConverter();
+
     @Override
     protected boolean supports(Class<?> clazz) {
+
         return clazz.isAnnotationPresent(FormToJson.class);
     }
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final FormHttpMessageConverter converter = new FormHttpMessageConverter();
 
     @Override
     protected T readInternal(Class<? extends T> clazz, HttpInputMessage inputMessage)
         throws IOException, HttpMessageNotReadableException {
         MultiValueMap<String, String> read = converter.read(null, inputMessage);
+
         return objectMapper.convertValue(read.asSingleValueMap(), clazz);
     }
 
     @Override
     protected void writeInternal(T t, HttpOutputMessage outputMessage)
         throws IOException, HttpMessageNotWritableException {
-
     }
 
 }

@@ -17,6 +17,7 @@ public class UserResponseDto {
     private final String phoneNumber;
 
     public static UserResponseDto from(UserEntity user) {
+
         return new UserResponseDto(
             user.getEmail(),
             user.getNickName(),

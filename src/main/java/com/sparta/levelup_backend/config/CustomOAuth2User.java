@@ -15,6 +15,7 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public Map<String, Object> getAttributes() {
+
         return null;
     }
 
@@ -24,7 +25,8 @@ public class CustomOAuth2User implements OAuth2User {
         grantedAuthority.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return "ROLE_"+user.getRole().toString();
+
+                return "ROLE_" + user.getRole().toString();
             }
         });
 
@@ -33,45 +35,51 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
+
         return user.getEmail();
     }
 
-
     public Long getId() {
+
         return user.getId();
     }
 
-    public String getNickName(){
+    public String getNickName() {
+
         return user.getNickName();
     }
 
-    public String getProvider(){
-        String google = providerCheck(user.getProvider(),"google");
-        String kakao = providerCheck(user.getProvider(),"kakao");
-        String naver = providerCheck(user.getProvider(),"naver");
-        if(!google.equals("mismatch")){
+    public String getProvider() {
+        String google = providerCheck(user.getProvider(), "google");
+        String kakao = providerCheck(user.getProvider(), "kakao");
+        String naver = providerCheck(user.getProvider(), "naver");
+        if (!google.equals("mismatch")) {
+
             return google;
-        }else if(!kakao.equals("mismatch")){
+        } else if (!kakao.equals("mismatch")) {
+
             return kakao;
-        }else if(!naver.equals("mismatch")){
+        } else if (!naver.equals("mismatch")) {
+
             return naver;
-        }else {
+        } else {
+
             return "mismatch";
         }
-        }
+    }
 
 
+    private String providerCheck(String provider, String providerType) {
+        if (provider.startsWith(providerType)) {
+            if (provider.startsWith(providerType + "new")) {
 
+                return providerType + "new";
+            } else {
 
-
-    private String providerCheck(String provider, String providerType){
-        if(provider.startsWith(providerType)){
-            if(provider.startsWith(providerType+"new")){
-                return providerType+"new";
-            }else {
-               return providerType;
+                return providerType;
             }
         }
+
         return "mismatch";
     }
 

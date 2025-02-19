@@ -26,12 +26,14 @@ public class AuthController {
     @PostMapping("/signup")
     public ApiResponse<Void> signUpUser(@Valid @RequestBody SignUpUserRequestDto dto) {
         authService.signUpUser(dto);
+
         return success(CREATED, SIGNUP_SUCCESS);
     }
 
     @PostMapping("/oauth2signup")
     public ApiResponse<Void> oAuth2signUpUser(@Valid @RequestBody OAuthUserRequestDto dto) {
         authService.oAuth2signUpUser(dto);
+
         return success(CREATED, SIGNUP_SUCCESS);
     }
 }

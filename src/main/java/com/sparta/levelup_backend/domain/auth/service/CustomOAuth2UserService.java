@@ -53,8 +53,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             if (!user.getProvider().startsWith(registrationId)) {
                 throw new OAuth2AuthenticationException(ErrorCode.AUTH_TYPE_MISMATCH.toString());
             }
-
-
         } else {
             user = UserEntity.builder()
                 .email(oAuth2Response.getEmail())

@@ -16,7 +16,6 @@ public class FilterResponse {
             response.setStatus(statusCode);
             response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
-
             response.getWriter().write("{\n"
                 + "    \"errorCode\": \""+code+"\",\n"
                 + "    \"detail\": \""+msg+"\",\n"
@@ -34,7 +33,6 @@ public class FilterResponse {
             response.setStatus(statusCode.value());
             response.setContentType(APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
-
             response.getWriter().write("{\n"
                 + "    \"status\": \""+statusCode.name()+"\",\n"
                 + "    \"message\": \""+msg+"\",\n"

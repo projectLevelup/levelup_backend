@@ -15,86 +15,84 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-	private final AuthenticationConfiguration authenticationConfiguration;
-	private final JwtUtils jwtUtils;
-	private final CustomOAuth2UserService customOAuth2UserService;
-	private final FilterResponse filterResponse;
-	private final CustomOAuth2Handler OAuth2Handler;
+
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final JwtUtils jwtUtils;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final FilterResponse filterResponse;
+    private final CustomOAuth2Handler OAuth2Handler;
 
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+        throws Exception {
 
+        return configuration.getAuthenticationManager();
+    }
 
-	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-		return configuration.getAuthenticationManager();
-	}
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
 
-	@Bean
-	public BCryptPasswordEncoder bCryptPasswordEncoder(){
-		return new BCryptPasswordEncoder();
-	}
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public AccessDeniedHandler accessDeniedHandler(){
-		return new CustomAccessDeniedHandler(filterResponse);
-	}
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler() {
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return new CustomAccessDeniedHandler(filterResponse);
+    }
 
-		http
-			.csrf((csrf) -> csrf.disable())
-			.formLogin((form) -> form
-				.loginPage("/v2/signin"))
-			.httpBasic((basic) -> basic.disable());
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+        http
+            .csrf((csrf) -> csrf.disable())
+            .formLogin((form) -> form
+                .loginPage("/v2/signin"))
+            .httpBasic((basic) -> basic.disable());
 
+        http.
+            oauth2Login((oauth2)
+                -> oauth2.userInfoEndpoint((userInfoEndpointConfig)
+                -> userInfoEndpointConfig.userService(customOAuth2UserService)));
 
-		http.
-					oauth2Login((oauth2)
-						-> oauth2.userInfoEndpoint((userInfoEndpointConfig)
-						-> userInfoEndpointConfig.userService(customOAuth2UserService)));
+        http.oauth2Login((auth)
+                -> auth.authorizationEndpoint((authorizationEndPointConfig)
+                    -> authorizationEndPointConfig.baseUri("/v2/signin/oauth2/authorization")
+                ).failureHandler(OAuth2Handler)
+                .successHandler(OAuth2Handler));
 
+        http.
+            authorizeHttpRequests((auth) -> auth
+                .requestMatchers("/", "/v2/sign**", "/v2/oauth2sign*").permitAll()
+                .requestMatchers("/v2/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated());
 
-		http.oauth2Login((auth)
-				-> auth.authorizationEndpoint((authorizationEndPointConfig)
-				-> authorizationEndPointConfig.baseUri("/v2/signin/oauth2/authorization")
-				).failureHandler(OAuth2Handler)
-				.successHandler(OAuth2Handler)
-			);
+        http.exceptionHandling(exceptionHandling ->
+            exceptionHandling.accessDeniedHandler(accessDeniedHandler()));
 
+        http.
+            addFilterBefore(new JwtFilter(jwtUtils, filterResponse),
+                CustomUsernamePasswordAuthenticationFilter.class);
 
-		http.
-			authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/","/v2/sign**","/v2/oauth2sign*").permitAll()
-				.requestMatchers("/v2/admin/**").hasRole("ADMIN")
-				.anyRequest().authenticated());
+        CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
+            authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
+        customUsernamePasswordAuthenticationFilter.setRequiresAuthenticationRequestMatcher(
+            new AntPathRequestMatcher("/v2/signin", "POST"));
 
-		http.exceptionHandling(exceptionHandling ->
-			exceptionHandling.accessDeniedHandler(accessDeniedHandler()));
+        http.
+            addFilterAt(customUsernamePasswordAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class);
 
-		http.
-			addFilterBefore(new JwtFilter(jwtUtils, filterResponse), CustomUsernamePasswordAuthenticationFilter.class);
+        http.sessionManagement((session) -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
-			authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
-		customUsernamePasswordAuthenticationFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/v2/signin","POST"));
-
-		http.
-			addFilterAt(customUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-		http.sessionManagement((session) -> session
-			.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-		return http.build();
-
-
-
-	}
+        return http.build();
+        
+    }
 }

@@ -42,6 +42,7 @@ public class UserController {
             iterator().next().
             getAuthority();
         UserResponseDto responseDto = userService.findUserById(role, userId);
+
         return success(HttpStatus.OK, FIND_SUCCESS, responseDto);
     }
 
@@ -50,6 +51,7 @@ public class UserController {
         @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         UserResponseDto responseDto = userService.findUser(customUserDetails.getId());
+
         return success(HttpStatus.OK, FIND_SUCCESS, responseDto);
     }
 
@@ -60,6 +62,7 @@ public class UserController {
     ) {
 
         UserResponseDto responseDto = userService.updateUser(customUserDetails.getId(), dto);
+
         return success(HttpStatus.OK, UPDATE_SUCCESS, responseDto);
     }
 
@@ -68,6 +71,7 @@ public class UserController {
         @AuthenticationPrincipal CustomUserDetails customUserDetails,
         @Valid @RequestBody ChangePasswordDto dto) {
         userService.changePassword(customUserDetails.getId(), dto);
+
         return success(HttpStatus.OK, PASSWORD_CHANGE_SUCCESS);
     }
 
@@ -77,6 +81,7 @@ public class UserController {
         @Valid @RequestBody UpdateUserImgUrlReqeustDto dto
     ) {
         UserResponseDto responseDto = userService.updateImgUrl(customUserDetails.getId(), dto);
+
         return success(HttpStatus.OK, UPDATE_SUCCESS, responseDto);
     }
 
@@ -86,6 +91,7 @@ public class UserController {
         @Valid @RequestBody DeleteUserRequestDto dto
     ) {
         userService.deleteUser(customUserDetails.getId(), dto);
+
         return ApiResponse.success(HttpStatus.OK, DELETE_SUCCESS);
     }
 

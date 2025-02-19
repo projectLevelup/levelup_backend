@@ -29,6 +29,7 @@ public class UserServiceImpl implements UserService {
 
         if (role.equals("ROLE_ADMIN")) {
             UserEntity user = userRepository.findByIdOrElseThrow(id);
+
             return UserResponseDto.from(user);
         }
         throw new ForbiddenException(FORBIDDEN_ACCESS);
@@ -37,6 +38,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto findUser(Long id) {
         UserEntity user = userRepository.findByIdOrElseThrow(id);
+
         return UserResponseDto.from(user);
     }
 

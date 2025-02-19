@@ -12,16 +12,19 @@ public class NaverResponse implements OAuth2Response {
 
     @Override
     public String getProvider() {
+
         return "naver";
     }
 
     @Override
     public String getEmail() {
+
         return attribute.get("email").toString();
     }
 
     @Override
     public String getNickName() {
+
         return attribute.get("name").toString();
     }
 }
