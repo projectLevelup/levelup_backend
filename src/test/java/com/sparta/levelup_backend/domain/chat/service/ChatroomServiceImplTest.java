@@ -20,8 +20,6 @@ import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.BadRequestException;
-import com.sparta.levelup_backend.exception.common.BusinessException;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
 
 @ExtendWith(MockitoExtension.class)
 class ChatroomServiceImplTest {
@@ -151,6 +149,44 @@ class ChatroomServiceImplTest {
 			chatroomService.createChatroom(userId, targetUserId, title);
 		}).isInstanceOf(BadRequestException.class)
 			.hasMessageContaining(DUPLICATE_CHATROOM.getMessage());
+	}
+
+	@Test
+	void 채팅방_나가기_성공() {
+		//given
+		Long userId = 1L;
+		String chatroomId = "test";
+
+		ChatroomDocument chatroomDocument = ChatroomDocument.builder()
+			.id(chatroomId)
+			.participants(Arrays.asList(participant1, participant2))
+			.lastMessage("")
+			.unreadMessages(new HashMap<>())
+			.isDeleted(false)
+			.build();
+
+		when(chatroomMongoRepository.findByIdOrThrow(chatroomId)).thenReturn(chatroomDocument);
+
+		//when
+		chatroomService.leaveChatroom(userId, chatroomId);
+
+		//then
+		ChatroomDocument expectedResult = ChatroomDocument.builder()
+			.id(chatroomId)
+			.participants(Arrays.asList(participant2))
+			.lastMessage("")
+			.unreadMessages(new HashMap<>())
+			.isDeleted(true)
+			.build();
+
+		verify(chatroomMongoRepository, times(1)).save(argThat(save ->
+			save.getId().equals(expectedResult.getId())
+			&& save.getParticipants().equals(expectedResult.getParticipants())
+			&& save.getLastMessage().equals(expectedResult.getLastMessage())
+			&& save.getUnreadMessages().equals(expectedResult.getUnreadMessages())
+			 && save.getIsDeleted().equals(expectedResult.getIsDeleted())
+			));
+
 	}
 
 
