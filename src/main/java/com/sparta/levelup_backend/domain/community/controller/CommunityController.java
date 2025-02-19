@@ -97,11 +97,22 @@ public class CommunityController {
 
 	@PatchMapping("/es")
 	public ApiResponse<CommunityResponseDto> updateCommunityES(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody CommunityUpdateRequestDto dto) {
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@Valid @RequestBody CommunityUpdateRequestDto dto) {
 
 		Long userId = customUserDetails.getId();
 
 		CommunityResponseDto responseDto = communityService.updateCommunityES(userId, dto);
 		return success(OK, COMMUNITY_UPDATE_SUCCESS, responseDto);
+	}
+
+	@DeleteMapping("/es")
+	public ApiResponse<Void> deleteCommunityES(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@RequestParam Long communityId) {
+
+		Long userId = customUserDetails.getId();
+
+		communityService.deleteCommunityES(userId, communityId);
+		return success(OK, COMMUNITY_DELETE_SUCCESS);
 	}
 }

@@ -159,6 +159,18 @@ public class CommunityServiceImpl implements CommunityService {
 		return CommunityResponseDto.from(communityDocument);
 	}
 
+	@Override
+	public void deleteCommunityES(Long userId, Long communityId) {
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
+		CommunityDocument communityDocument = communityESRepository.findByIdOrElseThrow(String.valueOf(communityId));
+		checkAuth(community, userId);
+		checkCommunityIsDeleted(community);
+
+		community.deleteCommunity();
+		communityDocument.updateIsDeleted(true);
+		communityESRepository.save(communityDocument);
+	}
+
 	private void checkGameIsDeleted(GameEntity game) {
 		if (game.getIsDeleted()) {
 			throw new DuplicateException(GAME_ISDELETED);
