@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -18,6 +19,9 @@ import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
+import com.sparta.levelup_backend.exception.common.BadRequestException;
+import com.sparta.levelup_backend.exception.common.BusinessException;
+import com.sparta.levelup_backend.exception.common.ErrorCode;
 
 @ExtendWith(MockitoExtension.class)
 class ChatroomServiceImplTest {
@@ -79,6 +83,20 @@ class ChatroomServiceImplTest {
 			.isEqualTo(expectedResult);
 		verify(chatroomMongoRepository, times(1)).save(any(ChatroomDocument.class));
 
+	}
+
+	@Test
+	void 자기자신과_채팅방_생성시_예외처리() {
+		//given
+		Long userId = 1L;
+		Long targetUserId = 1L;
+		String title = "title";
+
+		//when & then
+		assertThatThrownBy(() -> {
+			chatroomService.createChatroom(userId, targetUserId, title);
+		}).isInstanceOf(BadRequestException.class)
+			.hasMessageContaining(INVALID_CHATROOM_CREATE.getMessage());
 	}
 
 
