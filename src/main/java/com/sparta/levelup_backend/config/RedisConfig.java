@@ -55,4 +55,20 @@ public class RedisConfig {
 		return container;
 	}
 
+    /**
+     * Redis 메시지 구성 설정
+     * @param redisConnectionFactory Redis 연결
+     * @param redisSubscriber 수신된 메시지 처리 서비스
+     */
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(
+        RedisConnectionFactory redisConnectionFactory,
+        RedisSubscriber redisSubscriber
+    ) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(redisConnectionFactory);
+        container.addMessageListener(redisSubscriber, new PatternTopic("chatroom:*"));
+        return container;
+    }
+
 }
