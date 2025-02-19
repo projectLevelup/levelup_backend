@@ -77,7 +77,7 @@ public class CommunityController {
 	}
 
 	@PostMapping("/es")
-	public ApiResponse<CommunityResponseDto> createCommunity(
+	public ApiResponse<CommunityResponseDto> saveCommunityES(
 		@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@RequestBody CommnunityCreateRequestDto dto) {
 		Long userId = customUserDetails.getId();
@@ -86,7 +86,7 @@ public class CommunityController {
 	}
 
 	@GetMapping("/es")
-	public ApiResponse<CommunityListResponseDto> findCommunity(@RequestParam(defaultValue = "0") int page,
+	public ApiResponse<CommunityListResponseDto> findCommunityES(@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword) {
 
 		CommunityListResponseDto responseDtoList = communityService.findCommunityES(searchKeyword, page, size);
