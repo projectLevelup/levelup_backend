@@ -64,38 +64,31 @@ public class AuthServiceImpl implements AuthService {
 
 		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(dto.getEmail());
 
-		String accessToken = jwtUtils.createAccessToken(
-			userDetails.getNickName(),
-			userDetails.getId(),
-			userDetails.getNickName(),
-			userDetails.getAuthorities().iterator().next().getAuthority());
+		String email = userDetails.getUsername();
+		Long userId = userDetails.getId();
+		String nickName = userDetails.getNickName();
+		String role = userDetails.getAuthorities().iterator().next().getAuthority();
 
-		String refreshToken = jwtUtils.createRefreshToken(
-			userDetails.getNickName(),
-			userDetails.getId(),
-			userDetails.getNickName(),
-			userDetails.getAuthorities().iterator().next().getAuthority());
+		String accessToken = jwtUtils.createAccessToken(email, userId, nickName, role);
+		String refreshToken = jwtUtils.createRefreshToken(email, userId, nickName, role);
 
-		ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtUtils.substringToken(accessToken))
-			.path("/")
-			.domain("localhost")
-			.maxAge(30 * 60)
-			.build();
-
-		ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtUtils.substringToken(refreshToken))
-			.path("/")
-			.domain("localhost")
-			.maxAge(12 * 60 * 60)
-			.build();
-
-		log.info("Access token: {} refresh token: {} ", accessToken, refreshToken);
+		ResponseCookie accessCookie = createCookie("accessToken", accessToken, 30 * 60);
+		ResponseCookie refreshCookie = createCookie("refreshToken", refreshToken, 12 * 60 * 60);
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Authorization", jwtUtils.substringToken(accessToken));
+		headers.set("Authorization", accessToken);
 		headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
 		headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
 		return headers;
+	}
+
+	private ResponseCookie createCookie(String name, String token, long maxAge) {
+		return ResponseCookie.from(name, jwtUtils.substringToken(token))
+			.path("/")
+			.domain("localhost")
+			.maxAge(maxAge)
+			.build();
 	}
 
 }
