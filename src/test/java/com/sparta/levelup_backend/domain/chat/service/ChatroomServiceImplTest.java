@@ -99,5 +99,42 @@ class ChatroomServiceImplTest {
 			.hasMessageContaining(INVALID_CHATROOM_CREATE.getMessage());
 	}
 
+	@Test
+	void 제목입력이_없을때_닉네임조합으로_제목생성() {
+		//given
+		Long userId = 1L;
+		Long targetUserId = 2L;
+		String title = "";
+		String nicknameTitle = "Publisher, Subscriber";
+
+		ChatroomDocument chatroomDocument = ChatroomDocument.builder()
+			.id("test")
+			.participants(Arrays.asList(participant1, participant2))
+			.lastMessage("")
+			.unreadMessages(new HashMap<>())
+			.build();
+
+		when(chatroomMongoRepository.countByParticipantsUserIds(Arrays.asList(targetUserId, userId))).thenReturn(0L);
+		when(userRepository.findByIdOrElseThrow(userId)).thenReturn(publisher);
+		when(userRepository.findByIdOrElseThrow(targetUserId)).thenReturn(subscriber);
+		when(chatroomMongoRepository.save(any(ChatroomDocument.class))).thenReturn(chatroomDocument);
+
+		//when
+		ChatroomCreateResponseDto actualResult = chatroomService.createChatroom(userId, targetUserId, title);
+
+		//then
+		ChatroomCreateResponseDto expectedResult = ChatroomCreateResponseDto.builder()
+			.chatroomId("test")
+			.title(nicknameTitle)
+			.participants(Arrays.asList(participant1, participant2))
+			.build();
+
+		assertThat(actualResult)
+			.usingRecursiveComparison()
+			.isEqualTo(expectedResult);
+		verify(chatroomMongoRepository, times(1)).save(any(ChatroomDocument.class));
+
+	}
+
 
 }
