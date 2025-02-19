@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>프로필</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .profile-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .nickname {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .settings-icon {
+            cursor: pointer;
+            font-size: 24px;
+            color: #666;
+        }
+
+        .role-section {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #999;
+        }
+
+        .profile-menu ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .profile-menu li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .profile-menu li:hover {
+            background-color: #f8f8f8;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <!-- 상단 프로필 영역 -->
+        <div class="profile-top">
+            <div class="profile-info">
+                <img id="profileImg" src="/img/default-img.png" alt="프로필 이미지" class="profile-img" />
+                <div>
+                    <div id="nickname" class="nickname"></div>
+                </div>
+            </div>
+            <!-- 설정 아이콘 (예: 톱니바퀴) -->
+            <i class="material-icons settings-icon" onclick="goSettings()">settings</i>
+        </div>
+
+        <!-- 역할(사부/제자 등) 표시할 수 있는 섹션 (옵션) -->
+        <div class="role-section" id="roleLabel">
+            <!-- API 응답에 따라 "제자", "사부" 등 표시 (예시) -->
+        </div>
+
+        <hr/>
+
+        <!-- 메뉴 목록 (내 강의목록, 강의 신청 관리, 내 거래내역 등) -->
+        <div class="profile-menu">
+            <ul>
+                <li onclick="goMyLectures()">내 강의목록</li>
+                <li onclick="goLectureApply()">강의 신청 관리</li>
+                <li onclick="goHistory()">내 거래내역</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
+</div>
+
+<script>
+    window.onload = function() {
+        loadUserProfile();
+    };
+
+    /**
+     * 현재 로그인한 사용자 정보 불러오기 (GET /v1/users)
+     */
+    function loadUserProfile() {
+        fetch('/v1/users', {
+            method: 'GET',
+            credentials: 'include' // 인증이 필요하다면
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayUserProfile(result.data);
+                } else {
+                    console.error("유저 조회 실패");
+                }
+            })
+            .catch(error => {
+                console.error("유저 조회 에러:", error);
+            });
+    }
+
+    /**
+     * 프로필 화면 표시
+     */
+    function displayUserProfile(user) {
+        // 프로필 이미지
+        // const img = document.getElementById("profileImg");
+        // img.src = user.imgUrl || "";
+
+        // 닉네임
+        document.getElementById("nickname").textContent = user.nickName || "닉네임 없음";
+
+        // 필요한 경우, 이메일, 전화번호 등도 표시 가능
+        // console.log("Email:", user.email);
+        // console.log("PhoneNumber:", user.phoneNumber);
+
+        // roleLabel 표시 등 추가 로직
+        // document.getElementById("roleLabel").textContent = "사부" (예시)
+    }
+
+    /**
+     * 설정(톱니바퀴) 아이콘 클릭 시
+     */
+    function goSettings() {
+        alert("설정 페이지 이동 (예시)");
+    }
+
+    /**
+     * 메뉴 항목 클릭 시
+     */
+    function goMyLectures() {
+        alert("내 강의목록 페이지 이동 (예시)");
+    }
+    function goLectureApply() {
+        alert("강의 신청 관리 페이지 이동 (예시)");
+    }
+    function goHistory() {
+        alert("내 거래내역 페이지 이동 (예시)");
+    }
+</script>
+</body>
+</html>

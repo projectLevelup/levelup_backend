@@ -103,23 +103,19 @@ public class ProductmakedataService {
 		System.out.println(totalRecords + "개의 제품 데이터가 삽입되었습니다.");
 	}
 
-	/** ✅ 랜덤 게임 장르 생성 */
 	private static String generateRandomGameGenre() {
 		String[] genres = {"RPG", "FPS", "스포츠", "퍼즐", "레이싱", "전략", "MMORPG", "시뮬레이션"};
 		return genres[random.nextInt(genres.length)];
 	}
 
-	/** ✅ 랜덤 유저 역할 생성 */
 	private static UserRole generateRandomUserRole() {
 		return random.nextBoolean() ? UserRole.USER : UserRole.ADMIN;
 	}
 
-	/** ✅ 랜덤 전화번호 생성 */
 	private static String generateRandomPhoneNumber() {
 		return "010-" + (random.nextInt(9000) + 1000) + "-" + (random.nextInt(9000) + 1000);
 	}
 
-	/** ✅ 랜덤 상품명 생성 */
 	private static String generateRandomProductName() {
 		String[] WORDS1 = {"스위치", "플레이스테이션", "엑스박스", "닌텐도", "PC", "스팀덱", "애플", "삼성", "LG", "레노버"};
 		String[] WORDS2 = {"인기", "한정판", "특가", "세일", "베스트셀러", "최신", "업그레이드", "프리미엄", "가성비", "한정수량"};

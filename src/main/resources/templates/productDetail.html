@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>상품 상세</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+        .product-detail { display: flex; gap: 20px; margin-bottom: 30px; flex-direction: column; }
+
+        .product-left {
+            height: 200px;
+            overflow: hidden;
+            display: flex;
+            border-radius: 10px;
+        }
+
+        .product-left img {
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .product-right {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .review-item {
+            border-bottom: 1px solid #ccc;
+            padding: 8px 0;
+        }
+        .review-nickname { font-weight: bold; margin-right: 5px; }
+        .star-score { color: #f1c40f; }
+        /* 신청하기 버튼 스타일 */
+        #applyButton {
+            display: block;
+            margin: 20px 0;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .review-box {
+            border-top:1px solid #f0f0f0;
+            padding-top: 20px;
+        }
+
+        .contents-box {
+            min-height: 150px;
+        }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="top-nav">
+        <h3>상품 상세 페이지</h3>
+    </div>
+    <div class="inner-con">
+
+
+
+        <!-- 상품 상세 영역 -->
+        <div class="product-detail">
+            <div class="product-left">
+                <img id="productImg" src="/img/default-img.png" alt="상품 이미지">
+            </div>
+            <div class="product-right">
+                <h2 id="productName"></h2>
+                <div id="productPrice"></div>
+                <!-- 신청하기 버튼 -->
+                <button id="applyButton" onclick="applyProduct()">신청하기</button>
+                <!-- 채팅하기 버튼 -->
+                <button id="chatButton" onclick="openChat()">채팅하기</button>
+            </div>
+            <div class="contents-box">
+                <div id="productContents"></div>
+            </div>
+        </div>
+
+
+        <!-- 리뷰 영역 -->
+        <div class="review-box">
+            <div id="reviewList"></div>
+        </div>
+    </div>
+
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
+
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const productId = /*[[${productId}]]*/ 0;
+    let sellerId = null; // 상품의 판매자 ID 저장
+
+    window.onload = function() {
+        if (!productId) {
+            alert("상품 ID가 존재하지 않습니다.");
+            return;
+        }
+        loadProductDetail(productId);
+        // 리뷰 로드 등 추가 로직이 있을 수 있음
+    };
+
+    function loadProductDetail(id) {
+        fetch(`/v1/products/${id}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayProductDetail(result.data);
+                } else {
+                    console.error("상품 상세 불러오기 실패");
+                }
+            })
+            .catch(error => console.error("상품 상세 에러:", error));
+    }
+
+    function displayProductDetail(product) {
+        document.getElementById("productName").textContent = product.productName || "상품명 없음";
+        document.getElementById("productPrice").textContent = `${product.price}원`;
+        document.getElementById("productContents").textContent = product.contents || "";
+        sellerId = product.userId;
+    }
+
+    async function createChatroom() {
+        try {
+            if (!sellerId) {
+                alert("판매자 정보가 없습니다.");
+                return null;
+            }
+            const response = await fetch(`/v1/chats?targetUserId=${sellerId}`, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" }
+            });
+            const result = await response.json();
+            if (result && result.data && result.data.chatroomId) {
+                return result.data.chatroomId;
+            } else {
+                alert("채팅방 생성에 실패했습니다.");
+                return null;
+            }
+        } catch (error) {
+            console.error("채팅방 생성 중 에러:", error);
+            alert("채팅방 생성 중 오류가 발생했습니다.");
+            return null;
+        }
+    }
+
+    // 기존 채팅방이 있는지 확인 후, 있으면 바로 이동하고 없으면 생성하여 이동하는 함수
+    async function openChat() {
+        try {
+            // 먼저 채팅방 목록 조회 (GET /v1/chats)
+            const response = await fetch("/v1/chats", {
+                method: "GET",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" }
+            });
+            const result = await response.json();
+            // 1:1 채팅의 경우, participants 배열에 판매자 정보가 포함되어 있으면 해당 채팅방으로 간주합니다.
+            // 예시로, 참가자 중 하나의 userId가 sellerId와 일치하는지를 확인합니다.
+            const existingChatroom = result.find(room => {
+                return room && room.chatroomId && room.participants &&
+                    room.participants.some(p => p.userId == sellerId);
+            });
+            if (existingChatroom) {
+                // 이미 생성된 채팅방이 있으면 해당 채팅방으로 이동
+                window.location.href = "/chatroom?chatroomId=" + existingChatroom.chatroomId;
+            } else {
+                // 기존 채팅방이 없으면 새로 생성
+                const newChatroomId = await createChatroom();
+                if (newChatroomId) {
+                    window.location.href = "/chatroom?chatroomId=" + newChatroomId;
+                }
+            }
+        } catch (error) {
+            console.error("채팅방 조회/생성 중 에러:", error);
+            alert("채팅방 처리 중 오류가 발생했습니다.");
+        }
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>
