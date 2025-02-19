@@ -62,7 +62,7 @@ public class CustomOAuth2Handler implements AuthenticationSuccessHandler,
 				"accessToken=" + accessToken + "; " + "Path=/; Domain=localhost; Max-Age=" + 30 * 60 + "; ");
 			response.addHeader("Set-Cookie",
 				"refreshToken=" + refreshToken + "; " + "Path=/; Domain=localhost; Max-Age=" + 12 * 60 * 60 + "; ");
-			RequestDispatcher requestDispatcher = request.getRequestDispatcher("/v2/home");
+			RequestDispatcher requestDispatcher = request.getRequestDispatcher("/");
 			requestDispatcher.forward(request, response);
 		}
 	}

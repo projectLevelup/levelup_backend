@@ -23,7 +23,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,8 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
 			return;
 		}
 		if (HOME_PAGE.matches(request)) {
-			RequestDispatcher requestDispatcher = request.getRequestDispatcher("/v2/home");
-			requestDispatcher.forward(request, response);
+			response.sendRedirect("/v2/home");
 			filterChain.doFilter(request, response);
 			return;
 		}
