@@ -39,7 +39,7 @@ public class PageController {
 
 	@GetMapping("/signup")
 	public String signupPage() {
-		return "signup";
+		return "signup-temp";
 	}
 
 	// 채팅방 페이지
