@@ -11,6 +11,7 @@ import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -19,6 +20,32 @@ public class PageController {
 
 	private final ChatroomMongoRepository chatroomMongoRepository;
 	private final ChatroomService chatroomService;
+
+	@GetMapping("/v2/signin")
+	public String signInPage() {
+		return "signin";
+	}
+
+	@GetMapping("/v2/signup")
+	public String signUpUserPage() {
+		return "signup";
+	}
+
+	@GetMapping("/v2/oauth2signup")
+	public String oAuth2SignUpUserPage(Model model, HttpServletRequest request) {
+
+		model.addAttribute("email", request.getAttribute("email"));
+		model.addAttribute("nickName", request.getAttribute("nickName"));
+		model.addAttribute("phoneNummber", request.getAttribute("phoneNumber"));
+
+		return "oauth2signup";
+	}
+
+	@GetMapping("/v2/home")
+	public String homePage() {
+
+		return "home";
+	}
 
 	@GetMapping("/login")
 	public String loginPage() {
@@ -35,11 +62,6 @@ public class PageController {
 	@GetMapping("/chat-main")
 	public String chatMainPage() {
 		return "chatMain";
-	}
-
-	@GetMapping("/signup")
-	public String signupPage() {
-		return "signup-temp";
 	}
 
 	// 채팅방 페이지
