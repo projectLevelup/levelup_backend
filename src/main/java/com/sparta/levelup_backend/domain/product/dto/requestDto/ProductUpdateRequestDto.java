@@ -27,6 +27,6 @@ public class ProductUpdateRequestDto {
 
 	private final String status;
 
-	private final String imgUrl;  // 🔹 imgUrl 필드 추가
+	private final String imgUrl;
 
 }
