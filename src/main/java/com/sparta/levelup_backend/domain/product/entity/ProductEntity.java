@@ -1,5 +1,9 @@
 package com.sparta.levelup_backend.domain.product.entity;
 
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
@@ -31,6 +35,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product")
+@Document(indexName = "products") // Elasticsearch 인덱스 설정
 public class ProductEntity extends BaseEntity {
 
 	@Id
@@ -49,6 +54,7 @@ public class ProductEntity extends BaseEntity {
 	private String productName;
 
 	@Column(nullable = false, length = 1000)
+	@Field(type = FieldType.Text, analyzer = "standard") // Elasticsearch에서 분석할 필드
 	private String contents;
 
 	@Column(nullable = false)
@@ -58,12 +64,14 @@ public class ProductEntity extends BaseEntity {
 	private Integer amount;
 
 	@Enumerated(EnumType.STRING)
+	@Field(type = FieldType.Keyword)
 	@Column(nullable = false)
 	private ProductStatus status;
 
 	@Column(nullable = true)
 	private String imgUrl;
 
+	// 📌 생성자
 	public ProductEntity(ProductCreateRequestDto dto, UserEntity user, GameEntity game) {
 		this.user = user;
 		this.game = game;
@@ -75,6 +83,7 @@ public class ProductEntity extends BaseEntity {
 		this.imgUrl = dto.getImgUrl();
 	}
 
+	// 📌 기존 메서드 유지
 	public void decreaseAmount() {
 		if (this.amount <= 0) {
 			throw new ProductOutOfAmount();
@@ -97,7 +106,4 @@ public class ProductEntity extends BaseEntity {
 	public void setStatus(ProductStatus productStatus) {
 	}
 
-	public void deleteProduct() {
-		this.delete();
-	}
 }
