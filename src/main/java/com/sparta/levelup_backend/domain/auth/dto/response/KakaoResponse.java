@@ -4,31 +4,31 @@ import java.util.Map;
 
 public class KakaoResponse implements OAuth2Response {
 
-    private final Map<String, Object> attribute;
-    private final Map<String, Object> account;
-    private final Map<String, Object> profile;
+	private final Map<String, Object> attribute;
+	private final Map<String, Object> account;
+	private final Map<String, Object> profile;
 
-    public KakaoResponse(Map<String, Object> attribute) {
-        this.attribute = attribute;
-        this.account = (Map<String, Object>) attribute.get("kakao_account");
-        this.profile = (Map<String, Object>) attribute.get("profile");
-    }
+	public KakaoResponse(Map<String, Object> attribute) {
+		this.attribute = attribute;
+		this.account = (Map<String, Object>)attribute.get("kakao_account");
+		this.profile = (Map<String, Object>)attribute.get("profile");
+	}
 
-    @Override
-    public String getProvider() {
+	@Override
+	public String getProvider() {
 
-        return "kakao";
-    }
+		return "kakao";
+	}
 
-    @Override
-    public String getEmail() {
+	@Override
+	public String getEmail() {
 
-        return account.get("email").toString();
-    }
+		return account.get("email").toString();
+	}
 
-    @Override
-    public String getNickName() {
+	@Override
+	public String getNickName() {
 
-        return profile.get("nickname").toString();
-    }
+		return profile.get("nickname").toString();
+	}
 }

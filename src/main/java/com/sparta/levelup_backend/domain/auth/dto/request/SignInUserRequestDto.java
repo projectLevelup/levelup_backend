@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.auth.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SignInUserRequestDto {
 
-    @JsonProperty("email")
-    private String email;
+	@JsonProperty("email")
+	private String email;
 
-    @JsonProperty("password")
-    private String password;
+	@JsonProperty("password")
+	private String password;
 }

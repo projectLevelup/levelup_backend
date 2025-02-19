@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.auth.dto.response;
 
 import java.util.Map;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -8,23 +9,23 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class NaverResponse implements OAuth2Response {
 
-    private final Map<String, Object> attribute;
+	private final Map<String, Object> attribute;
 
-    @Override
-    public String getProvider() {
+	@Override
+	public String getProvider() {
 
-        return "naver";
-    }
+		return "naver";
+	}
 
-    @Override
-    public String getEmail() {
+	@Override
+	public String getEmail() {
 
-        return attribute.get("email").toString();
-    }
+		return attribute.get("email").toString();
+	}
 
-    @Override
-    public String getNickName() {
+	@Override
+	public String getNickName() {
 
-        return attribute.get("name").toString();
-    }
+		return attribute.get("name").toString();
+	}
 }

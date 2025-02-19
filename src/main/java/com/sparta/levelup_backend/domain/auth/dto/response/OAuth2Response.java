@@ -2,11 +2,10 @@ package com.sparta.levelup_backend.domain.auth.dto.response;
 
 public interface OAuth2Response {
 
-    String getProvider();
+	String getProvider();
 
-    String getEmail();
+	String getEmail();
 
-    String getNickName();
-
+	String getNickName();
 
 }

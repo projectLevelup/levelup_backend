@@ -1,53 +1,55 @@
 package com.sparta.levelup_backend.config;
 
-import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import java.util.ArrayList;
 import java.util.Collection;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.sparta.levelup_backend.domain.user.entity.UserEntity;
+
 public class CustomUserDetails implements UserDetails {
 
-    UserEntity user;
+	UserEntity user;
 
-    public CustomUserDetails(UserEntity user) {
-        this.user = user;
-    }
+	public CustomUserDetails(UserEntity user) {
+		this.user = user;
+	}
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> grantedAuthority = new ArrayList<>();
-        grantedAuthority.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		Collection<GrantedAuthority> grantedAuthority = new ArrayList<>();
+		grantedAuthority.add(new GrantedAuthority() {
+			@Override
+			public String getAuthority() {
 
-                return "ROLE_" + user.getRole().toString();
-            }
-        });
+				return "ROLE_" + user.getRole().toString();
+			}
+		});
 
-        return grantedAuthority;
-    }
+		return grantedAuthority;
+	}
 
-    @Override
-    public String getPassword() {
+	@Override
+	public String getPassword() {
 
-        return user.getPassword();
-    }
+		return user.getPassword();
+	}
 
-    @Override
-    public String getUsername() {
+	@Override
+	public String getUsername() {
 
-        return user.getEmail();
-    }
+		return user.getEmail();
+	}
 
-    public Long getId() {
+	public Long getId() {
 
-        return user.getId();
-    }
+		return user.getId();
+	}
 
-    public String getNickName() {
+	public String getNickName() {
 
-        return user.getNickName();
-    }
+		return user.getNickName();
+	}
 
 }
