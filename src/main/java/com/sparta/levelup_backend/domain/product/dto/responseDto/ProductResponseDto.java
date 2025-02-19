@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class ProductResponseDto {
 
-	private final Long id;
+	private final Long productId;
 	private final Long userId;
 	private final Long gameId;
 	private final String productName;
@@ -19,7 +19,7 @@ public class ProductResponseDto {
 	private final String imgUrl;
 
 	public ProductResponseDto(ProductEntity entity) {
-		this.id = entity.getId();
+		this.productId = entity.getId();
 		this.userId = entity.getUser().getId();
 		this.gameId = entity.getGame().getId();
 		this.productName = entity.getProductName();
@@ -29,4 +29,5 @@ public class ProductResponseDto {
 		this.status = entity.getStatus();
 		this.imgUrl = entity.getImgUrl();
 	}
+
 }
