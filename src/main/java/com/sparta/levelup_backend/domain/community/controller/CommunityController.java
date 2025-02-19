@@ -97,11 +97,11 @@ public class CommunityController {
 
 	@PatchMapping("/es")
 	public ApiResponse<CommunityResponseDto> updateCommunityES(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommunityUpdateRequestDto dto) {
+		@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody CommunityUpdateRequestDto dto) {
 
 		Long userId = customUserDetails.getId();
 
-		CommunityResponseDto responseDto = communityService.updateES(userId, dto);
+		CommunityResponseDto responseDto = communityService.updateCommunityES(userId, dto);
 		return success(OK, COMMUNITY_UPDATE_SUCCESS, responseDto);
 	}
 }

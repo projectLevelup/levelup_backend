@@ -134,7 +134,7 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	public CommunityResponseDto updateES(Long userId, CommunityUpdateRequestDto dto) {
+	public CommunityResponseDto updateCommunityES(Long userId, CommunityUpdateRequestDto dto) {
 		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
 		CommunityDocument communityDocument = communityESRepository.findByIdOrElseThrow(
 			String.valueOf(dto.getCommunityId()));
@@ -153,6 +153,8 @@ public class CommunityServiceImpl implements CommunityService {
 			community.updateContent(dto.getContent());
 			communityDocument.updateContent(dto.getContent());
 		}
+
+		communityESRepository.save(communityDocument);
 
 		return CommunityResponseDto.from(communityDocument);
 	}
