@@ -136,5 +136,24 @@ class ChatroomServiceImplTest {
 
 	}
 
+	@Test
+	void 중복된_채팅방이_있을때_예외() {
+		//given
+		Long userId = 1L;
+		Long targetUserId = 2L;
+		String title = "title";
+
+		//when
+		when(chatroomMongoRepository.countByParticipantsUserIds(Arrays.asList(targetUserId, userId))).thenReturn(1L);
+
+		//then
+		assertThatThrownBy(() -> {
+			chatroomService.createChatroom(userId, targetUserId, title);
+		}).isInstanceOf(BadRequestException.class)
+			.hasMessageContaining(DUPLICATE_CHATROOM.getMessage());
+	}
+
+
+
 
 }
