@@ -3,7 +3,7 @@ package com.sparta.levelup_backend.domain.order.service;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 
-public interface OrderService {
+public interface OrderServiceV2 {
     OrderResponseDto createOrder(Long userId, OrderCreateRequestDto dto);
 
     OrderResponseDto findOrder(Long userId, Long orderId);
