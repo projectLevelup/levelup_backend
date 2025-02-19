@@ -43,7 +43,6 @@ public class ChatController {
 
 	/**
 	 * 메시지 기록 저장 API
-	 * 저장소: Mongo DB
 	 */
 	@GetMapping("/v1/chats/{chatroomId}/history")
 	public ApiResponse<List<ChatMessageDto>> findChatHistory(@PathVariable String chatroomId) {
