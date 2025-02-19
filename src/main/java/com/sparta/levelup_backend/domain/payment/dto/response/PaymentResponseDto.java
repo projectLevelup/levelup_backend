@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class PaymentResponseDto {
 
-//    private String payType;
+    private String payType;
 
     private Long amount;
 
