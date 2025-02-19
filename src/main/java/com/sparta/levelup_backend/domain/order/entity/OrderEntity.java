@@ -37,8 +37,11 @@ public class OrderEntity extends BaseEntity {
     @JoinColumn(name = "product_id", nullable = false)
     private ProductEntity product;
 
+    @Setter
+    @Column(name = "uuid")
+    private String uuid;
+
     public void orderDelete() {
         this.delete();
     }
-
 }

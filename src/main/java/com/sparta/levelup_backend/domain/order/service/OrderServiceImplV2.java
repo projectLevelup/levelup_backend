@@ -21,6 +21,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -74,7 +75,9 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
                     .status(OrderStatus.PENDING)
                     .totalPrice(product.getPrice())
                     .product(product)
+                    .uuid(UUID.randomUUID().toString())
                     .build();
+
 
             saveOrder = orderRepository.save(order);
 

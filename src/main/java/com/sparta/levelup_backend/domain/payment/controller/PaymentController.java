@@ -1,11 +1,13 @@
-package com.sparta.levelup_backend.domain.payment;
+package com.sparta.levelup_backend.domain.payment.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,18 +21,22 @@ import java.util.Base64;
 
 @Controller
 @RequestMapping
+@RequiredArgsConstructor
 public class PaymentController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String API_SECRET_KEY = "test_sk_vZnjEJeQVxKzgb9Wvlyd3PmOoBN0";
+
+    @Value("${toss.secret.key}")
+    private String tossSecretKey;
 
     @RequestMapping(value = {"/confirm/payment"})
-    public ResponseEntity<JSONObject> confirmPayment(HttpServletRequest request, @RequestBody String jsonBody) throws Exception {
-        String secretKey = API_SECRET_KEY;
-        JSONObject response = sendRequest(parseRequestData(jsonBody), secretKey, "https://api.tosspayments.com/v1/payments/confirm");
+    public ResponseEntity<JSONObject> confirmPayment(HttpServletRequest request, @RequestBody String jasonBody) throws Exception {
+        String secretKey = tossSecretKey;
+        JSONObject response = sendRequest(parseRequestData(jasonBody), secretKey, "https://api.tosspayments.com/v1/payments/confirm");
         int statusCode = response.containsKey("error") ? 400 : 200;
         return ResponseEntity.status(statusCode).body(response);
     }
+
 
     private JSONObject parseRequestData(String jsonBody) {
         try {

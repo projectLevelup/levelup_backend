@@ -19,6 +19,8 @@ public enum ErrorCode {
 	INVALID_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "ERR009", "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."),
 	ALREADY_DELETED_USER(HttpStatus.BAD_REQUEST, "ERR010", "이미 탈퇴된 유저입니다."),
 	INVALID_ORDER_CREATE(HttpStatus.BAD_REQUEST, "ERR011", "본인의 상품은 주문할 수 없습니다."),
+	PAYMENT_ERROR_ORDER_PRICE(HttpStatus.BAD_REQUEST, "ERR015", "요청한 가격과 상품의 가격이 일치하지않습니다."),
+	PAYMENT_ERROR_ORDER_NAME(HttpStatus.BAD_REQUEST, "ERR016", "존재하지 않는 결제 방법입니다."),
 
 	// 401 UNAUTHORIZED
 	UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),
@@ -47,10 +49,11 @@ public enum ErrorCode {
 	DUPLICATE_REVIEW(HttpStatus.CONFLICT, "ERR404", "이미 리뷰를 작성하였습니다."),
 	REVIEW_ISDELETED(HttpStatus.CONFLICT, "ERR405", "이미 삭제된 리뷰입니다."),
 	PRODUCT_ISDELETED(HttpStatus.CONFLICT, "ERR406", "이미 삭제된 상품입니다."),
-  GAME_ISDELETED(HttpStatus.CONFLICT, "ERR407", "이미 삭제된 게임입니다."),
+  	GAME_ISDELETED(HttpStatus.CONFLICT, "ERR407", "이미 삭제된 게임입니다."),
 	CONFLICT_LOCK_GET(HttpStatus.CONFLICT, "ERR408", "락 획득 실패"),
 	CONFLICT_LOCK_ERROR(HttpStatus.CONFLICT, "ERR409", "락 획득 중 오류 발생"),
 	DUPLICATE_DELETED_BILL(HttpStatus.CONFLICT, "ERR412", "삭제된 결제내역입니다."),
+	DB_ERROR_SAVE(HttpStatus.CONFLICT, "ERR413", "데이터 저장 중 오류가 발생했습니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다.");
