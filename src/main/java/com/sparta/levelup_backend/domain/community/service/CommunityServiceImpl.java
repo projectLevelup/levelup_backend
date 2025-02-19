@@ -110,7 +110,7 @@ public class CommunityServiceImpl implements CommunityService {
 		GameEntity game = gameRepository.findByIdOrElseThrow(dto.getGameId());
 		CommunityEntity community = communityRepository.save(
 			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
-		CommunityDocument communityDocument = communityESRepository.save(CommunityDocument.from(community));
+		communityESRepository.save(CommunityDocument.from(community));
 
 		return CommunityResponseDto.from(community);
 	}
@@ -122,7 +122,7 @@ public class CommunityServiceImpl implements CommunityService {
 			pageable);
 
 		CommunityListResponseDto responseDto = new CommunityListResponseDto(communityDocuments.stream()
-			.map(communityDocument -> CommunityReadResponseDto.from(communityDocument))
+			.map(CommunityReadResponseDto::from)
 			.toList());
 
 		if (communityDocuments.getTotalPages() <= page) {
