@@ -20,6 +20,7 @@ import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.BadRequestException;
+import com.sparta.levelup_backend.exception.common.DuplicateException;
 
 @ExtendWith(MockitoExtension.class)
 class ChatroomServiceImplTest {
@@ -186,8 +187,32 @@ class ChatroomServiceImplTest {
 			&& save.getUnreadMessages().equals(expectedResult.getUnreadMessages())
 			 && save.getIsDeleted().equals(expectedResult.getIsDeleted())
 			));
+	}
+
+	@Test
+	void 참여자가_아닌_유저일시_예외() {
+		//given
+		Long leaveUserId = 3L;
+		String chatroomId = "test";
+
+		ChatroomDocument chatroomDocument = ChatroomDocument.builder()
+			.id(chatroomId)
+			.participants(Arrays.asList(participant1, participant2))
+			.lastMessage("")
+			.unreadMessages(new HashMap<>())
+			.isDeleted(false)
+			.build();
+
+		when(chatroomMongoRepository.findByIdOrThrow(chatroomId)).thenReturn(chatroomDocument);
+
+		//when & then
+		assertThatThrownBy(() -> {
+			chatroomService.leaveChatroom(leaveUserId, chatroomId);
+		}).isInstanceOf(DuplicateException.class)
+			.hasMessageContaining(PARTICIPANT_ISDELETED.getMessage());
 
 	}
+
 
 
 
