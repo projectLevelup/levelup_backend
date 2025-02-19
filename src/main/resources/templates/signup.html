@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+</head>
+<body>
+<div class="container">
+
+  <div class="py-4 text-center">
+    <h2>회원가입</h2>
+  </div>
+
+  <form th:action="@{/v2/signup}" method="post">
+    <div>
+      <label for="email">이메일:</label>
+      <input type="text" id="email" name="email" th:value="${email}" required>
+    </div>
+    <div>
+      <label for="nickName">이름:</label>
+      <input type="text" id="nickName" name="nickName" th:value="${nickName}" required>
+    </div>
+    <div>
+      <label for="password">비밀번호:</label>
+      <input type="password" id="password" name="password" th:value="${password}" required>
+    </div>
+    <div>
+      <label for="phoneNumber">전화번호:</label>
+      <input type="text" id="phoneNumber" name="phoneNumber" th:value="${phoneNumber}" required>
+    </div>
+    <button type="submit">회원가입</button>
+  </form>
+
+</div>
+</body>
+<script>
+  document.getElementById("phoneNumber").oninput = function() {
+    let phoneregex = /^(010)[-]?\d{3,4}[-]?\d{4}$/;
+    let number =  /^-?\d+$/;
+    let phone = document.getElementById("phoneNumber");
+    if(number.test(phone.value.toString())){
+      if(phone.value.toString().length==11){
+        phone.value = phone.value.substring(0,3)+"-"+phone.value.substring(3,7)+"-"+phone.value.substring(7,11);
+      }
+    }
+  }
+
+</script>
+</html>
