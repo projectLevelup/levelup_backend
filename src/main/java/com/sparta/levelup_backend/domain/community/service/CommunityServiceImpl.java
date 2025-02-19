@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.levelup_backend.domain.community.document.CommunityDocument;
 import com.sparta.levelup_backend.domain.community.dto.request.CommnunityCreateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.request.CommunityUpdateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityListResponseDto;
@@ -18,6 +19,7 @@ import com.sparta.levelup_backend.domain.community.dto.response.CommunityReadRes
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityResponseDto;
 import com.sparta.levelup_backend.domain.community.entity.CommunityEntity;
 import com.sparta.levelup_backend.domain.community.repository.CommunityRepository;
+import com.sparta.levelup_backend.domain.community.repositoryES.CommunityESRepository;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -36,6 +38,8 @@ public class CommunityServiceImpl implements CommunityService {
 	private final UserRepository userRepository;
 	private final CommunityRepository communityRepository;
 	private final GameRepository gameRepository;
+
+	private final CommunityESRepository communityESRepository;
 
 	@Override
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
@@ -98,6 +102,38 @@ public class CommunityServiceImpl implements CommunityService {
 		checkCommunityIsDeleted(community);
 
 		community.deleteCommunity();
+	}
+
+	@Override
+	public CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto) {
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+		GameEntity game = gameRepository.findByIdOrElseThrow(dto.getGameId());
+		CommunityEntity community = communityRepository.save(
+			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
+		CommunityDocument communityDocument = communityESRepository.save(CommunityDocument.from(community));
+
+		return CommunityResponseDto.from(community);
+	}
+
+	@Override
+	public CommunityListResponseDto findCommunityES(String searchKeyword, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<CommunityDocument> communityDocuments = communityESRepository.findByTitleAndIsDeletedFalse(searchKeyword,
+			pageable);
+
+		CommunityListResponseDto responseDto = new CommunityListResponseDto(communityDocuments.stream()
+			.map(communityDocument -> CommunityReadResponseDto.from(communityDocument))
+			.toList());
+
+		if (communityDocuments.getTotalPages() <= page) {
+			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
+		}
+
+		if (responseDto.getCommunityList().isEmpty()) {
+			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+		}
+
+		return responseDto;
 	}
 
 	private void checkGameIsDeleted(GameEntity game) {
