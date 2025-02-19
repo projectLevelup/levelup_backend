@@ -57,8 +57,8 @@ public class ChatroomController {
 	 * 채팅방 목록 API
 	 */
 	@GetMapping
-	public List<ChatroomListResponseDto> findChatrooms(@AuthenticationPrincipal CustomUserDetails authUser) {
-		return chatroomService.findChatrooms(authUser.getId());
+	public ApiResponse<List<ChatroomListResponseDto>> findChatrooms(@AuthenticationPrincipal CustomUserDetails authUser) {
+		return success(OK, CHATROOM_FIND ,chatroomService.findChatrooms(authUser.getId()));
 	}
 
 }
