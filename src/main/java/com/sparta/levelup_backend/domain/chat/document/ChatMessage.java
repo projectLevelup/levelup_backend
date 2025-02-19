@@ -19,7 +19,7 @@ public class ChatMessage {
 
 	@Id
 	private String id;
-	private Long chatroomId;
+	private String chatroomId;
 	private String nickname;
 	private String message;
 	private LocalDateTime timestamp;

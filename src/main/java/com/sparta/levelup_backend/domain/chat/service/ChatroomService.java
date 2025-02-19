@@ -12,4 +12,9 @@ public interface ChatroomService {
 	void leaveChatroom(Long id, String chatroomId);
 
 	List<ChatroomListResponseDto> findChatrooms(Long id);
+
+	void updateUnreadCountAndLastMessage(String chatroomId, Long publisherId, String Message);
+
+	void updateUnreadCountZero(String chatroomId, Long publisherId);
+
 }

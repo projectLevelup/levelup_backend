@@ -34,7 +34,7 @@ public class ChatController {
 	 */
 	@MessageMapping("/chats/{chatroomId}") // 메시지 전송 endpoint
 	public ChatMessageDto handleMessage(
-		@DestinationVariable Long chatroomId,
+		@DestinationVariable String chatroomId,
 		@Payload ChatMessageDto dto,
 		Authentication authentication
 	) {
@@ -46,7 +46,7 @@ public class ChatController {
 	 * 저장소: Mongo DB
 	 */
 	@GetMapping("/v1/chats/{chatroomId}/history")
-	public ApiResponse<List<ChatMessageDto>> findChatHistory(@PathVariable Long chatroomId) {
+	public ApiResponse<List<ChatMessageDto>> findChatHistory(@PathVariable String chatroomId) {
 		return success(CREATED, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId));
 	}
 }
