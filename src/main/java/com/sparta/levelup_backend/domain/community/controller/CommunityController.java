@@ -75,4 +75,21 @@ public class CommunityController {
 		communityService.delete(userId, communityId);
 		return success(OK, COMMUNITY_DELETE_SUCCESS);
 	}
+
+	@PostMapping("/es")
+	public ApiResponse<CommunityResponseDto> saveCommunityES(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@RequestBody CommnunityCreateRequestDto dto) {
+		Long userId = customUserDetails.getId();
+		CommunityResponseDto responseDto = communityService.saveCommunityES(userId, dto);
+		return success(OK, COMMUNITY_SAVE_SUCCESS, responseDto);
+	}
+
+	@GetMapping("/es")
+	public ApiResponse<CommunityListResponseDto> findCommunityES(@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword) {
+
+		CommunityListResponseDto responseDtoList = communityService.findCommunityES(searchKeyword, page, size);
+		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
+	}
 }

@@ -13,4 +13,8 @@ public interface CommunityService {
 	CommunityResponseDto update(Long userId, CommunityUpdateRequestDto dto);
 
 	void delete(Long userId, Long communityId);
+
+	CommunityListResponseDto findCommunityES(String searchKeyword, int page, int size);
+
+	CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto);
 }
