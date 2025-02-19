@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
@@ -26,14 +27,14 @@ public class FilterResponse {
 
     }
 
-    public void responseSuccessMsg(HttpServletResponse response,int statusCode,String msg, String data){
+    public void responseSuccessMsg(HttpServletResponse response, HttpStatus statusCode,String msg, String data){
         try {
-            response.setStatus(statusCode);
+            response.setStatus(statusCode.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
 
             response.getWriter().write("{\n"
-                + "    \"success\": \"OK\",\n"
+                + "    \"status\": \""+statusCode.name()+"\",\n"
                 + "    \"message\": \""+msg+"\",\n"
                 + "    \"data\": \""+data+"\"\n"
                 + "}");

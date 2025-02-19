@@ -41,5 +41,10 @@ public class ApiResMessage {
     public static final String CHATROOM_LEAVE = "채팅방을 떠났습니다";
     public static final String MESSAGE_SAVE_SUCCESS = "메시지를 저장하였습니다";
     public static final String CHATROOM_FIND = "채팅방이 조회되었습니다";
+  
+    // Bill
+    public static final String BILL_FIND = "결제 내역이 조회되었습니다.";
+    public static final String BILL_DELETE = "결제 내역이 삭제되었습니다.";
+
 }
 

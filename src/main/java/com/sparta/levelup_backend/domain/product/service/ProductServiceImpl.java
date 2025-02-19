@@ -75,9 +75,9 @@ public class ProductServiceImpl implements ProductService {
 			throw new DuplicateException(FORBIDDEN_ACCESS);
 		}
 
-		// STATUS가 ACTIVE인 상품만 수정 가능
-		if (product.getStatus() != ProductStatus.ACTIVE) {
-			throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+		// 삭제되지 않은 상품만 수정 가능
+		if (product.getIsDeleted()) {
+			throw new DuplicateException(PRODUCT_ISDELETED);
 		}
 
 		ProductUpdate(id, requestDto);
@@ -90,10 +90,8 @@ public class ProductServiceImpl implements ProductService {
 		ProductEntity product = productRepository.findByIdOrElseThrow(id);
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
-		product.setStatus(ProductStatus.INACTIVE);
-
-		// 이미 삭제된 상품인지 확인 (`status`가 `INACTIVE`이면 삭제 불가)
-		if (product.getStatus() == ProductStatus.INACTIVE || product.getIsDeleted()) {
+		// 이미 삭제된 상품인지 확인
+		if (product.getIsDeleted()) {
 			throw new DuplicateException(PRODUCT_ISDELETED);
 		}
 
@@ -102,6 +100,7 @@ public class ProductServiceImpl implements ProductService {
 			throw new DuplicateException(FORBIDDEN_ACCESS);
 		}
 
+		product.deleteProduct();
 		return new ProductDeleteResponseDto(id, PRODUCT_DELETE);
 	}
 
@@ -109,20 +108,6 @@ public class ProductServiceImpl implements ProductService {
 	public void ProductUpdate(Long productId, ProductUpdateRequestDto requestDto) {
 		ProductEntity product = getFindByIdWithLock(productId);
 		product.update(requestDto);
-		productRepository.save(product);
-	}
-
-	@Transactional(timeout = 5, rollbackFor = Exception.class)
-	public void decreaseAmount(Long productId) {
-		ProductEntity product = getFindByIdWithLock(productId);
-		product.decreaseAmount();
-		productRepository.save(product);
-	}
-
-	@Transactional(timeout = 5, rollbackFor = Exception.class)
-	public void increaseAmount(Long productId) {
-		ProductEntity product = getFindByIdWithLock(productId);
-		product.increaseAmount();
 		productRepository.save(product);
 	}
 

@@ -1,5 +1,8 @@
 package com.sparta.levelup_backend.domain.order.service;
 
+import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
+import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
+import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
@@ -12,7 +15,6 @@ import com.sparta.levelup_backend.exception.common.*;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import com.sparta.levelup_backend.utill.ProductStatus;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -21,16 +23,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OrderServiceImpl implements OrderService {
-
+public class OrderServiceImplV2 implements OrderServiceV2 {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final ProductServiceImpl productService;
     private final RedissonClient redissonClient;
+    private final BillServiceImplV2 billService;
+    private final BillRepository billRepository;
 
     /**
      * 주문생성
@@ -112,12 +114,13 @@ public class OrderServiceImpl implements OrderService {
      * @return orderId, productId, productName, status, price
      */
     @Override
+    @Transactional
     public OrderResponseDto updateOrder(Long userId, Long orderId) {
 
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
-        // 판매자인지 확인
-        if (!order.getProduct().getUser().getId().equals(userId)) {
+        // 구매자인지 확인
+        if (!order.getUser().getId().equals(userId)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
@@ -127,8 +130,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setStatus(OrderStatus.TRADING);
-        orderRepository.save(order);
-        return new OrderResponseDto(order);
+        OrderEntity saveOrder = orderRepository.save(order);
+        billService.createBill(userId, saveOrder);
+        return new OrderResponseDto(saveOrder);
     }
 
     /**
@@ -237,7 +241,15 @@ public class OrderServiceImpl implements OrderService {
             product.increaseAmount();
             order.setStatus(OrderStatus.CANCELED);
             order.orderDelete();
+
+            BillEntity bill = billRepository.findByOrderId(orderId)
+                    .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+
+            bill.cancelBill();
+
             orderRepository.save(order);
+            billRepository.save(bill);
+
         } catch (InterruptedException e) {
             throw new LockException(ErrorCode.CONFLICT_LOCK_ERROR);
         } finally {
@@ -245,5 +257,6 @@ public class OrderServiceImpl implements OrderService {
                 lock.unlock();
             }
         }
+
     }
 }
