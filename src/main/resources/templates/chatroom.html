@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>채팅방</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <!-- SockJS와 Stomp.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var currentUserNickname = /*[[${nickname}]]*/ "guest";
+        console.log(currentUserNickname);
+        /*]]>*/
+    </script>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <div class="chatroom-header">
+            <h2>채팅방</h2>
+            <button onclick="leaveChatroom()" class="leave-btn">
+                <i class="material-icons">exit_to_app</i>
+            </button>
+        </div>
+        <div id="chat" style="height: 300px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #eee; padding: 10px;"></div>
+        <div class="chat_input" style="display: flex; gap: 8px;">
+            <input type="text" id="messageInput" placeholder="메시지 입력" />
+            <button onclick="sendMessage()" class="send-btn">
+                <i class="material-icons">send</i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let stompClient = null;
+    let chatroomId = new URLSearchParams(window.location.search).get("chatroomId");
+
+    function connect() {
+        if (!chatroomId) {
+            alert("채팅방 ID가 없습니다.");
+            return;
+        }
+
+        const socket = new SockJS('/ws/chats');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function(frame) {
+            console.log("연결됨: " + frame);
+
+            stompClient.subscribe(`/sub/chats/${chatroomId}`, function(message) {
+                const chatMessage = JSON.parse(message.body);
+                showMessage(chatMessage);
+            });
+        });
+    }
+
+    function disconnect() {
+        if (stompClient) {
+            stompClient.disconnect();
+            console.log("연결 끊김");
+        }
+    }
+
+    function leaveChatroom() {
+        if (!chatroomId) {
+            alert("채팅방 ID가 없습니다.");
+            return;
+        }
+
+        if (!confirm("채팅방을 나가시겠습니까?")) {
+            return;
+        }
+
+        fetch(`/v1/chats/${chatroomId}`, {
+            method: "DELETE",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("채팅방을 나갔습니다.");
+                    disconnect(); // 웹소켓 연결 해제
+                    window.location.href = "/"; // 메인 페이지로 이동
+                } else {
+                    alert("채팅방 나가기에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("채팅방 나가기에 실패했습니다.");
+            });
+    }
+
+
+    function sendMessage() {
+        const messageInput = document.getElementById("messageInput").value;
+        if (messageInput && stompClient) {
+            const chatMessage = { message: messageInput };
+            stompClient.send(`/pub/chats/${chatroomId}`, {}, JSON.stringify(chatMessage));
+            document.getElementById("messageInput").value = "";
+        }
+    }
+
+    function showMessage(message) {
+        const chatDiv = document.getElementById("chat");
+
+        // 메시지 전체를 감쌀 컨테이너 div 생성
+        const messageContainer = document.createElement("div");
+
+        if (message.nickname === currentUserNickname) {
+            // 내 메시지 (오른쪽 정렬, 닉네임 숨김)
+            messageContainer.classList.add("my-message");
+            messageContainer.innerHTML = `
+            <div class="message-text">
+                ${message.message}
+            </div>
+        `;
+        } else {
+            // 상대 메시지 (왼쪽 정렬, 닉네임 표시)
+            messageContainer.classList.add("other-message");
+            messageContainer.innerHTML = `
+            <div class="nickname">
+                ${message.nickname}
+            </div>
+            <div class="message-text">
+                ${message.message}
+            </div>
+        `;
+        }
+
+        chatDiv.appendChild(messageContainer);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+
+
+    function loadChatHistory() {
+        fetch(`/v1/chats/${chatroomId}/history`)
+            .then(response => response.json())
+            .then(result => {
+                // 응답 객체에서 data 프로퍼티를 추출
+                if (result && result.data) {
+                    result.data.forEach(message => {
+                        showMessage(message);
+                    });
+                } else {
+                    console.error('채팅 기록 불러오기 실패: 응답 데이터가 없습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('채팅 기록 불러오기 실패', error);
+            });
+    }
+
+
+    window.onload = function() {
+        connect();
+        loadChatHistory();
+    };
+</script>
+</body>
+</html>
