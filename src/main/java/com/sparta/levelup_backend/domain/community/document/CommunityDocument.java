@@ -69,7 +69,15 @@ public class CommunityDocument {
 			.build();
 	}
 
-	public void setIsDeleted(boolean isDeleted) {
+	public void updateIsDeleted(boolean isDeleted) {
 		this.isDeleted = isDeleted;
+	}
+
+	public void updateTitle(String title) {
+		this.title = title;
+	}
+
+	public void updateContent(String content) {
+		this.content = content;
 	}
 }
