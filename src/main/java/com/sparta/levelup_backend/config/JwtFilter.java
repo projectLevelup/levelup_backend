@@ -32,7 +32,6 @@ import lombok.RequiredArgsConstructor;
 public class JwtFilter extends OncePerRequestFilter {
 
 	private final JwtUtils jwtUtils;
-	private final RequestMatcher HOME_PAGE = new AntPathRequestMatcher("/");
 	private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
 		new AntPathRequestMatcher("/v2/home"),
 		new AntPathRequestMatcher("/v2/sign**"),
@@ -46,11 +45,6 @@ public class JwtFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException, NotFoundException {
 
 		if (orRequestMatcher.matches(request)) {
-			filterChain.doFilter(request, response);
-			return;
-		}
-		if (HOME_PAGE.matches(request)) {
-			response.sendRedirect("/v2/home");
 			filterChain.doFilter(request, response);
 			return;
 		}

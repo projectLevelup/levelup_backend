@@ -53,20 +53,20 @@ public class SecurityConfig {
 
 		http
 			.csrf((csrf) -> csrf.disable())
-			.formLogin((form) -> form
-				.loginPage("/v2/signin"))
-			.httpBasic((basic) -> basic.disable());
+			.formLogin(form -> form.disable())
+			.httpBasic(basic -> basic.disable());
 
 		http.
 			oauth2Login((oauth2)
 				-> oauth2.userInfoEndpoint((userInfoEndpointConfig)
 				-> userInfoEndpointConfig.userService(customOAuth2UserService)));
 
-		http.oauth2Login((auth)
-			-> auth.authorizationEndpoint((authorizationEndPointConfig)
-				-> authorizationEndPointConfig.baseUri("/v2/signin/oauth2/authorization")
-			).failureHandler(OAuth2Handler)
-			.successHandler(OAuth2Handler));
+		http.oauth2Login(oauth2 -> oauth2
+			.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+			.authorizationEndpoint(authorization -> authorization.baseUri("/v2/signin/oauth2/authorization"))
+			.failureHandler(OAuth2Handler)
+			.successHandler(OAuth2Handler)
+		);
 
 		http.
 			authorizeHttpRequests((auth) -> auth
@@ -78,17 +78,7 @@ public class SecurityConfig {
 			exceptionHandling.accessDeniedHandler(accessDeniedHandler()));
 
 		http.
-			addFilterBefore(new JwtFilter(jwtUtils, filterResponse),
-				CustomUsernamePasswordAuthenticationFilter.class);
-
-		CustomUsernamePasswordAuthenticationFilter customUsernamePasswordAuthenticationFilter = new CustomUsernamePasswordAuthenticationFilter(
-			authenticationManager(authenticationConfiguration), jwtUtils, filterResponse);
-		customUsernamePasswordAuthenticationFilter.setRequiresAuthenticationRequestMatcher(
-			new AntPathRequestMatcher("/v2/signin", "POST"));
-
-		http.
-			addFilterAt(customUsernamePasswordAuthenticationFilter,
-				UsernamePasswordAuthenticationFilter.class);
+			addFilterBefore(new JwtFilter(jwtUtils, filterResponse), UsernamePasswordAuthenticationFilter.class);
 
 		http.sessionManagement((session) -> session
 			.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
