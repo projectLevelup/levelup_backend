@@ -1,6 +1,10 @@
 package com.sparta.levelup_backend.domain.user.service;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.FORBIDDEN_ACCESS;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
@@ -12,97 +16,97 @@ import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.CurrentPasswordNotMatchedException;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.PasswordConfirmNotMatchedException;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	private final UserRepository userRepository;
+	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Override
-    public UserResponseDto findUserById(String role, Long id) {
+	@Override
+	public UserResponseDto findUserById(String role, Long id) {
 
-        if (role.equals("ROLE_ADMIN")) {
-            UserEntity user = userRepository.findByIdOrElseThrow(id);
-            return UserResponseDto.from(user);
-        }
-        throw new ForbiddenException(FORBIDDEN_ACCESS);
-    }
+		if (role.equals("ROLE_ADMIN")) {
+			UserEntity user = userRepository.findByIdOrElseThrow(id);
 
-    @Override
-    public UserResponseDto findUser(Long id) {
-        UserEntity user = userRepository.findByIdOrElseThrow(id);
-        return UserResponseDto.from(user);
-    }
+			return UserResponseDto.from(user);
+		}
+		throw new ForbiddenException(FORBIDDEN_ACCESS);
+	}
 
-    @Override
-    @Transactional
-    public UserResponseDto updateUser(Long id, UpdateUserRequestDto dto) {
+	@Override
+	public UserResponseDto findUser(Long id) {
+		UserEntity user = userRepository.findByIdOrElseThrow(id);
 
-        UserEntity user = userRepository.findByIdOrElseThrow(id);
+		return UserResponseDto.from(user);
+	}
 
-        if (dto.getEmail() != null) {
-            userRepository.existsByEmailOrElseThrow(dto.getEmail());
-            user.updateEmail(dto.getEmail());
-        }
+	@Override
+	@Transactional
+	public UserResponseDto updateUser(Long id, UpdateUserRequestDto dto) {
 
-        if (dto.getNickName() != null) {
-            user.updateNickName(dto.getNickName());
-        }
+		UserEntity user = userRepository.findByIdOrElseThrow(id);
 
-        if (dto.getImgUrl() != null) {
-            user.updateImgUrl(dto.getImgUrl());
-        }
+		if (dto.getEmail() != null) {
+			userRepository.existsByEmailOrElseThrow(dto.getEmail());
+			user.updateEmail(dto.getEmail());
+		}
 
-        if (dto.getPhoneNumber() != null) {
-            user.updatePhoneNumber(dto.getPhoneNumber());
-        }
+		if (dto.getNickName() != null) {
+			user.updateNickName(dto.getNickName());
+		}
 
-        return UserResponseDto.from(user);
-    }
+		if (dto.getImgUrl() != null) {
+			user.updateImgUrl(dto.getImgUrl());
+		}
 
-    @Override
-    @Transactional
-    public void changePassword(Long id, ChangePasswordDto dto) {
-        UserEntity user = userRepository.findByIdOrElseThrow(id);
+		if (dto.getPhoneNumber() != null) {
+			user.updatePhoneNumber(dto.getPhoneNumber());
+		}
 
-        if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
-            if (dto.getNewPassword().equals(dto.getPasswordConfirm())) {
-                user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
-            } else {
-                throw new PasswordConfirmNotMatchedException();
-            }
-        } else {
-            throw new CurrentPasswordNotMatchedException();
-        }
-    }
+		return UserResponseDto.from(user);
+	}
 
-    @Override
-    public UserResponseDto updateImgUrl(Long id, UpdateUserImgUrlReqeustDto dto) {
+	@Override
+	@Transactional
+	public void changePassword(Long id, ChangePasswordDto dto) {
+		UserEntity user = userRepository.findByIdOrElseThrow(id);
 
-        UserEntity user = userRepository.findByIdOrElseThrow(id);
-        user.updateImgUrl(dto.getImgUrl());
+		if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+			if (dto.getNewPassword().equals(dto.getPasswordConfirm())) {
+				user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
+			} else {
+				throw new PasswordConfirmNotMatchedException();
+			}
+		} else {
+			throw new CurrentPasswordNotMatchedException();
+		}
+	}
 
-        return UserResponseDto.from(user);
+	@Override
+	public UserResponseDto updateImgUrl(Long id, UpdateUserImgUrlReqeustDto dto) {
 
-    }
+		UserEntity user = userRepository.findByIdOrElseThrow(id);
+		user.updateImgUrl(dto.getImgUrl());
 
-    @Override
-    @Transactional
-    public void deleteUser(Long id, DeleteUserRequestDto dto) {
+		return UserResponseDto.from(user);
 
-        UserEntity user = userRepository.findByIdOrElseThrow(id);
+	}
 
-        if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())){
-            user.delete();
-        }else {
-            throw new CurrentPasswordNotMatchedException();
-        }
+	@Override
+	@Transactional
+	public void deleteUser(Long id, DeleteUserRequestDto dto) {
 
-    }
+		UserEntity user = userRepository.findByIdOrElseThrow(id);
+
+		if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+			user.delete();
+		} else {
+			throw new CurrentPasswordNotMatchedException();
+		}
+
+	}
 }

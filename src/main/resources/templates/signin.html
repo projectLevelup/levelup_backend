@@ -1,21 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>Title</title>
+    <meta charset="UTF-8">
+    <title>로그인</title>
 </head>
 <body>
 <div class="container">
 
-  <div class="py-4 text-center">
-    <h2>Test Form</h2>
-  </div>
-
-  <form action="/v2/signinSend" method="post">
-    User ID: <input type="text" name="email">
-    Password: <input type="password" name="password">
-    <button type="submit">signin</button>
-  </form>
+    <div class="py-4 text-center">
+        <h2>로그인</h2>
+    </div>
+    <form method="post" th:action="@{/v2/signin}">
+        <div>
+            <label for="email">이메일:</label>
+            <input id="email" name="email" required th:value="${email}" type="text">
+        </div>
+        <div>
+            <label for="password">비밀번호:</label>
+            <input id="password" name="nickName" required th:value="${password}" type="password">
+        </div>
+        <button type="submit">로그인</button>
+    </form>
+    <input id="autoLogin" name="autoLogin" onchange="AutoLogin()" type="checkbox">자동로그인</input>
+    <a href="/v2/signin/oauth2/authorization/naver">
+        <img alt="네이버 로그인 버튼"
+             height="50"
+             src="https://static.nid.naver.com/oauth/small_g_in.PNG"/>
+    </a>
+    <a href="/v2/signin/oauth2/authorization/google">
+        <img alt="구글 로그인 버튼"
+             height="50"
+             src="https://cdn-icons-png.flaticon.com/256/2702/2702602.png"/>
+    </a>
+    <a href="/v2/signup">
+        회원가입
+    </a>
 </div>
 </body>
+<script>
+  function setCookie(name, value, exp){
+    let date = new Date();
+    date.setTime(date.getTime() + exp*60*60*1000);
+    document.cookie = name + '=' + value + ';expires=' + date.toUTCString() + ';path=/'+';domain=localhost';
+  }
+
+  let autoLogin = document.getElementById("autoLogin");
+
+  function AutoLogin() {
+    if (autoLogin.checked) {
+      setCookie("autoLogin",true,1);
+    } else {
+      setCookie("autoLogin",true,0);
+    }
+  }
+</script>
 </html>

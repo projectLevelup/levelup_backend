@@ -11,18 +11,14 @@
     <h2>회원가입</h2>
   </div>
 
-  <form th:action="@{/v2/signup}" method="post">
+  <form th:action="@{/v2/oauth2signup}" method="post">
     <div>
       <label for="email">이메일:</label>
-      <input type="text" id="email" name="email" th:value="${email}" required>
+      <input type="text" readonly id="email" name="email" th:value="${email}" required>
     </div>
     <div>
       <label for="nickName">이름:</label>
       <input type="text" id="nickName" name="nickName" th:value="${nickName}" required>
-    </div>
-    <div>
-      <label for="password">비밀번호:</label>
-      <input type="password" id="password" name="password" th:value="${password}" required>
     </div>
     <div>
       <label for="phoneNumber">전화번호:</label>
