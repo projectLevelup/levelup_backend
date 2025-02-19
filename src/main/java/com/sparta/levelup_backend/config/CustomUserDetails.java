@@ -22,7 +22,6 @@ public class CustomUserDetails implements UserDetails {
 		grantedAuthority.add(new GrantedAuthority() {
 			@Override
 			public String getAuthority() {
-
 				return "ROLE_" + user.getRole().toString();
 			}
 		});
@@ -30,26 +29,25 @@ public class CustomUserDetails implements UserDetails {
 		return grantedAuthority;
 	}
 
+	public UserEntity getUser() {
+		return user;
+	}
+
 	@Override
 	public String getPassword() {
-
 		return user.getPassword();
 	}
 
 	@Override
 	public String getUsername() {
-
 		return user.getEmail();
 	}
 
 	public Long getId() {
-
 		return user.getId();
 	}
-
-	public String getNickName() {
-
+  
+	public String getNickname() {
 		return user.getNickName();
 	}
-
 }

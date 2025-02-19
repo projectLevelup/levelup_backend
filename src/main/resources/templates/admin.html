@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>관리자 - 게임 목록</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; }
+        header, main { padding: 10px; }
+        .game-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .game-item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 150px;
+            text-align: center;
+        }
+        .game-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            margin-bottom: 5px;
+        }
+        .add-button {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <header>
+            <h2>관리자 대시보드</h2>
+        </header>
+
+        <main>
+            <button class="add-button" onclick="goAddGamePage()">게임 추가</button>
+        </main>
+    </div>
+
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
+</div>
+</body>
+</html>

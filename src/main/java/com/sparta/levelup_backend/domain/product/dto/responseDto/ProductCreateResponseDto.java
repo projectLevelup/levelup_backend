@@ -1,19 +1,17 @@
 package com.sparta.levelup_backend.domain.product.dto.responseDto;
 
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
-import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
+import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 public class ProductCreateResponseDto {
-	private final Long id;
+
+	private final Long productId;
 	private final String productName;
 
-	public ProductCreateResponseDto(ProductEntity product) {
-		this.id = product.getId();
-		this.productName = product.getProductName();
+	public ProductCreateResponseDto(ProductDocument document) {
+		this.productId = document.getProductId();
+		this.productName = document.getProductName();
 	}
 }
