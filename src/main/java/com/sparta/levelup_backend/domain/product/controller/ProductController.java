@@ -4,6 +4,7 @@ import static com.sparta.levelup_backend.common.ApiResMessage.*;
 import static com.sparta.levelup_backend.common.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,6 @@ import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductRequestAllDto;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteResponseDto;
@@ -187,8 +187,8 @@ public class ProductController {
 	 * GET /v1/products/es/sentimentanalysis/top3
 	 */
 	@GetMapping("/es/sentimentanalysis/top3")
-	public ApiResponse<List<ProductRequestAllDto>> findTop3Products() {
-		List<ProductRequestAllDto> top3Products = productService.getTop3Products();
+	public ApiResponse<List<ProductDocument>> findTop3Products() throws IOException {
+		List<ProductDocument> top3Products = productService.getTop3Products();
 		return ApiResponse.success(OK, PRODUCT_READ, top3Products);
 	}
 

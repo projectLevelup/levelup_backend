@@ -14,18 +14,18 @@ VALUES (1, 'Game One', 'https://example.com/game1.jpg', 'RPG', 1, false, NOW(), 
 -- 제품 데이터 삽입
 INSERT INTO product (id, user_id, game_id, product_name, contents, price, amount, status, img_url,
                      is_deleted, created_at, updated_at)
-VALUES (1, 1, 1, 'Sword of Power', 'A legendary sword.', 100000, 10, 'ACTIVE', 'https://example.com/sword.jpg', false,
+VALUES (5, 1, 1, 'Sword of Power', 'A legendary sword.', 100000, 10, 'ACTIVE', 'https://example.com/sword.jpg', false,
         NOW(), NOW()),
-       (2, 2, 2, 'Shield of Valor', 'An indestructible shield.', 50000, 5, 'ACTIVE', 'https://example.com/shield.jpg',
+       (6, 2, 2, 'Shield of Valor', 'An indestructible shield.', 50000, 5, 'ACTIVE', 'https://example.com/shield.jpg',
         false, NOW(), NOW());
 
 -- 주문 데이터 삽입
 INSERT INTO orders (id, status, total_price, user_id, product_id, is_deleted, created_at, updated_at)
-VALUES (1, 'COMPLETED', 100000, 1, 1, false, NOW(), NOW()),
-       (2, 'PENDING', 50000, 2, 2, false, NOW(), NOW());
+VALUES (1, 'COMPLETED', 100000, 1, 5, false, NOW(), NOW()),
+       (2, 'PENDING', 50000, 2, 6, false, NOW(), NOW());
 
 -- 리뷰 데이터 삽입
 INSERT INTO review (id, contents, star_score, product_id, user_id, orders_id, is_deleted, created_at, updated_at)
-VALUES (1, '정말 좋은 상품입니다!', 5, 1, 1, 1, false, NOW(), NOW()),
-       (2, '보통이에요.', 3, 2, 2, 2, false, NOW(), NOW()),
-       (3, '별로였습니다.', 2, 2, 3, 2, false, NOW(), NOW());
+VALUES (1, '정말 좋은 상품입니다!', 5, 5, 1, 1, false, NOW(), NOW()),
+       (2, '보통이에요.', 3, 5, 2, 2, false, NOW(), NOW()),
+       (3, '별로였습니다.', 2, 6, 3, 2, false, NOW(), NOW());

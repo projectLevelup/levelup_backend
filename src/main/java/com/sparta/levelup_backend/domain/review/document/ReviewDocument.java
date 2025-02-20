@@ -8,40 +8,47 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import lombok.Getter;
 
 @Getter
-@Document(indexName = "reviews", createIndex = true) // ES 인덱스명 지정
+@Document(indexName = "review", createIndex = true) // ES 인덱스명 지정
 public class ReviewDocument {
 
-	// Getter & Setter
 	@Id
-	private Long id; // 리뷰 ID (ES 기본 식별자)
+	private String id; // 리뷰 ID (문자열)
 
-	@Field(type = FieldType.Long)
-	private Long productId; // 상품 ID
+	@Field(type = FieldType.Date)
+	private String updatedAt; // 업데이트 날짜 (ISO 8601 형식)
 
 	@Field(type = FieldType.Text, analyzer = "standard")
 	private String contents; // 리뷰 내용
 
-	@Field(type = FieldType.Keyword)
-	private double sentimentScore; // 감성 점수 (사전 계산된 값 저장)
+	@Field(type = FieldType.Integer)
+	private Integer starScore; // 별점
+
+	@Field(type = FieldType.Long)
+	private Long productId; // 상품 ID
+
+	@Field(type = FieldType.Long)
+	private Long ordersId; // 주문 ID
+
+	@Field(type = FieldType.Date)
+	private String createdAt; // 생성 날짜 (ISO 8601 형식)
+
+	@Field(type = FieldType.Long)
+	private Long userId; // 사용자 ID
+
+	@Field(type = FieldType.Boolean)
+	private Boolean isDeleted; // 삭제 여부
 
 	// 생성자
-	public ReviewDocument(Long id, Long productId, String contents, double sentimentScore) {
-		this.id = id;
-		this.productId = productId;
+	public ReviewDocument(String id, String updatedAt, String contents, Integer starScore, Long productId,
+		Long ordersId, String createdAt, Long userId, Boolean isDeleted) {
+		this.id = String.valueOf(id);
+		this.updatedAt = updatedAt;
 		this.contents = contents;
-		this.sentimentScore = sentimentScore;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setProductId(Long productId) {
+		this.starScore = starScore;
 		this.productId = productId;
+		this.ordersId = ordersId;
+		this.createdAt = createdAt;
+		this.userId = userId;
+		this.isDeleted = isDeleted;
 	}
-
-	public void setContents(String contents) {
-		this.contents = contents;
-	}
-
 }

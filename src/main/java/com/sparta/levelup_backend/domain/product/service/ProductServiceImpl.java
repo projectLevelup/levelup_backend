@@ -5,18 +5,27 @@ import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.openkoreantext.processor.OpenKoreanTextProcessorJava;
 import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +33,6 @@ import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductRequestAllDto;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteResponseDto;
@@ -56,6 +64,9 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import lombok.RequiredArgsConstructor;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
@@ -396,13 +407,27 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
+	 * 감성 점수 TOP 3 제품 반환
+	 */
+	public List<ProductDocument> getTop3Products() throws IOException {
+		updateProductSentimentScores();
+
+		List<ProductDocument> productList = productESRepository.findAllByIsDeletedFalseAndStatus(ProductStatus.ACTIVE);
+
+		return productList.stream()
+			.sorted(Comparator.comparingDouble(ProductDocument::getSentimentScore).reversed())
+			.limit(3)
+			.collect(Collectors.toList());
+	}
+
+	/**
 	 * Product의 평균 감성 점수 계산 후 Elasticsearch에 업데이트
 	 */
-	public void updateProductSentimentScores() {
+	public void updateProductSentimentScores() throws IOException {
 		List<ProductDocument> products = productESRepository.findAllByIsDeletedFalseAndStatus(ProductStatus.ACTIVE);
 
 		for (ProductDocument product : products) {
-			List<ReviewDocument> reviews = reviewESRepository.findByProductId(product.getProductId());
+			List<ReviewDocument> reviews = reviewESRepository.findReviewsByProductId(product.getProductId());
 
 			double totalScore = 0.0;
 			int count = 0;
@@ -421,37 +446,10 @@ public class ProductServiceImpl implements ProductService {
 					.id(String.valueOf(product.getProductId()))
 					.doc(ProductDocument.builder().sentimentScore(averageScore).build())
 				), ProductDocument.class);
-
-				if (response.result().name().equalsIgnoreCase("not_found")) {
-					System.err.println("ProductDocument not found in Elasticsearch: " + product.getProductId());
-				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * 30분마다 상품 감성 분석 점수 업데이트 (자동 실행)
-	 */
-	@Scheduled(cron = "0 */30 * * * *") // 30분마다 실행
-	public void scheduledUpdateProductSentimentScores() {
-		updateProductSentimentScores();
-	}
-
-	/**
-	 * 감성 점수 TOP 3 제품 반환
-	 */
-	public List<ProductRequestAllDto> getTop3Products() {
-		updateProductSentimentScores();
-
-		List<ProductDocument> productList = productESRepository.findAllByIsDeletedFalseAndStatus(ProductStatus.ACTIVE);
-
-		return productList.stream()
-			.sorted(Comparator.comparingDouble(ProductDocument::getSentimentScore).reversed())
-			.limit(3)
-			.map(ProductRequestAllDto::fromDocument)
-			.toList();
 	}
 
 	/**
@@ -460,31 +458,108 @@ public class ProductServiceImpl implements ProductService {
 	 * @param content 리뷰 내용
 	 * @return 감성 점수
 	 */
-	private double analyzeSentiment(String content) {
+	// 감성 단어 목록
+	private static final Map<String, Double> positiveWords = Map.of(
+		"좋은", 1.0, "훌륭", 1.0, "최고", 1.0, "만족", 1.0, "감사", 1.0,
+		"행복", 1.0, "기쁘다", 1.0, "즐겁다", 1.0, "사랑스럽다", 1.0
+	);
+
+	private static final Map<String, Double> negativeWords = Map.of(
+		"나쁘다", -1.0, "별로", -1.0, "실망", -1.0, "최악", -1.0, "불만", -1.0,
+		"짜증", -1.0, "우울", -1.0, "불쾌", -1.0, "끔찍", -1.0
+	);
+
+	private static final List<String> negationWords = Arrays.asList("안", "못", "전혀", "아니다");
+	private static final List<String> intensifiers = Arrays.asList("매우", "아주", "정말", "너무", "굉장히");
+
+	// Elasticsearch 연결 설정
+	// RestClient를 사용하여 Elasticsearch 연결 설정
+	private static final RestClient restClient = RestClient.builder(
+			new HttpHost("localhost", 9200, "http"))
+		.setHttpClientConfigCallback(httpClientBuilder -> {
+			BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+			credentialsProvider.setCredentials(AuthScope.ANY,
+				new UsernamePasswordCredentials("elastic", "your-secure-password"));
+			return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
+		})
+		.build();
+
+	private static final ElasticsearchTransport transport = new RestClientTransport(
+		restClient, new JacksonJsonpMapper());
+	private static final ElasticsearchClient client = new ElasticsearchClient(transport);
+
+	/**
+	 * Elasticsearch에서 동의어를 가져오는 메서드
+	 * @param word 단어
+	 * @return 동의어 목록
+	 */
+	// Elasticsearch에서 동의어를 가져오는 메서드
+	private static Set<String> getSynonyms(String word) throws IOException {
+		Set<String> synonyms = new HashSet<>();
+		// '_analyze' API는 본문(body)을 필요로 하므로 본문을 추가
+		String jsonBody = String.format("{\"text\": \"%s\", \"analyzer\": \"default\"}", word);
+
+		Request request = new Request("GET", "_analyze");
+		request.setJsonEntity(jsonBody);
+
+		Response response = restClient.performRequest(request);
+		String responseBody = EntityUtils.toString(response.getEntity());
+
+		synonyms.add(word);
+
+		return synonyms;
+	}
+
+	/**
+	 * 감성 분석 함수
+	 * @param content 리뷰 내용
+	 * @return 감성 점수
+	 */
+	public static double analyzeSentiment(String content) throws IOException {
+		double score = 0.0;
+
+		// 1. 한국어 텍스트 토큰화
 		CharSequence normalized = OpenKoreanTextProcessorJava.normalize(content);
 		Seq<KoreanTokenizer.KoreanToken> tokens = OpenKoreanTextProcessorJava.tokenize(normalized);
 		List<KoreanTokenizer.KoreanToken> tokenList = JavaConverters.seqAsJavaList(tokens);
-		List<String> positiveWords = Arrays.asList("좋다", "최고", "만족", "훌륭", "감사");
-		List<String> negativeWords = Arrays.asList("나쁘다", "별로", "실망", "최악", "불만");
-		List<String> negationWords = Arrays.asList("안", "못", "전혀");
-		List<String> intensifiers = Arrays.asList("매우", "아주", "정말");
-		double score = 0.0;
-		for (int i = 0; i < tokenList.size(); i++) {
-			String word = tokenList.get(i).text();
-			boolean isNegated = false;
-			double multiplier = 1.0;
-			if (i > 0 && negationWords.contains(tokenList.get(i - 1).text())) {
-				isNegated = true;
-			}
-			if (i > 0 && intensifiers.contains(tokenList.get(i - 1).text())) {
-				multiplier = 2.0;
-			}
-			if (positiveWords.contains(word)) {
-				score += isNegated ? -1 * multiplier : 1 * multiplier;
-			} else if (negativeWords.contains(word)) {
-				score += isNegated ? 1 * multiplier : -1 * multiplier;
+
+		// 2. 각 토큰에 대해 감성 분석
+		for (KoreanTokenizer.KoreanToken token : tokenList) {
+			// token.getSurfaceForm()을 사용하여 토큰의 텍스트를 추출
+			String word = token.text();
+
+			// 동의어 처리: 해당 단어의 동의어를 가져옴
+			Set<String> wordSynonyms = getSynonyms(word);
+			wordSynonyms.add(word); // 원래 단어도 포함
+
+			// 3. 동의어들에 대해 감성 분석을 수행
+			for (String synonym : wordSynonyms) {
+				boolean isNegated = false;
+				double multiplier = 1.0;
+
+				// 부정어 처리
+				if (negationWords.stream().anyMatch(synonym::contains)) {
+					isNegated = true;
+				}
+
+				// 강조어 처리
+				if (intensifiers.stream().anyMatch(synonym::contains)) {
+					multiplier = 2.0;
+				}
+
+				// 긍정적인 단어 점수 추가
+				if (positiveWords.containsKey(synonym)) {
+					score += isNegated ? -1 * multiplier * positiveWords.get(synonym) :
+						1 * multiplier * positiveWords.get(synonym);
+				}
+				// 부정적인 단어 점수 추가
+				else if (negativeWords.containsKey(synonym)) {
+					score += isNegated ? 1 * multiplier * Math.abs(negativeWords.get(synonym)) :
+						-1 * multiplier * Math.abs(negativeWords.get(synonym));
+				}
 			}
 		}
+
 		return score;
 	}
 

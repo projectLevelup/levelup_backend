@@ -51,7 +51,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends
 		CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
 		String username = customUserDetails.getUsername();
 		Long id = customUserDetails.getId();
-		String nickName = customUserDetails.getNickname();
+		String nickName = customUserDetails.getNickName();
 		String role = authentication.getAuthorities()
 			.iterator().next().getAuthority();
 

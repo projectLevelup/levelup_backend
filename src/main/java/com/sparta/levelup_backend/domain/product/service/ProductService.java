@@ -1,11 +1,11 @@
 package com.sparta.levelup_backend.domain.product.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductRequestAllDto;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteResponseDto;
@@ -40,6 +40,6 @@ public interface ProductService {
 
 	List<ProductDocument> getTop10PopularProductsES();
 
-	List<ProductRequestAllDto> getTop3Products();
+	List<ProductDocument> getTop3Products() throws IOException;
 }
 
