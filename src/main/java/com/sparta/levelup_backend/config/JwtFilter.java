@@ -129,7 +129,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	 */
 	private void reissueExpiredTokens(String accessToken, String refreshToken, HttpServletResponse response) throws Exception {
 
-		if (!hasText(refreshToken)) {
+		if (hasText(refreshToken)) {
 			if (isTokenExpired(accessToken)) {
 				String newAccessToken = jwtUtils.refresingToken(refreshToken);
 				response.addHeader("Authorization", "Bearer " + newAccessToken);

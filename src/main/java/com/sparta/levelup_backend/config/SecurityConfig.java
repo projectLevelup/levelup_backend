@@ -1,5 +1,8 @@
 package com.sparta.levelup_backend.config;
 
+import com.sparta.levelup_backend.domain.auth.service.CustomOAuth2UserService;
+import com.sparta.levelup_backend.utill.JwtUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,12 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import com.sparta.levelup_backend.domain.auth.service.CustomOAuth2UserService;
-import com.sparta.levelup_backend.utill.JwtUtils;
-
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -64,6 +61,7 @@ public class SecurityConfig {
 		http.oauth2Login(oauth2 -> oauth2
 			.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
 			.authorizationEndpoint(authorization -> authorization.baseUri("/v2/signin/oauth2/authorization"))
+			.loginPage("/v2/signin")
 			.failureHandler(OAuth2Handler)
 			.successHandler(OAuth2Handler)
 		);

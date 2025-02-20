@@ -119,6 +119,24 @@
 
 <button class="create-product-btn" onclick="location.href='/product-create'">강의개설</button>
 <script>
+    function getCookie(name) {
+        const cookies = document.cookie.split('; ');
+        for (let cookie of cookies) {
+            const [key, value] = cookie.split('=');
+            if (key === name) {
+                return decodeURIComponent(value);
+            }
+        }
+        return null; // 쿠키가 없을 경우 null 반환
+    }
+
+    // 자동로그인이 켜져있는지 확인.
+    let autoLogin = getCookie("autoLogin");
+    if (autoLogin === null) {
+        let date = new Date();
+        date.setTime(date.getTime());
+        document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
     // 1. 페이지 로드시 게임 목록과 상품 목록을 불러온다.
     window.onload = function() {
         loadGames();
