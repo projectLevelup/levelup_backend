@@ -54,16 +54,15 @@ public class CustomOAuth2Handler implements AuthenticationSuccessHandler,
 			GrantedAuthority auth = iterator.next();
 			String role = auth.getAuthority();
 
-			String accessToken = jwtUtils.createAccessToken(email, id, nickName, role);
-			String refreshToken = jwtUtils.createRefreshToken(email, id, nickName, role);
+			String accessToken = jwtUtils.substringToken(jwtUtils.createAccessToken(email, id, nickName, role));
+			String refreshToken = jwtUtils.substringToken(jwtUtils.createRefreshToken(email, id, nickName, role));
 
 			response.addHeader("Authorization", accessToken);
 			response.addHeader("Set-Cookie",
 				"accessToken=" + accessToken + "; " + "Path=/; Domain=localhost; Max-Age=" + 30 * 60 + "; ");
 			response.addHeader("Set-Cookie",
 				"refreshToken=" + refreshToken + "; " + "Path=/; Domain=localhost; Max-Age=" + 12 * 60 * 60 + "; ");
-			RequestDispatcher requestDispatcher = request.getRequestDispatcher("/");
-			requestDispatcher.forward(request, response);
+			response.sendRedirect("/");
 		}
 	}
 
