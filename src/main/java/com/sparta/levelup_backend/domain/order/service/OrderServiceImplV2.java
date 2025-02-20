@@ -75,7 +75,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
                     .status(OrderStatus.PENDING)
                     .totalPrice(product.getPrice())
                     .product(product)
-                    .uuid(UUID.randomUUID().toString())
+                    .orderName(product.getProductName())
                     .build();
 
 

@@ -1,37 +1,34 @@
 package com.sparta.levelup_backend.domain.payment.dto.response;
 
-import com.sparta.levelup_backend.utill.PayType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
+import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
+import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
+import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
-@RequiredArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
 public class PaymentResponseDto {
-
-    private String payType;
 
     private Long amount;
 
-    private String orderId;
-
     private String orderName;
+
+    private String orderId;
 
     private String customerEmail;
 
     private String customerName;
 
     @Setter
-    private String successUrl;
+    private String SuccessUrl;
 
     @Setter
     private String failUrl;
 
-    private LocalDateTime createDate;
-
-    private String paySuccessYn;
+    public PaymentResponseDto(PaymentEntity payment) {
+        this.amount = payment.getAmount();
+        this.orderName = payment.getOrder().getOrderName();
+        this.orderId = payment.getOrderId();
+        this.customerEmail = payment.getOrder().getUser().getEmail();
+        this.customerName = payment.getOrder().getUser().getNickName();
+    }
 }

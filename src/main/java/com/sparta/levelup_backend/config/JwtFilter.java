@@ -34,10 +34,11 @@ public class JwtFilter extends OncePerRequestFilter {
 	private final JwtUtils jwtUtils;
 	private final RequestMatcher HOME_PAGE = new AntPathRequestMatcher("/");
 	private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
-		new AntPathRequestMatcher("/v2/home"),
-		new AntPathRequestMatcher("/v2/sign**"),
-		new AntPathRequestMatcher("/oauth2/authorization/naver"),
-		new AntPathRequestMatcher("/v2/oauth2sign*"));
+			new AntPathRequestMatcher("/v2/home"),
+			new AntPathRequestMatcher("/v2/sign**"),
+			new AntPathRequestMatcher("/oauth2/authorization/naver"),
+			new AntPathRequestMatcher("/v2/oauth2sign*"),
+			new AntPathRequestMatcher("/**"));
 	private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
 	private final FilterResponse filterResponse;
 

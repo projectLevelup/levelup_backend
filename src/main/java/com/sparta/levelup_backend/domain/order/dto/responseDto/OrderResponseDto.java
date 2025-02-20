@@ -21,8 +21,6 @@ public class OrderResponseDto {
 
     private final Long price;
 
-    private final String uuid;
-
     public OrderResponseDto(OrderEntity order) {
         this.orderId = order.getId();
         this.productId = order.getProduct().getId();
@@ -30,6 +28,5 @@ public class OrderResponseDto {
         this.productName = order.getProduct().getProductName();
         this.status = order.getStatus();
         this.price = order.getTotalPrice();
-        this.uuid = order.getUuid();
     }
 }

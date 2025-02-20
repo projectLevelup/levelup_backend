@@ -1,14 +1,13 @@
 package com.sparta.levelup_backend.domain.payment.entity;
 
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
-import com.sparta.levelup_backend.domain.payment.dto.response.PaymentResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.utill.PayType;
 import jakarta.persistence.*;
 import lombok.*;
+import net.bytebuddy.utility.nullability.MaybeNull;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Getter
@@ -23,42 +22,42 @@ public class PaymentEntity {
     @Column(name = "payment_id", nullable = false, unique = true)
     private Long paymentId;
 
-    @Column(nullable = false)
-    private PayType payType;
-
-    @Column(nullable = false)
-    private Long amount;
-
-    @Column(name = "order_uuid",nullable = false)
+    @Column(unique = true, name = "order_id")
     private String orderId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @Column(name = "pay_type")
+    @Enumerated(EnumType.STRING)
+    private PayType payType;
+
+    @Column(nullable = false, name = "pay_amount")
+    private Long amount;
+
+    @Column(nullable = false, name = "pay_name")
+    private String orderName;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_order", nullable = false)
     private OrderEntity order;
 
-    @Column(nullable = false)
-    private String customerEmail;
-
-    @Column(nullable = false)
-    private String customerName;
-
-    @Column(nullable = false)
-    private LocalDateTime createDate;
-
-    private String paySuccessYn;
-
-    @Setter
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private UserEntity customer;
 
-    public PaymentResponseDto toDto() {
-        return PaymentResponseDto.builder()
-                .payType(payType.name())
-                .amount(amount)
-                .orderName(order.getProduct().getProductName())
-                .customerEmail(customerEmail)
-                .customerName(customerName)
-                .createDate(createDate)
-                .build();
-    }
+    @Column(name = "payment_k")
+    private String paymentKey;
+
+    @Column(name = "completed_at")
+    private String completedAt;
+
+    @Column(name = "is_paid")
+    private boolean ispaid;
+
+    @Column(name = "is_canceled")
+    private boolean iscanceled;
+
+    @Column(name = "customer_email")
+    private String customerEmail;
+
+    @Column(name = "customer_name")
+    private String customerName;
 }

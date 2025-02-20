@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.domain.payment.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -19,6 +20,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+@Slf4j
 @Controller
 @RequestMapping
 @RequiredArgsConstructor
@@ -34,6 +36,9 @@ public class PaymentController {
         String secretKey = tossSecretKey;
         JSONObject response = sendRequest(parseRequestData(jasonBody), secretKey, "https://api.tosspayments.com/v1/payments/confirm");
         int statusCode = response.containsKey("error") ? 400 : 200;
+        response.get("paymentKey");
+
+        log.info("응답 받은 값: {}", response);
         return ResponseEntity.status(statusCode).body(response);
     }
 
