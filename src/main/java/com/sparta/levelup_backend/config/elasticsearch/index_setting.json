@@ -1,0 +1,34 @@
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "standard": {
+          "type": "standard"
+        }
+      },
+      "filter": {
+        "synonym_filter": {
+          "type": "synonym",
+          "synonyms_path": "synonyms.txt"
+        }
+      },
+      "analyzer": {
+        "default": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "synonym_filter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "content": {
+        "type": "text",
+        "analyzer": "default"
+      }
+    }
+  }
+}

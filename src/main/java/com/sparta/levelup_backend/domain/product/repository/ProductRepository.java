@@ -22,18 +22,13 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
 	List<ProductEntity> findAllByIsDeletedFalseAndStatus(ProductStatus status);
 
-	Optional<ProductEntity> findByIdAndIsDeletedFalseAndStatus(Long id, ProductStatus status);
-
 	default ProductEntity findByIdOrElseThrow(Long id) {
 		return findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
 	}
 
-	// 특정 게임에 속한 상품 조회
-	List<ProductEntity> findByGameId(Long gameId);
-
 	// 비관적 락 쿼리
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
-	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "5000")})  // 락 획특 시간 설정
+	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})  // 락 획특 시간 설정
 	@Query("SELECT p FROM ProductEntity p WHERE p.id = :productId")
 	Optional<ProductEntity> findByIdWithLock(Long productId);
 }

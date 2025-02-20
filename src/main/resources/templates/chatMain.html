@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>채팅 서비스 메인 페이지</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+</head>
+<body>
+<div class="container">
+    <h1>채팅 서비스</h1>
+    <!-- 채팅하기 섹션 -->
+    <div class="sub-container">
+        <h2>채팅하기</h2>
+        <input class="input" type="text" id="targetUserId" placeholder="상대방 ID 입력" />
+        <button onclick="startChat()">채팅하기</button>
+    </div>
+
+    <!-- 채팅방 보기 섹션 -->
+    <div class="sub-container">
+        <h2>채팅방 목록</h2>
+        <button onclick="location.href='/chatroomList'">채팅방 보기</button>
+    </div>
+</div>
+
+<script>
+    function startChat() {
+        const targetUserId = document.getElementById("targetUserId").value;
+        if (!targetUserId) {
+            alert("채팅할 상대방의 ID를 입력하세요.");
+            return;
+        }
+
+        fetch(`/v1/chats?targetUserId=${targetUserId}&title=`, { // ✅ 쿼리 파라미터로 전달
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("채팅방 생성 실패");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("채팅방 생성 성공:", data);
+                if (data.data && data.data.chatroomId) {
+                    window.location.href = `/chatroom?chatroomId=${data.data.chatroomId}`;
+                } else {
+                    alert("채팅방 ID를 가져올 수 없습니다.");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert("채팅방 생성 중 오류 발생");
+            });
+    }
+
+</script>
+</body>
+</html>

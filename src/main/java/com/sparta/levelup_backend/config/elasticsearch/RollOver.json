@@ -1,0 +1,13 @@
+{
+  "index_patterns": [
+    "logs-*"
+  ],
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "my_policy",
+      "index.lifecycle.rollover_alias": "logs",
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    }
+  }
+}

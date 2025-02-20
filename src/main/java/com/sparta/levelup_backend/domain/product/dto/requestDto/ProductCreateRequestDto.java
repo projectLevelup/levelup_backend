@@ -13,7 +13,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ProductCreateRequestDto {
 
-	@NotNull(message = GAME_ID_REQUIRED)
+	@NotNull(message = PRODUCT_ID_REQUIRED)
 	private final Long gameId;
 
 	@NotNull(message = PRODUCT_NAME_REQUIRED)
@@ -34,4 +34,5 @@ public class ProductCreateRequestDto {
 	private final ProductStatus status;
 
 	private final String imgUrl;
+
 }

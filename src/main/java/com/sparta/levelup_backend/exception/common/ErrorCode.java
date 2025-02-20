@@ -19,7 +19,10 @@ public enum ErrorCode {
 	INVALID_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "ERR009", "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."),
 	ALREADY_DELETED_USER(HttpStatus.BAD_REQUEST, "ERR010", "이미 탈퇴된 유저입니다."),
 	INVALID_ORDER_CREATE(HttpStatus.BAD_REQUEST, "ERR011", "본인의 상품은 주문할 수 없습니다."),
-
+	PAGE_OUT_OF_BOUNDS(HttpStatus.BAD_REQUEST, "ERR012", "페이지 범위를 초과하였습니다."),
+  AUTH_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "ERR013", "가입한 로그인 방식과 일치하지 않습니다."),
+  INVALID_CHATROOM_CREATE(HttpStatus.BAD_REQUEST, "ERR014", "자기자신과 채팅방을 만들 수 없습니다."),
+  
 	// 401 UNAUTHORIZED
 	UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),
 	LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "ERR102", "로그인에 실패했습니다."),
@@ -30,6 +33,7 @@ public enum ErrorCode {
 	FORBIDDEN_ACCESS(HttpStatus.FORBIDDEN, "ERR201", "접근 권한이 없습니다."),
 	COMPLETED_ORDER_REQUIRED(HttpStatus.FORBIDDEN, "ERR202", "해당 상품을 거래 완료한 사용자만 리뷰를 작성할 수 있습니다."),
 
+
 	// 404 NOT_FOUND
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR301", "사용자를 찾을 수 없습니다."),
 	PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR302", "상품을 찾을 수 없습니다."),
@@ -38,6 +42,9 @@ public enum ErrorCode {
 	GAME_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR305", "게임을 찾을 수 없습니다."),
 	REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR306", "리뷰를 찾을 수 없습니다."),
 	ERRORCODE_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR307", "에러코드를 찾을 수 없습니다."),
+	CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR308", "채팅방을 찾을 수 없습니다"),
+	BILL_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR309", "거래내역을 찾을 수 없습니다."),
+	COMMUNITY_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR310", "커뮤니티를 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "ERR401", "이미 사용 중인 이메일입니다."),
@@ -46,7 +53,13 @@ public enum ErrorCode {
 	DUPLICATE_REVIEW(HttpStatus.CONFLICT, "ERR404", "이미 리뷰를 작성하였습니다."),
 	REVIEW_ISDELETED(HttpStatus.CONFLICT, "ERR405", "이미 삭제된 리뷰입니다."),
 	PRODUCT_ISDELETED(HttpStatus.CONFLICT, "ERR406", "이미 삭제된 상품입니다."),
-	GAME_ISDELETED(HttpStatus.CONFLICT, "ERR407", "이미 삭제된 게임입니다."),
+  GAME_ISDELETED(HttpStatus.CONFLICT, "ERR407", "이미 삭제된 게임입니다."),
+  CONFLICT_LOCK_GET(HttpStatus.CONFLICT, "ERR408", "락 획득 실패"),
+	CONFLICT_LOCK_ERROR(HttpStatus.CONFLICT, "ERR409", "락 획득 중 오류 발생"),
+	DUPLICATE_CHATROOM(HttpStatus.CONFLICT, "ERR410", "이미 채팅방이 존재합니다."),
+	PARTICIPANT_ISDELETED(HttpStatus.CONFLICT, "ERR411", "이미 나간 채팅방입니다."),
+	DUPLICATE_DELETED_BILL(HttpStatus.CONFLICT, "ERR412", "삭제된 결제내역입니다."),
+	COMMUNITY_ISDELETED(HttpStatus.CONFLICT, "ERR413", "이미 삭제된 커뮤니티입니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다.");

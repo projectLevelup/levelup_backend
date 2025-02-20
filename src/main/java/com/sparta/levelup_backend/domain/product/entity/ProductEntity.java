@@ -1,5 +1,9 @@
 package com.sparta.levelup_backend.domain.product.entity;
 
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
@@ -31,8 +35,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product")
+@Document(indexName = "products")
 public class ProductEntity extends BaseEntity {
 
+	@Getter
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -49,15 +55,17 @@ public class ProductEntity extends BaseEntity {
 	private String productName;
 
 	@Column(nullable = false, length = 1000)
+	@Field(type = FieldType.Text, analyzer = "standard")
 	private String contents;
 
 	@Column(nullable = false)
 	private Long price;
 
-	@Column(nullable = true)
+	@Column(nullable = false)
 	private Integer amount;
 
 	@Enumerated(EnumType.STRING)
+	@Field(type = FieldType.Keyword)
 	@Column(nullable = false)
 	private ProductStatus status;
 
@@ -75,29 +83,25 @@ public class ProductEntity extends BaseEntity {
 		this.imgUrl = dto.getImgUrl();
 	}
 
+	public void update(ProductUpdateRequestDto dto) {
+		this.productName = dto.getProductName();
+		this.contents = dto.getContents();
+		this.price = dto.getPrice();
+		this.amount = dto.getAmount();
+		this.status = ProductStatus.valueOf(dto.getStatus());
+		this.imgUrl = dto.getImgUrl();
+	}
+
 	public void decreaseAmount() {
-		if (this.amount <= 0) {
+		if (this.amount == null || this.amount <= 0) {
 			throw new ProductOutOfAmount();
 		}
-		this.amount = this.amount - 1;
+		this.amount -= 1;
 	}
 
 	public void increaseAmount() {
-		this.amount = this.amount + 1;
-	}
-
-	public void update(ProductUpdateRequestDto requestDto) {
-		this.productName = requestDto.getProductName();
-		this.contents = requestDto.getContents();
-		this.price = requestDto.getPrice();
-		this.amount = requestDto.getAmount();
-		this.status = requestDto.getStatus();
-	}
-
-	public void setStatus(ProductStatus productStatus) {
-	}
-
-	public void deleteProduct() {
-		this.delete();
+		if (this.amount != null) {
+			this.amount += 1;
+		}
 	}
 }

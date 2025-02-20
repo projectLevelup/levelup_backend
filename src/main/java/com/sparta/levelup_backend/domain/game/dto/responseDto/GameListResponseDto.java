@@ -8,5 +8,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class GameListResponseDto {
-	private final List<GameResponseDto> gameListResponseDto;
+	private final List<GameResponseDto> gameList;
 }
