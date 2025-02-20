@@ -11,16 +11,17 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class CommunityReadResponseDto {
+	private final String communityId;
 	private final String title;
 	private final String author; //글을 생성한 사용자의 email
 	private final String game; // 글이 포함된 game의 name;
 
 	public static CommunityReadResponseDto from(CommunityDocument communityDocument) {
-		return new CommunityReadResponseDto(communityDocument.getTitle(), communityDocument.getUserEmail(),
+		return new CommunityReadResponseDto(communityDocument.getId(), communityDocument.getTitle(), communityDocument.getUserEmail(),
 			communityDocument.getGameName());
 	}
 
 	public static CommunityReadResponseDto of(CommunityEntity community, UserEntity user, GameEntity game) {
-		return new CommunityReadResponseDto(community.getTitle(), user.getEmail(), game.getName());
+		return new CommunityReadResponseDto(String.valueOf(community.getId()), community.getTitle(), user.getEmail(), game.getName());
 	}
 }
