@@ -46,6 +46,7 @@ public class PaymentServiceImpl implements PaymentService{
         }
 
 
+        // 결제 정보가 있다면 새로 만들지말고 결제 정보를 조회해서 사용
         PaymentEntity existingPayment = paymentRepository.findByOrder(order);
         if (existingPayment != null) {
             PaymentResponseDto response = new PaymentResponseDto(existingPayment);
