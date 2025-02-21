@@ -1,11 +1,13 @@
 package com.sparta.levelup_backend.domain.payment.controller;
 
+import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
 import com.sparta.levelup_backend.domain.payment.service.PaymentService;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.exception.common.PaymentException;
+import com.sparta.levelup_backend.utill.OrderStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -38,6 +42,7 @@ public class PaymentController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
+    private final BillServiceImplV2 billService;
 
     @Value("${toss.secret.key}")
     private String tossSecretKey;
@@ -69,7 +74,14 @@ public class PaymentController {
 
             log.info("paymentKey: {}, 승인시간: {}, 결제방법: {}, 상태: {}, orderId: {}", paymentKey, approvedAt, method, status, orderId);
             // 결제 정보 업데이트
-            paymentService.updatePayment(paymentKey, approvedAt, method, orderId);
+            payment.setPaymentKey(paymentKey);
+            payment.setIspaid(true);
+            payment.setCompletedAt(approvedAt);
+            payment.setPayType(method);
+            payment.getOrder().setStatus(OrderStatus.TRADING);
+            billService.createBill(payment.getOrder().getUser().getId(), payment.getOrder().getId());
+            log.info("영수증 생성");
+            paymentRepository.save(payment);
         }
 
         return ResponseEntity.status(statusCode).body(response);

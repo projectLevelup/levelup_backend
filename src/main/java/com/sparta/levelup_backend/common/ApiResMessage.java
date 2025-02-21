@@ -54,5 +54,6 @@ public class ApiResMessage {
 
     // payment
     public static final String OK_REQUEST = "결제요청을 성공했습니다.";
+    public static final String OK_REQUEST_CANCEL = "취소요청을 성공했습니다";
 }
 
