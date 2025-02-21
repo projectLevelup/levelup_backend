@@ -26,6 +26,13 @@ jobs:
         with:
           ref: '${{ github.event.inputs.tags }}'
 
+      - name: List directory structure
+        run: |
+          echo "Root directory:"
+          ls -la .
+          echo "Gradle directory structure:"
+          ls -laR gradle
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
