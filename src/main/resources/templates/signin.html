@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <style>
+        /* 전체 배경 및 폰트 설정 */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto 1.5rem;
+            width: 90%;
+            margin-top: 100px;
+            margin-bottom: 30px;
+        }
+
+        /* 회원가입 컨테이너 스타일 */
+        .signup-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"],
+        input[type="url"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #007aff;
+            outline: none;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007aff;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+<div class="signup-container">
+    <img th:src="@{/img/levelup-logo.png}" alt="Levelup 로고" class="logo">
+    <form id="loginForm">
+        <div class="form-group">
+            <input id="email" name="email" required th:value="${email}" type="text" placeholder="이메일 입력">
+        </div>
+        <div class="form-group">
+            <input id="password" name="password" required th:value="${password}" type="password" placeholder="비밀번호 입력">
+        </div>
+        <div class="form-group">
+            <button type="submit">로그인</button>
+        </div>
+    </form>
+    <label for="autoLogin">
+        <input id="autoLogin" name="autoLogin" onchange="AutoLogin()" type="checkbox">
+        자동로그인
+    </label>
+    <a href="/v2/signin/oauth2/authorization/naver">
+        <img alt="네이버 로그인 버튼"
+             height="50"
+             src="https://static.nid.naver.com/oauth/small_g_in.PNG"/>
+    </a>
+    <a href="/v2/signin/oauth2/authorization/google">
+        <img alt="구글 로그인 버튼"
+             height="50"
+             src="https://cdn-icons-png.flaticon.com/256/2702/2702602.png"/>
+    </a>
+    <a href="/v2/signup">
+        회원가입
+    </a>
+</div>
+</body>
+<script>
+  function setCookie(name, value, exp){
+    let date = new Date();
+    date.setTime(date.getTime() + exp*60*60*1000);
+    document.cookie = name + '=' + value + ';expires=' + date.toUTCString() + ';path=/'+';domain=localhost';
+  }
+  setCookie("autoLogin",true,0);
+
+  let autoLogin = document.getElementById("autoLogin");
+
+  function AutoLogin() {
+    if (autoLogin.checked) {
+      setCookie("autoLogin",true,1);
+    } else {
+      setCookie("autoLogin",true,0);
+    }
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // 기본 폼 제출 차단
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const loginData = { email: email, password: password };
+
+      fetch("/v2/signin", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify(loginData)
+      })
+          .then(response => {
+              if (response.ok) {
+                  // 헤더에서 토큰 정보 추출 가능 (필요한 경우)
+                  const authHeader = response.headers.get("Authorization");
+                  console.log("로그인 성공, 토큰: ", authHeader);
+                  // 로그인 성공 후 원하는 페이지로 리다이렉트
+                  window.location.href = "/";
+              } else {
+                  return response.json().then(data => { throw new Error(data.message || "로그인 실패"); });
+              }
+          })
+          .catch(error => {
+              console.error("로그인 에러:", error);
+              alert(error.message);
+          });
+  });
+</script>
+</html>

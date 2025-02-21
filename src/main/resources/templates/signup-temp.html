@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <style>
+        /* 전체 배경 및 폰트 설정 */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .logo {
+            display: block;
+            margin: 0 auto 1.5rem;
+            width: 90%;
+            margin-top: 100px;
+            margin-bottom: 30px;
+        }
+
+        /* 회원가입 컨테이너 스타일 */
+        .signup-container {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            padding: 2rem;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"],
+        input[type="url"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #007aff;
+            outline: none;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007aff;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+<div class="signup-container">
+    <img th:src="@{/img/levelup-logo.png}" alt="Levelup 로고" class="logo">
+    <h2>회원가입</h2>
+    <form th:action="@{/signup}" method="post">
+        <div class="form-group">
+            <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required />
+        </div>
+        <div class="form-group">
+            <input type="text" id="nickName" name="nickName" placeholder="닉네임을 입력하세요" required />
+        </div>
+        <div class="form-group">
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required />
+        </div>
+        <div class="form-group">
+            <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="전화번호 (예: 010-1234-5678)" required />
+        </div>
+        <div class="form-group">
+            <button type="submit">회원가입</button>
+        </div>
+    </form>
+</div>
+</body>
+
+<script>
+    document.querySelector("form").addEventListener("submit", function(event) {
+        event.preventDefault(); // 기본 제출 기능 방지
+
+        const formData = {
+            email: document.getElementById("email").value,
+            nickName: document.getElementById("nickName").value,
+            password: document.getElementById("password").value,
+            phoneNumber: document.getElementById("phoneNumber").value
+        };
+
+        fetch("/v1/signup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("회원가입 성공!");
+                    window.location.href = "/login";
+                } else {
+                    return response.json().then(err => {
+                        alert("회원가입 실패: " + err.message);
+                    });
+                }
+            })
+            .catch(error => {
+                alert("오류 발생: " + error);
+            });
+    });
+</script>
+
+</html>

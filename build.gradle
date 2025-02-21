@@ -28,6 +28,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -58,6 +64,17 @@ dependencies {
     // Redis
     implementation "org.springframework.boot:spring-boot-starter-data-redis"
     implementation 'org.redisson:redisson-spring-boot-starter:3.23.1'
+
+    // Elasticsearch
+    implementation 'co.elastic.clients:elasticsearch-java:8.17.2'  // 8.x 이상 버전 사용 시
+    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.2.2'
+    implementation 'org.springframework.data:spring-data-elasticsearch:5.4.3'
+
+    // OpenKoreanTextProcessor (한글 형태소 분석)
+    implementation 'org.openkoreantext:open-korean-text:2.1.0'
+
+    // Webclient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // github
     implementation "io.github.cdimascio:dotenv-java:3.0.0"

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>메인 페이지</title>
+    <style>
+        /* 간단한 스타일 예시 */
+        body {
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        .logo {
+            width: 120px;
+        }
+
+        header {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #categoryContainer {
+            margin-top: 15px;
+            margin-bottom: 30px;
+        }
+
+        .category-item {
+            display: inline-block;
+            margin-right: 25px;
+            vertical-align: top;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .category-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            display: block;
+        }
+
+
+        .product-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product-item {
+            display: flex;
+            padding-bottom: 20px;
+            padding-top: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .product-left {
+            margin-right: 30px;
+            border-radius: 10px;
+        }
+
+        .product-right strong {
+            font-size: 18px;
+        }
+
+        .create-product-btn {
+            position: fixed;
+            bottom: 75px; /* 네비게이션 바(50px) 위에 10px 여유 */
+            right: calc((100% - 400px) / 2 + 25px); /* 중앙 컨테이너의 오른쪽 끝에서 10px 안쪽 */
+            padding: 10px 20px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1100; /* 네비게이션보다 위에 표시 */
+        }
+
+    </style>
+</head>
+<body>
+<!-- 상단 검색창 -->
+
+
+<div class="container">
+    <div class="inner-con">
+        <img th:src="@{/img/levelup-logo.png}" alt="Levelup 로고" class="logo">
+        <header>
+            <input type="text" id="searchInput" placeholder="검색어를 입력하세요" />
+            <button class="btn search-icon" onclick="searchProducts()">
+                <i class="material-icons">search</i>
+            </button>
+
+        </header>
+        <!-- 게임 카테고리 영역 -->
+        <div id="categoryContainer">
+            <!-- /games API로 받아온 게임 목록을 표시할 예정 -->
+        </div>
+
+        <!-- 상품 목록 영역 -->
+        <div id="productContainer">
+            <!-- /v1/products API로 받아온 상품 목록을 표시할 예정 -->
+        </div>
+
+
+
+
+    </div>
+
+
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
+</div>
+
+<button class="create-product-btn" onclick="location.href='/product-create'">강의개설</button>
+<script>
+    function getCookie(name) {
+        const cookies = document.cookie.split('; ');
+        for (let cookie of cookies) {
+            const [key, value] = cookie.split('=');
+            if (key === name) {
+                return decodeURIComponent(value);
+            }
+        }
+        return null; // 쿠키가 없을 경우 null 반환
+    }
+
+    // 자동로그인이 켜져있는지 확인.
+    let autoLogin = getCookie("autoLogin");
+    if (autoLogin === null) {
+        let date = new Date();
+        date.setTime(date.getTime());
+        document.cookie = "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+    // 1. 페이지 로드시 게임 목록과 상품 목록을 불러온다.
+    window.onload = function() {
+        loadGames();
+        loadProducts();
+    };
+
+    /**
+     * 2. 게임 카테고리 목록 불러오기
+     * GET /games => { status, message, data: { gameListResponseDto: [ {name, imgUrl, genre}, ... ] } }
+     */
+    function loadGames() {
+        fetch('/v1/games')
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    const gameList = result.data.gameListResponseDto;
+                    displayGames(gameList);
+                } else {
+                    console.error('게임 목록 불러오기 실패');
+                }
+            })
+            .catch(error => {
+                console.error('게임 목록 불러오기 에러:', error);
+            });
+    }
+
+    /**
+     * 3. 상품 목록 불러오기
+     * GET /v1/products => { status, message, data: [ { userId, gameId, productName, ... }, ... ] }
+     */
+    function loadProducts() {
+        fetch('/v1/products')
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayProducts(result.data);
+                } else {
+                    console.error('상품 목록 불러오기 실패');
+                }
+            })
+            .catch(error => {
+                console.error('상품 목록 불러오기 에러:', error);
+            });
+    }
+
+    /**
+     * 4. 검색 기능 (단순 예시)
+     * 실제로는 서버에서 검색 API를 구현하거나, 프론트엔드에서 필터링할 수 있음
+     */
+    function searchProducts() {
+        const keyword = document.getElementById('searchInput').value;
+        if (!keyword) {
+            // 검색어가 없으면 전체 목록 재로드
+            loadProducts();
+            return;
+        }
+        // 예: /v1/products?search=keyword 와 같은 API가 있다고 가정
+        fetch(`/v1/products?search=${encodeURIComponent(keyword)}`)
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayProducts(result.data);
+                } else {
+                    console.error('검색 실패');
+                }
+            })
+            .catch(error => {
+                console.error('검색 에러:', error);
+            });
+    }
+
+    /**
+     * 5. 게임 목록 UI 표시
+     */
+    function displayGames(gameList) {
+        const container = document.getElementById('categoryContainer');
+        container.innerHTML = ''; // 초기화
+
+        gameList.forEach(game => {
+            const item = document.createElement('div');
+            item.className = 'category-item';
+            item.innerHTML = `
+            <img src="/img/default-img.png" alt="${game.name}" />
+        `;
+            // 클릭 시 해당 게임 카테고리의 상품만 필터링
+            item.onclick = () => filterProductsByGame(game.name); // 예시
+            container.appendChild(item);
+        });
+    }
+
+    /**
+     * 6. 상품 목록 UI 표시
+     */
+    function displayProducts(productList) {
+        const container = document.getElementById('productContainer');
+        container.innerHTML = ''; // 초기화
+
+        productList.forEach(product => {
+            const item = document.createElement('div');
+            item.className = 'product-item';
+            // 클릭 시 상품 상세 페이지로 이동하는 이벤트 추가
+            item.onclick = () => {
+                window.location.href = `/product-detail?productId=${product.productId}`;
+            };
+
+            item.innerHTML = `
+          <div class="product-left">
+            <img src="/img/default-img.png" alt="${product.productName}" />
+          </div>
+          <div class="product-right">
+               <div><strong>${product.productName}</strong></div>
+               <div>${product.price}원</div>
+          </div>
+        `;
+            container.appendChild(item);
+        });
+    }
+
+    /**
+     * 7. 특정 게임 카테고리로 상품 필터링 (클라이언트 단 예시)
+     * 실제로는 /v1/products?gameId=xxx API 호출 등으로 서버에서 필터링할 수 있음
+     */
+    function filterProductsByGame(gameName) {
+        alert(gameName + ' 카테고리 상품 필터링 (예시)');
+        // 실제로는 별도의 API를 호출하거나, productList를 로컬에서 필터링할 수 있습니다.
+    }
+
+
+</script>
+</body>
+</html>

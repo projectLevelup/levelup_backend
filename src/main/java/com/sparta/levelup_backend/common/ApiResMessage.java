@@ -36,8 +36,20 @@ public class ApiResMessage {
     public static final String GAME_UPDATE_SUCCESS = "게임을 성공적으로 수정되었습니다.";
     public static final String GAME_DELETE_SUCCESS = "게임이 성공적으로 삭제되었습니다.";
 
+    // Chat
+    public static final String CHATROOM_CREATE = "채팅방이 생성되었습니다";
+    public static final String CHATROOM_LEAVE = "채팅방을 떠났습니다";
+    public static final String MESSAGE_SAVE_SUCCESS = "메시지를 저장하였습니다";
+    public static final String CHATROOM_FIND = "채팅방이 조회되었습니다";
+  
     // Bill
     public static final String BILL_FIND = "결제 내역이 조회되었습니다.";
     public static final String BILL_DELETE = "결제 내역이 삭제되었습니다.";
+
+    // Community
+    public static final String COMMUNITY_SAVE_SUCCESS = "커뮤니티 글이 생성되었습니다.";
+    public static final String COMMUNITY_LIST_FOUND_SUCCESS = "커뮤니티 글 목록이 조회되었습니다.";
+    public static final String COMMUNITY_UPDATE_SUCCESS = "커뮤니티 글이 수정되었습니다.";
+    public static final String COMMUNITY_DELETE_SUCCESS = "커뮤니티 글이 삭제되었습니다.";
 }
 
