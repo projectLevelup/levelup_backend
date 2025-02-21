@@ -3,7 +3,6 @@ package com.sparta.levelup_backend.domain.payment.controller;
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
-import com.sparta.levelup_backend.domain.payment.dto.response.CancelPaymentResponseDto;
 import com.sparta.levelup_backend.domain.payment.dto.response.CancelResponseDto;
 import com.sparta.levelup_backend.domain.payment.dto.response.PaymentResponseDto;
 import com.sparta.levelup_backend.domain.payment.service.PaymentService;
@@ -41,13 +40,4 @@ public class PaymentRestController {
         CancelResponseDto response = paymentService.requestCancel(auth, dto);
         return success(OK, OK_REQUEST_CANCEL, response);
     }
-
-//    @PostMapping("/payments/{paymentKey}/cancel")
-//    public ApiResponse<CancelPaymentResponseDto> cancelPayment(
-//            @AuthenticationPrincipal CustomUserDetails auth,
-//            @PathVariable String paymentKey,
-//            @RequestBody CancelPaymentRequestDto dto
-//    ) {
-//
-//    }
 }
