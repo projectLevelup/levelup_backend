@@ -43,7 +43,7 @@ jobs:
           distribution: 'corretto'
 
       - name: Build with Gradlew
-        run: ./gradlew clean test bootJar
+        run: ./gradlew build
 
       - name: Add version
         run: |
