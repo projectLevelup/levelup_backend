@@ -63,28 +63,39 @@ public class PaymentController {
         }
 
         String secretKey = tossSecretKey;
-        JSONObject response = sendRequest(parseRequestData(jasonBody), secretKey, "https://api.tosspayments.com/v1/payments/confirm");
-        int statusCode = response.containsKey("error") ? 400 : 200;
+        String url = "https://api.tosspayments.com/v1/payments/confirm";
 
-        if (statusCode == 200) {
-            // 결제 승인 정보 추출
-            String approvedAt = (String) response.get("approvedAt");
-            String method = (String) response.get("method");
-            String status = (String) response.get("status");
+        int attempt = 0;
+        JSONObject response = null;
 
-            logger.info("paymentKey: {}, 승인시간: {}, 결제방법: {}, 상태: {}, orderId: {}", paymentKey, approvedAt, method, status, orderId);
-            // 결제 정보 업데이트
-            payment.setPaymentKey(paymentKey);
-            payment.setIspaid(true);
-            payment.setCompletedAt(approvedAt);
-            payment.setPayType(method);
-            payment.getOrder().setStatus(OrderStatus.TRADING);
-            billService.createBill(payment.getOrder().getUser().getId(), payment.getOrder().getId());
-            log.info("영수증 생성");
-            paymentRepository.save(payment);
+        while (attempt < MAX_RETRIES) {
+            try {
+                response = sendRequest(parseRequestData(jasonBody), secretKey, url);
+                int statusCode = response.containsKey("error") ? 400 : 200;
+
+                if (statusCode == 200) {
+                    // 결제 승인 정보 추출
+                    String approvedAt = (String) response.get("approvedAt");
+                    String method = (String) response.get("method");
+                    String status = (String) response.get("status");
+
+                    log.info("paymentKey: {}, 승인시간: {}, 결제방법: {}, 상태: {}, orderId: {}", paymentKey, approvedAt, method, status, orderId);
+                    // 결제 정보 업데이트
+                    paymentService.updatePayment(paymentKey, approvedAt, method, orderId);
+                }
+                return ResponseEntity.status(statusCode).body(response);
+            } catch (Exception e) {
+                attempt++;
+                logger.error("결제 승인 요청 실패 - 시도 횟수: {}/{}, 내용: {}", attempt, MAX_RETRIES, e.getMessage());
+
+                if (attempt >= MAX_RETRIES) {
+                    logger.error("결제 승인 요청 실패 - 데이터: {}", jasonData.toString());
+                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RITRY);
+                }
+                Thread.sleep(2000);
+            }
         }
-
-        return ResponseEntity.status(statusCode).body(response);
+        throw new PaymentException(ErrorCode.PAYMENT_FAILED);
     }
 
     @RequestMapping("/cancel/payment")
@@ -160,7 +171,7 @@ public class PaymentController {
     }
 
     // 헤더에 시크릿키를 심어서 같이 요청
-    private JSONObject sendRequest(JSONObject requestData, String secretKey, String urlString) throws IOException {
+    JSONObject sendRequest(JSONObject requestData, String secretKey, String urlString) throws IOException {
         HttpURLConnection connection = createConnection(secretKey, urlString);
         try (OutputStream os = connection.getOutputStream()) {
             os.write(requestData.toString().getBytes(StandardCharsets.UTF_8));
