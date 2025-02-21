@@ -134,7 +134,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
         order.setStatus(OrderStatus.TRADING);
         OrderEntity saveOrder = orderRepository.save(order);
-        billService.createBill(userId, saveOrder);
+        billService.createBill(userId, orderId);
         return new OrderResponseDto(saveOrder);
     }
 

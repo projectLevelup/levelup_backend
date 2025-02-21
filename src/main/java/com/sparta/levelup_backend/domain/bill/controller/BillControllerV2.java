@@ -91,4 +91,9 @@ public class BillControllerV2 {
         billService.deleteBillByStudent(userId, billId);
         return success(OK, BILL_DELETE);
     }
+
+    @GetMapping("/client-key")
+    public String getClientKey() {
+        return tossClientKey;
+    }
 }
