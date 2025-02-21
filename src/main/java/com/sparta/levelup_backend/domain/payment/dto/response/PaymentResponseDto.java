@@ -1,6 +1,5 @@
 package com.sparta.levelup_backend.domain.payment.dto.response;
 
-import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +17,8 @@ public class PaymentResponseDto {
 
     private String customerName;
 
+    private String customerKey;
+
     @Setter
     private String SuccessUrl;
 
@@ -30,5 +31,6 @@ public class PaymentResponseDto {
         this.orderId = payment.getOrderId();
         this.customerEmail = payment.getOrder().getUser().getEmail();
         this.customerName = payment.getOrder().getUser().getNickName();
+        this.customerKey = payment.getUserKey();
     }
 }

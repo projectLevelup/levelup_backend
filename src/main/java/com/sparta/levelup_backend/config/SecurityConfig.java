@@ -68,9 +68,9 @@ public class SecurityConfig {
 
 		http.
 			authorizeHttpRequests((auth) -> auth
-//				.requestMatchers("/", "/v2/home", "/v2/sign**", "/v2/oauth2sign*").permitAll()
-//				.requestMatchers("/v2/admin/**").hasRole("ADMIN")
-				.anyRequest().permitAll());
+				.requestMatchers("/", "/v2/home", "/v2/sign**", "/v2/oauth2sign*").permitAll()
+				.requestMatchers("/v2/admin/**").hasRole("ADMIN")
+				.anyRequest().authenticated());
 
 		http.exceptionHandling(exceptionHandling ->
 			exceptionHandling.accessDeniedHandler(accessDeniedHandler()));

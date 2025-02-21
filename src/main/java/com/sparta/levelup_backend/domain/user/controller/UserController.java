@@ -92,11 +92,4 @@ public class UserController {
 
 		return ApiResponse.success(HttpStatus.OK, DELETE_SUCCESS);
 	}
-
-	@GetMapping("/payments/customer-key")
-	public String getCustomerKey(
-			@AuthenticationPrincipal CustomUserDetails auth
-	) {
-		return auth.getCustomerKey();
-	}
 }

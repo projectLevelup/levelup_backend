@@ -21,16 +21,11 @@
              <button id = "TRANSFER" class="button2" onclick="selectPaymentMethod('TRANSFER')">계좌이체</button>
          </div>
          <!--결제하기 버튼-->
-         <button class="button" style="margin-top: 30px" onclick="requestPayment()">결제하기</button>
+         <button class="button" style="margin-top: 30px" onclick="requestPayment(1)">결제하기</button>
      </div>
 </div>
 
 <script>
-
-    const amount = {
-        currency: "KRW",
-        value: 50000,
-    };
 
     let selectedPaymentMethod = null;
 
@@ -55,17 +50,37 @@
     }
 
     // ------------결제하기 버튼 누르면 결제창 띄우기 -------------
-    async function requestPayment() {
+    async function requestPayment(orderId) {
+        const response = await fetch(`http://localhost:8080/v3/request/${orderId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+
+        if (!response.ok) {
+            throw new Error("결제 요청 정보를 가져오는 데 실패했습니다.");
+        }
+
+        const paymentData = await response.json();
+
+        console.log("customerKey: ", paymentData.data.customerKey)
 
         // SDK 초기화
         const clientKey = await getClientKey();
-        const customerKey = await generateRandomString();
+        const customerKey = paymentData.data.customerKey;
         const tossPayments = TossPayments(clientKey);
 
         // 회원결제
         const payment = tossPayments.payment({
             customerKey,
         })
+
+        const amount = {
+            currency: "KRW",
+            value: paymentData.data.amount,
+        };
 
         // 비회원 결제
         // const payment = tossPayments.payment({customerKey: TossPayments.ANONYMOUS});
@@ -77,12 +92,12 @@
                 await payment.requestPayment({
                     method: "CARD", // 카드 및 간편결제
                     amount,
-                    orderId: generateRandomString(),
-                    orderName: "롤 피드백",
-                    successUrl: window.location.origin + "/payment/success.html", // 결제 요청이 성공하면 리다이렉트되는 URL
-                    failUrl: window.location.origin + "/fail.html", // 결제 요청이 실패하면 리다이렉트되는 URL
-                    customerEmail: "customer123@gmail.com",
-                    customerName: "페이커",
+                    orderId: paymentData.data.orderId,
+                    orderName: paymentData.data.orderName,
+                    successUrl: paymentData.data.successUrl, // 결제 요청이 성공하면 리다이렉트되는 URL
+                    failUrl: paymentData.data.failUrl, // 결제 요청이 실패하면 리다이렉트되는 URL
+                    customerEmail: paymentData.data.customerEmail,
+                    customerName: paymentData.data.customerName,
                     card: {
                         useEscrow: false,
                         flowMode: "DEFAULT",
@@ -94,13 +109,13 @@
             case "TRANSFER":
                 await payment.requestPayment({
                     method: "TRANSFER", // 계좌이체 결제
-                    amount,
-                    orderId: generateRandomString(),
-                    orderName: "롤 피드백",
-                    successUrl: window.location.origin + "/payment/success.html",
-                    failUrl: window.location.origin + "/fail.html",
-                    customerEmail: "customer123@gmail.com",
-                    customerName: "페이커",
+                    amount: paymentData.data.amount,
+                    orderId: paymentData.data.orderId,
+                    orderName: paymentData.data.orderName,
+                    successUrl: paymentData.data.successUrl, // 결제 요청이 성공하면 리다이렉트되는 URL
+                    failUrl: paymentData.data.failUrl, // 결제 요청이 실패하면 리다이렉트되는 URL
+                    customerEmail: paymentData.data.customerEmail,
+                    customerName: paymentData.data.customerName,
                     transfer: {
                         cashReceipt: {
                             type: "소득공제",

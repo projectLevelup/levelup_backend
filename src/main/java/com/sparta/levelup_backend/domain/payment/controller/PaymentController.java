@@ -1,5 +1,11 @@
 package com.sparta.levelup_backend.domain.payment.controller;
 
+import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
+import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
+import com.sparta.levelup_backend.domain.payment.service.PaymentService;
+import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
+import com.sparta.levelup_backend.exception.common.PaymentException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -18,7 +25,9 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.Objects;
 
 @Slf4j
 @Controller
@@ -27,18 +36,42 @@ import java.util.Base64;
 public class PaymentController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
 
     @Value("${toss.secret.key}")
     private String tossSecretKey;
 
     @RequestMapping(value = {"/confirm/payment"})
     public ResponseEntity<JSONObject> confirmPayment(HttpServletRequest request, @RequestBody String jasonBody) throws Exception {
+
+        JSONObject jasonData = parseRequestData(jasonBody);
+        String paymentKey = (String) jasonData.get("paymentKey");
+        String price = (String) jasonData.get("amount");
+        String orderId = (String) jasonData.get("orderId");
+
+        PaymentEntity payment = paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        if (Long.parseLong(price) != payment.getAmount()) {
+            throw new PaymentException(ErrorCode.CONFLICT_PRICE_EQUALS);
+        }
+
         String secretKey = tossSecretKey;
         JSONObject response = sendRequest(parseRequestData(jasonBody), secretKey, "https://api.tosspayments.com/v1/payments/confirm");
         int statusCode = response.containsKey("error") ? 400 : 200;
-        response.get("paymentKey");
 
-        log.info("응답 받은 값: {}", response);
+        if (statusCode == 200) {
+            // 결제 승인 정보 추출
+            String approvedAt = (String) response.get("approvedAt");
+            String method = (String) response.get("method");
+            String status = (String) response.get("status");
+
+            log.info("paymentKey: {}, 승인시간: {}, 결제방법: {}, 상태: {}, orderId: {}", paymentKey, approvedAt, method, status, orderId);
+            // 결제 정보 업데이트
+            paymentService.updatePayment(paymentKey, approvedAt, method, orderId);
+        }
+
         return ResponseEntity.status(statusCode).body(response);
     }
 

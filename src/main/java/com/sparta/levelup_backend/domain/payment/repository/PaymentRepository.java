@@ -11,9 +11,7 @@ import java.util.Optional;
 @Repository
 public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
 
+    Optional<PaymentEntity> findByPaymentKey(String paymentKey);
+
     Optional<PaymentEntity> findByOrderId(String orderId);
-
-    Optional<PaymentEntity> findByPaymentKeyAndCustomer_Email(String paymentKey, String email);
-
-    Slice<PaymentEntity> findAllByCustomer_Email(String email, Pageable pageable);
 }

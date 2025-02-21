@@ -2,12 +2,8 @@ package com.sparta.levelup_backend.domain.payment.entity;
 
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.utill.PayType;
 import jakarta.persistence.*;
 import lombok.*;
-import net.bytebuddy.utility.nullability.MaybeNull;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -25,9 +21,9 @@ public class PaymentEntity {
     @Column(unique = true, name = "order_id")
     private String orderId;
 
+    @Setter
     @Column(name = "pay_type")
-    @Enumerated(EnumType.STRING)
-    private PayType payType;
+    private String payType;
 
     @Column(nullable = false, name = "pay_amount")
     private Long amount;
@@ -43,15 +39,22 @@ public class PaymentEntity {
     @JoinColumn(name = "user_id")
     private UserEntity customer;
 
+    @Column(name = "customer_k")
+    private String userKey;
+
+    @Setter
     @Column(name = "payment_k")
     private String paymentKey;
 
+    @Setter
     @Column(name = "completed_at")
     private String completedAt;
 
+    @Setter
     @Column(name = "is_paid")
     private boolean ispaid;
 
+    @Setter
     @Column(name = "is_canceled")
     private boolean iscanceled;
 
