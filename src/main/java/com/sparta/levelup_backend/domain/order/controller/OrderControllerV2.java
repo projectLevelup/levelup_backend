@@ -7,6 +7,7 @@ import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImplV2;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import static com.sparta.levelup_backend.common.ApiResMessage.ORDER_CANCLED;
 import static com.sparta.levelup_backend.common.ApiResponse.success;
 import static org.springframework.http.HttpStatus.OK;
 
+@Slf4j
 @RestController
 @RequestMapping("/v2/orders")
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class OrderControllerV2 {
             @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody OrderCreateRequestDto dto
     ) {
+        log.info("userId: {}", authUser.getId());
         Long userId = authUser.getId();
         OrderResponseDto orderResponseDto = orderService.createOrder(userId, dto);
         return success(OK, ORDER_CREATE, orderResponseDto);

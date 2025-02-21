@@ -48,9 +48,11 @@ public class UserEntity extends BaseEntity {
 
 	private String provider;
 
-	public void updateEmail(String email) {
-		this.email = email;
-	}
+    private String customerKey;
+
+    public void updateEmail(String email){
+        this.email = email;
+    }
 
 	public void updateImgUrl(String imgUrl) {
 		this.imgUrl = imgUrl;

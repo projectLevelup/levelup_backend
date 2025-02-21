@@ -21,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import java.util.UUID;
 
+import java.util.UUID;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -46,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
 			.phoneNumber(signUpUserRequestDto.getPhoneNumber())
             .customerKey(UUID.randomUUID().toString())
 			.provider("none")
+            .customerKey(UUID.randomUUID().toString())
 			.build();
 
 		userRepository.save(user);

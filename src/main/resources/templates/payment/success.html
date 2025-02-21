@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png" />
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>결제 성공</title>
+</head>
+
+<body>
+<div class="box_section" style="width: 600px">
+    <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" />
+    <h2 style="color: green;">결제를 완료했어요</h2>
+
+    <div class="p-grid typography--p" style="margin-top: 50px">
+        <div class="p-grid-col text--left"><b>결제금액</b></div>
+        <div class="p-grid-col text--right" id="amount"></div>
+    </div>
+    <div class="p-grid typography--p" style="margin-top: 10px">
+        <div class="p-grid-col text--left"><b>주문번호</b></div>
+        <div class="p-grid-col text--right" id="orderId"></div>
+    </div>
+    <div class="p-grid typography--p" style="margin-top: 10px">
+        <div class="p-grid-col text--left"><b>결제 수단</b></div>
+        <div class="p-grid-col text--right" id="method"></div>
+    </div>
+    <div class="p-grid typography--p" style="margin-top: 10px">
+        <div class="p-grid-col text--left"><b>승인 시간</b></div>
+        <div class="p-grid-col text--right" id="approvedAt"></div>
+    </div>
+
+    <div class="p-grid" style="margin-top: 30px">
+        <button class="button p-grid-col5" onclick="location.href='https://docs.tosspayments.com/guides/v2/payment-widget/integration';">연동 문서</button>
+        <button class="button p-grid-col5" onclick="location.href='https://discord.gg/A4fRFXQhRu';" style="background-color: #e8f3ff; color: #1b64da">실시간 문의</button>
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderIdElement = document.getElementById("orderId");
+    const amountElement = document.getElementById("amount");
+    const methodElement = document.getElementById("method");
+    const approvedAtElement = document.getElementById("approvedAt");
+
+    async function confirm() {
+        const requestData = {
+            paymentKey: urlParams.get("paymentKey"),
+            orderId: urlParams.get("orderId"),
+            amount: urlParams.get("amount"),
+        };
+
+        const response = await fetch("/confirm/payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw { message: data.message, code: data.code };
+        }
+
+        return data;
+    }
+
+    confirm()
+        .then((data) => {
+            document.querySelector("h2").innerText = "결제가 정상적으로 완료되었습니다.";
+            document.querySelector("h2").style.color = "green";
+            document.querySelector(".box_section").style.backgroundColor = "#f0fff0";
+
+            orderIdElement.innerText = data.orderId;
+            amountElement.innerText = data.totalAmount.toLocaleString() + "원";
+            methodElement.innerText = data.method || "정보 없음";
+            approvedAtElement.innerText = data.approvedAt || "정보 없음";
+        })
+        .catch((err) => {
+            console.error("결제 승인 실패:", err.message, "코드:", err.code);
+            window.location.href = `/fail.html?message=${err.message}&code=${err.code}`;
+        });
+
+    orderIdElement.textContent = urlParams.get("orderId");
+    amountElement.textContent = urlParams.get("amount") + "원";
+</script>
+</body>
+</html>

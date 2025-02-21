@@ -31,4 +31,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})  // 락 획특 시간 설정
 	@Query("SELECT p FROM ProductEntity p WHERE p.id = :productId")
 	Optional<ProductEntity> findByIdWithLock(Long productId);
+
+	Optional<ProductEntity> findByProductName(String productName);
 }
