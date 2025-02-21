@@ -67,7 +67,11 @@ public enum ErrorCode {
 	CONFLICT_PRICE_EQUALS(HttpStatus.CONFLICT, "ERR415", "요청한 금액이 결제 금액과 맞지않습니다."),
 
 	// 500 INTERNAL_SERVER_ERROR
-	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다.");
+	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다."),
+
+	// 424 FAIL
+	PAYMENT_FAILED_RITRY(HttpStatus.FAILED_DEPENDENCY, "ERR601", "결제 승인요청을 반복적으로 실패했습니다."),
+	PAYMENT_FAILED(HttpStatus.FAILED_DEPENDENCY, "ERR602", "결제 승인요청을 실패했습니다.");
 
 	private final HttpStatus status;
 	private final String code;

@@ -38,6 +38,7 @@ public class PaymentController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
+    private final int MAX_RETRIES = 3;
 
     @Value("${toss.secret.key}")
     private String tossSecretKey;
@@ -58,21 +59,39 @@ public class PaymentController {
         }
 
         String secretKey = tossSecretKey;
-        JSONObject response = sendRequest(parseRequestData(jasonBody), secretKey, "https://api.tosspayments.com/v1/payments/confirm");
-        int statusCode = response.containsKey("error") ? 400 : 200;
+        String url = "https://api.tosspayments.com/v1/payments/confirm";
 
-        if (statusCode == 200) {
-            // 결제 승인 정보 추출
-            String approvedAt = (String) response.get("approvedAt");
-            String method = (String) response.get("method");
-            String status = (String) response.get("status");
+        int attempt = 0;
+        JSONObject response = null;
 
-            log.info("paymentKey: {}, 승인시간: {}, 결제방법: {}, 상태: {}, orderId: {}", paymentKey, approvedAt, method, status, orderId);
-            // 결제 정보 업데이트
-            paymentService.updatePayment(paymentKey, approvedAt, method, orderId);
+        while (attempt < MAX_RETRIES) {
+            try {
+                response = sendRequest(parseRequestData(jasonBody), secretKey, url);
+                int statusCode = response.containsKey("error") ? 400 : 200;
+
+                if (statusCode == 200) {
+                    // 결제 승인 정보 추출
+                    String approvedAt = (String) response.get("approvedAt");
+                    String method = (String) response.get("method");
+                    String status = (String) response.get("status");
+
+                    log.info("paymentKey: {}, 승인시간: {}, 결제방법: {}, 상태: {}, orderId: {}", paymentKey, approvedAt, method, status, orderId);
+                    // 결제 정보 업데이트
+                    paymentService.updatePayment(paymentKey, approvedAt, method, orderId);
+                }
+                return ResponseEntity.status(statusCode).body(response);
+            } catch (Exception e) {
+                attempt++;
+                logger.error("결제 승인 요청 실패 - 시도 횟수: {}/{}, 내용: {}", attempt, MAX_RETRIES, e.getMessage());
+
+                if (attempt >= MAX_RETRIES) {
+                    logger.error("결제 승인 요청 실패 - 데이터: {}", jasonData.toString());
+                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RITRY);
+                }
+                Thread.sleep(2000);
+            }
         }
-
-        return ResponseEntity.status(statusCode).body(response);
+        throw new PaymentException(ErrorCode.PAYMENT_FAILED);
     }
 
 
