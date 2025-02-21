@@ -29,14 +29,14 @@ public class BillServiceImplV2 implements BillServiceV2 {
     private final UserRepository userRepository;
 
     // 거래 내역 생성 (거래중으로 바뀌었을때 생성 됌)
-    public void createBill(Long userId, OrderEntity order) {
+    public void createBill(Long userId, Long orderId) {
 
         UserEntity user = userRepository.findByIdOrElseThrow(userId); // tutor 정보
 
-        OrderEntity findOrder = orderRepository.findByIdOrElseThrow(userId);
+        OrderEntity findOrder = orderRepository.findByIdOrElseThrow(orderId);
 
         BillEntity bill = BillEntity.builder()
-                .tutor(order.getProduct().getUser())
+                .tutor(findOrder.getProduct().getUser())
                 .student(user)
                 .order(findOrder)
                 .billHistory(findOrder.getProduct().getProductName())
