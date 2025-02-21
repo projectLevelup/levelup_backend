@@ -19,4 +19,6 @@ public interface BillRepository extends JpaRepository<BillEntity, Long>, BillRep
     Optional<BillEntity> findByIdWithTutorAndStudent(Long billId);
 
     Optional<BillEntity> findByOrderId(Long order);
+
+    Optional<BillEntity> findByOrder(OrderEntity order);
 }

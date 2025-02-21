@@ -1,6 +1,9 @@
 package com.sparta.levelup_backend.domain.payment.controller;
 
+import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
+import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
+import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
@@ -8,6 +11,7 @@ import com.sparta.levelup_backend.domain.payment.service.PaymentService;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.exception.common.PaymentException;
+import com.sparta.levelup_backend.utill.BillStatus;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +45,9 @@ import java.util.Objects;
 public class PaymentController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
     private final BillServiceImplV2 billService;
+    private final BillRepository billRepository;
 
     @Value("${toss.secret.key}")
     private String tossSecretKey;
@@ -89,12 +93,30 @@ public class PaymentController {
     }
 
     @RequestMapping("/cancel/payment")
-    public ResponseEntity<JSONObject> cancelPayment(@RequestBody CancelPaymentRequestDto dto) {
+    public ResponseEntity<JSONObject> cancelPayment(@RequestBody CancelPaymentRequestDto dto) throws Exception {
 
         PaymentEntity payment = paymentRepository.findByPaymentKey(dto.getKey())
                 .orElseThrow(() -> new PaymentException(ErrorCode.PAYMENT_NOT_FOUND));
 
+        BillEntity bill = billRepository.findByOrder(payment.getOrder())
+                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
 
+        String url = "https://api.tosspayments.com/v1/payments/" + dto.getKey() + "/cancel";
+
+        JSONObject cancelRequest = new JSONObject();
+        cancelRequest.put("cancelReason", dto.getReason());
+
+        String secretKey = tossSecretKey;
+        JSONObject response = sendRequest(cancelRequest, secretKey, url);
+        int statusCode = response.containsKey("error") ? 400 : 200;
+
+        payment.setIscanceled(true);
+        bill.setStatus(BillStatus.PAYCANCELED);
+        payment.getOrder().setStatus(OrderStatus.CANCELED);
+        paymentRepository.save(payment);
+        billRepository.save(bill);
+
+        return ResponseEntity.status(statusCode).body(response);
     }
 
 

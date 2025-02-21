@@ -37,6 +37,7 @@ public class BillEntity extends BaseEntity {
     @Column(name = "price")
     private Long price;
 
+    @Setter
     @Column(length = 15, nullable = false)
     @Enumerated(EnumType.STRING)
     private BillStatus status;
