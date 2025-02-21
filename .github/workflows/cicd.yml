@@ -29,6 +29,13 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: List directory structure
+        run: |
+          echo "Root directory:"
+          ls -la .
+          echo "Gradle directory structure:"
+          ls -laR gradle
+
       - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
