@@ -5,7 +5,7 @@ on:
       tags:
         description: 'Set Tags Name'
         required: true
-        default: master
+        default: main
 
 jobs:
   build:
