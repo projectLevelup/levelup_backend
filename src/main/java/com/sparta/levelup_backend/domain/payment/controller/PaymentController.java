@@ -105,7 +105,7 @@ public class PaymentController {
     }
 
     // 헤더에 시크릿키를 심어서 같이 요청
-    private JSONObject sendRequest(JSONObject requestData, String secretKey, String urlString) throws IOException {
+    JSONObject sendRequest(JSONObject requestData, String secretKey, String urlString) throws IOException {
         HttpURLConnection connection = createConnection(secretKey, urlString);
         try (OutputStream os = connection.getOutputStream()) {
             os.write(requestData.toString().getBytes(StandardCharsets.UTF_8));
