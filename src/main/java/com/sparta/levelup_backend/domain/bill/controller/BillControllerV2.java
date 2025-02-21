@@ -26,11 +26,6 @@ public class BillControllerV2 {
     @Value("${toss.client.key}")
     private String tossClientKey;
 
-    @GetMapping("/client-key")
-    public String getClientKey() {
-        return tossClientKey;
-    }
-
     // 결제내역 페이징 조회(tutor 전용)
     @GetMapping("/tutor")
     public ApiResponse<Page<BillResponseDto>> findBillsByTutor(
