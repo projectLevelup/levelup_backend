@@ -20,7 +20,7 @@ public class PaymentResponseDto {
     private String customerKey;
 
     @Setter
-    private String SuccessUrl;
+    private String successUrl;
 
     @Setter
     private String failUrl;

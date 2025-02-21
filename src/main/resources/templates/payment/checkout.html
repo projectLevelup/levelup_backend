@@ -65,8 +65,6 @@
 
         const paymentData = await response.json();
 
-        console.log("customerKey: ", paymentData.data.customerKey)
-
         // SDK 초기화
         const clientKey = await getClientKey();
         const customerKey = paymentData.data.customerKey;

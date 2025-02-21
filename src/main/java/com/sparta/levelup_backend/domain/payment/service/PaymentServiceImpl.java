@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -24,7 +25,6 @@ import java.util.UUID;
 public class PaymentServiceImpl implements PaymentService{
 
     private final PaymentRepository paymentRepository;
-    private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final TossPaymentConfig tossPaymentConfig;
 
@@ -36,6 +36,14 @@ public class PaymentServiceImpl implements PaymentService{
 
         if (!order.getUser().getId().equals(userId)) {
             throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        PaymentEntity existingPayment = paymentRepository.findByOrder(order);
+        if (existingPayment != null) {
+            PaymentResponseDto response = new PaymentResponseDto(existingPayment);
+            response.setSuccessUrl(tossPaymentConfig.getSuccessUrl());
+            response.setFailUrl(tossPaymentConfig.getFailUrl());
+            return response;
         }
 
         PaymentEntity payment = PaymentEntity.builder()
@@ -52,7 +60,6 @@ public class PaymentServiceImpl implements PaymentService{
                 .build();
 
         PaymentResponseDto response = new PaymentResponseDto(payment);
-        log.info("커스터머key: {}", payment.getUserKey());
         response.setSuccessUrl(tossPaymentConfig.getSuccessUrl());
         response.setFailUrl(tossPaymentConfig.getFailUrl());
         paymentRepository.save(payment);
