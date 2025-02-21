@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.payment.controller;
 
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
+import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
 import com.sparta.levelup_backend.domain.payment.service.PaymentService;
@@ -85,6 +86,15 @@ public class PaymentController {
         }
 
         return ResponseEntity.status(statusCode).body(response);
+    }
+
+    @RequestMapping("/cancel/payment")
+    public ResponseEntity<JSONObject> cancelPayment(@RequestBody CancelPaymentRequestDto dto) {
+
+        PaymentEntity payment = paymentRepository.findByPaymentKey(dto.getKey())
+                .orElseThrow(() -> new PaymentException(ErrorCode.PAYMENT_NOT_FOUND));
+
+
     }
 
 

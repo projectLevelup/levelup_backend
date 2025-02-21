@@ -10,7 +10,6 @@ import com.sparta.levelup_backend.domain.payment.dto.response.CancelResponseDto;
 import com.sparta.levelup_backend.domain.payment.dto.response.PaymentResponseDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
-import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.*;
 import com.sparta.levelup_backend.utill.OrderStatus;
@@ -19,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
