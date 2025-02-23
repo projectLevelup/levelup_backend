@@ -81,7 +81,14 @@ public class PaymentController {
 
                     log.info("paymentKey: {}, 승인시간: {}, 결제방법: {}, 상태: {}, orderId: {}", paymentKey, approvedAt, method, status, orderId);
                     // 결제 정보 업데이트
-                    paymentService.updatePayment(paymentKey, approvedAt, method, orderId);
+                    payment.setPaymentKey(paymentKey);
+                    payment.setIspaid(true);
+                    payment.setCompletedAt(approvedAt);
+                    payment.setPayType(method);
+                    payment.getOrder().setStatus(OrderStatus.TRADING);
+                    billService.createBill(payment.getOrder().getUser().getId(), payment.getOrder().getId());
+                    log.info("영수증 생성");
+                    paymentRepository.save(payment);
                 }
                 return ResponseEntity.status(statusCode).body(response);
             } catch (Exception e) {
@@ -90,7 +97,7 @@ public class PaymentController {
 
                 if (attempt >= MAX_RETRIES) {
                     logger.error("결제 승인 요청 실패 - 데이터: {}", jasonData.toString());
-                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RITRY);
+                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RETRY);
                 }
                 Thread.sleep(2000);
             }
