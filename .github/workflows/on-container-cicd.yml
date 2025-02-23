@@ -52,6 +52,9 @@ jobs:
       - name: docker app service container stop
         run: docker-compose down app
 
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: docker app service container start
         run: docker-compose up app -d
 
