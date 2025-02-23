@@ -39,13 +39,22 @@ jobs:
 
       - name: docker image push
         run: docker push ${{ secrets.DOCKERHUB_USER_NAME }}/levelup
-#
-#  run-docker-image-on-ec2:
-#    runs-on: self-hosted
-#    needs:
-#      - build
-#
-#    steps:
-#      - name: docker pull
-#        run: docker pull ${{ secrets.DOCKERHUB_USER_NAME }}/levelup
+
+  run-docker-image-on-ec2:
+    runs-on: self-hosted
+    needs:
+      - build
+
+    steps:
+      - name: docker pull
+        run: docker pull ${{ secrets.DOCKERHUB_USER_NAME }}/levelup
+
+      - name: docker app service container stop
+        run: docker-compose down app
+
+      - name: docker app service container start
+        run: docker-compose up app -d
+
+      - name: delete old docker image
+        run: docker system prune -f
 

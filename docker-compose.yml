@@ -1,4 +1,8 @@
 services:
+  app:
+    image: levelup0210/levelup:latest
+    ports:
+      - 8080:8080
   jenkins:
     image: jenkins/jenkins:jdk17
     ports:
