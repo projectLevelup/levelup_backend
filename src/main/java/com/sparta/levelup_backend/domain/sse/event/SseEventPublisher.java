@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.domain.sse.event.publisher;
+package com.sparta.levelup_backend.domain.sse.event;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;

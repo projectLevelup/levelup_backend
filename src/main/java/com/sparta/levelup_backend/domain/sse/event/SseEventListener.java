@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.domain.sse.event.publisher;
+package com.sparta.levelup_backend.domain.sse.event;
 
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -18,8 +18,8 @@ public class SseEventListener {
 	@Async
 	@EventListener
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	public void userEventListener(SseEvent sseEvent) {
-		sseService.sendSseMessage(sseEvent.getUser().getId(), sseEvent.getUserSseMessageEntity());
+	public void eventListener(SseEvent sseEvent) {
+		sseService.sendSseMessage(sseEvent.getUser().getId(), sseEvent.getSseMessageEntity());
 
 	}
 }

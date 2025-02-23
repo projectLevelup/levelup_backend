@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.levelup_backend.domain.sse.entity.SseMessageEntity;
-import com.sparta.levelup_backend.domain.sse.event.publisher.SseEventPublisher;
+import com.sparta.levelup_backend.domain.sse.event.SseEventPublisher;
 import com.sparta.levelup_backend.domain.sse.repository.SseMessageRepository;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;

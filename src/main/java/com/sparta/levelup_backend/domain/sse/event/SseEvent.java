@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.domain.sse.event.publisher;
+package com.sparta.levelup_backend.domain.sse.event;
 
 import com.sparta.levelup_backend.domain.sse.entity.SseMessageEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -11,5 +11,5 @@ import lombok.Getter;
 public class SseEvent {
 
 	UserEntity user;
-	SseMessageEntity userSseMessageEntity;
+	SseMessageEntity sseMessageEntity;
 }
