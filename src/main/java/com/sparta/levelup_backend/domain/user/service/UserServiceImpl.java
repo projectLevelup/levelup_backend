@@ -1,11 +1,15 @@
 package com.sparta.levelup_backend.domain.user.service;
 
+import static com.sparta.levelup_backend.domain.sse.dto.request.UserSseMessage.*;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.levelup_backend.domain.sse.entity.SseMessageEntity;
+import com.sparta.levelup_backend.domain.sse.event.publisher.SseEventPublisher;
+import com.sparta.levelup_backend.domain.sse.repository.SseMessageRepository;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserImgUrlReqeustDto;
@@ -24,7 +28,9 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
+	private final SseMessageRepository sseMessageRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	private final SseEventPublisher sseEventPublisher;
 
 	@Override
 	public UserResponseDto findUserById(String role, Long id) {
@@ -66,6 +72,9 @@ public class UserServiceImpl implements UserService {
 		if (dto.getPhoneNumber() != null) {
 			user.updatePhoneNumber(dto.getPhoneNumber());
 		}
+		SseMessageEntity sseMessageEntity = sseMessageRepository.save(
+			new SseMessageEntity(id, USER_CHANGED_MESSAGE));
+		sseEventPublisher.publisher(user, sseMessageEntity);
 
 		return UserResponseDto.from(user);
 	}
@@ -84,6 +93,9 @@ public class UserServiceImpl implements UserService {
 		} else {
 			throw new CurrentPasswordNotMatchedException();
 		}
+		SseMessageEntity sseMessageEntity = sseMessageRepository.save(
+			new SseMessageEntity(id, USER_PASSWORD_CHANGED_MESSAGE));
+		sseEventPublisher.publisher(user, sseMessageEntity);
 	}
 
 	@Override
@@ -91,6 +103,10 @@ public class UserServiceImpl implements UserService {
 
 		UserEntity user = userRepository.findByIdOrElseThrow(id);
 		user.updateImgUrl(dto.getImgUrl());
+
+		SseMessageEntity sseMessageEntity = sseMessageRepository.save(
+			new SseMessageEntity(id, USER_CHANGED_MESSAGE));
+		sseEventPublisher.publisher(user, sseMessageEntity);
 
 		return UserResponseDto.from(user);
 
