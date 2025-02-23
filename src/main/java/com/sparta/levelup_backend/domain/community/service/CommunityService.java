@@ -14,11 +14,17 @@ public interface CommunityService {
 
 	void delete(Long userId, Long communityId);
 
-	CommunityListResponseDto findCommunityES(String searchKeyword, int page, int size);
+	CommunityListResponseDto findCommunitiesES(String searchKeyword, int page, int size);
 
 	CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto);
 
 	CommunityResponseDto updateCommunityES(Long userId, CommunityUpdateRequestDto dto);
 
 	void deleteCommunityES(Long userId, Long communityId);
+
+	CommunityResponseDto findCommunityES(String communityId);
+
+	CommunityResponseDto saveCommunityRedis(Long userId, CommnunityCreateRequestDto dto);
+
+	CommunityListResponseDto findCommunityRedis(String searchKeyword);
 }
