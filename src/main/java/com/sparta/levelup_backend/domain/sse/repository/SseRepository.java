@@ -10,6 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Repository
 public class SseRepository {
+
 	private final Map<String, SseEmitter> userAlert = new ConcurrentHashMap<>();
 
 	public void save(String emitterId, SseEmitter sse) {

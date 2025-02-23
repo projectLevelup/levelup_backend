@@ -9,4 +9,7 @@ public interface SseService {
 	SseEmitter sseSubscribe(Long id, String lastEventId);
 
 	void sendSseMessage(Long userId, SseMessageEntity sseMessage);
+
+	void sendSseMessage(SseEmitter alert, String alertId, SseMessageEntity sseMessageEntity);
+
 }

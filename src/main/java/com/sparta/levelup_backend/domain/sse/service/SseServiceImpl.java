@@ -19,14 +19,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class SseServiceImpl implements SseService {
+	
 	private final SseMessageRepository sseMessageRepository;
 	private final SseRepository sseRepository;
 
 	@Override
 	public SseEmitter sseSubscribe(Long id, String lastEventId) {
+
 		List<String> sses = sseRepository.findAllSseById(id.toString());
 		SseEmitter alert = new SseEmitter(60 * 60 * 1000L);
 		String alertId = id + "_" + System.currentTimeMillis();
+
 		if (sses.isEmpty()) {
 			sseRepository.save(alertId, alert);
 		} else {
@@ -50,9 +53,12 @@ public class SseServiceImpl implements SseService {
 		alert.onTimeout(() -> sseRepository.deleteById(finalAlertId));
 
 		return alert;
+
 	}
 
+	@Override
 	public void sendSseMessage(SseEmitter alert, String alertId, SseMessageEntity sseMessageEntity) {
+
 		try {
 			String jsonMessage = jsonConverter(sseMessageEntity);
 			alert.send(event()
@@ -66,15 +72,27 @@ public class SseServiceImpl implements SseService {
 
 	}
 
+	@Override
+	public void sendSseMessage(Long userId, SseMessageEntity sseMessage) {
+
+		List<String> sses = sseRepository.findAllSseById(userId.toString());
+
+		for (String sse : sses) {
+			SseEmitter alert = sseRepository.findById(sse);
+			sendSseMessage(alert, sse, sseMessage);
+		}
+	}
+
 	private void sendSseMessageExceedingId(SseEmitter alert, String alertId, Long id) {
 
 		SseMessageEntity sseMessage = sseMessageRepository.findByIdOrElseThrow(id);
 		List<SseMessageEntity> sseMessages = sseMessageRepository.findAllByUserId(sseMessage.getUserId());
+		String jsonMessage = "";
+
 		if (sseMessages.isEmpty()) {
 			new NotFoundException(ALERT_MESSAGE_NOT_FOUND);
 		}
 
-		String jsonMessage = "";
 		try {
 			for (SseMessageEntity sseMessageData : sseMessages) {
 				if (sseMessageData.getId() > id) {
@@ -92,12 +110,4 @@ public class SseServiceImpl implements SseService {
 
 	}
 
-	public void sendSseMessage(Long userId, SseMessageEntity sseMessage) {
-		List<String> sses = sseRepository.findAllSseById(userId.toString());
-		for (String sse : sses) {
-			SseEmitter alert = sseRepository.findById(sse);
-			sendSseMessage(alert, sse, sseMessage);
-		}
-
-	}
 }
