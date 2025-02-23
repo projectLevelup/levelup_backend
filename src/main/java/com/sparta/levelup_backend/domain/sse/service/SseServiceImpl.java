@@ -52,12 +52,12 @@ public class SseServiceImpl implements SseService {
 		return alert;
 	}
 
-	public void sendSseMessage(SseEmitter alert, String alertId, SseMessageEntity SseMessageEntity) {
+	public void sendSseMessage(SseEmitter alert, String alertId, SseMessageEntity sseMessageEntity) {
 		try {
-			String jsonMessage = jsonConverter(SseMessageEntity);
+			String jsonMessage = jsonConverter(sseMessageEntity);
 			alert.send(event()
 				.name("alert")
-				.id(String.valueOf(SseMessageEntity.getId()))
+				.id(String.valueOf(sseMessageEntity.getId()))
 				.data(jsonMessage));
 		} catch (Exception e) {
 			alert.completeWithError(e);
@@ -74,16 +74,17 @@ public class SseServiceImpl implements SseService {
 			new NotFoundException(ALERT_MESSAGE_NOT_FOUND);
 		}
 
-		SseEventBuilder event = event().name("alert");
 		String jsonMessage = "";
 		try {
 			for (SseMessageEntity sseMessageData : sseMessages) {
 				if (sseMessageData.getId() > id) {
 					jsonMessage = jsonMessage + jsonConverter(sseMessageData);
-					event = event().data(jsonMessage);
 				}
 			}
-			alert.send(event);
+			alert.send(event()
+				.name("alert")
+				.id(String.valueOf(sseMessage.getId()))
+				.data(jsonMessage));
 		} catch (Exception e) {
 			alert.completeWithError(e);
 			sseRepository.deleteById(alertId);
