@@ -26,7 +26,7 @@ jobs:
           distribution: 'corretto'
 
       - name: Build with Gradlew
-        run: ./gradlew clean build -Dspring.profiles.active=test
+        run: ./gradlew clean build
 
       - name: docker image build
         run: docker build -t ${{ secrets.DOCKERHUB_USER_NAME }}/levelup .
