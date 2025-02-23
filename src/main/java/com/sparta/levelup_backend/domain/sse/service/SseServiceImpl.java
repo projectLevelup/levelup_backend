@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.sse.service;
 
-import static com.sparta.levelup_backend.domain.sse.dto.request.UserSseMessage.*;
+import static com.sparta.levelup_backend.domain.sse.dto.request.UserSseMessageDto.*;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static org.springframework.web.servlet.mvc.method.annotation.SseEmitter.*;
 
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class SseServiceImpl implements SseService {
-	
+
 	private final SseMessageRepository sseMessageRepository;
 	private final SseRepository sseRepository;
 

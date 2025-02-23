@@ -9,10 +9,10 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import com.sparta.levelup_backend.config.CustomOAuth2User;
-import com.sparta.levelup_backend.domain.auth.dto.response.GoogleResponse;
-import com.sparta.levelup_backend.domain.auth.dto.response.KakaoResponse;
-import com.sparta.levelup_backend.domain.auth.dto.response.NaverResponse;
-import com.sparta.levelup_backend.domain.auth.dto.response.OAuth2Response;
+import com.sparta.levelup_backend.domain.auth.dto.response.GoogleResponseDtoDto;
+import com.sparta.levelup_backend.domain.auth.dto.response.KakaoResponseDtoDto;
+import com.sparta.levelup_backend.domain.auth.dto.response.NaverResponseDtoDto;
+import com.sparta.levelup_backend.domain.auth.dto.response.OAuth2ResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
@@ -31,25 +31,25 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 		OAuth2User oAuth2User = super.loadUser(userRequest);
 
-		OAuth2Response oAuth2Response = null;
+		OAuth2ResponseDto oAuth2ResponseDto = null;
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		if (registrationId.equals("naver")) {
 
-			oAuth2Response = new NaverResponse(
+			oAuth2ResponseDto = new NaverResponseDtoDto(
 				(Map<String, Object>)oAuth2User.getAttributes().get("response"));
 
 		} else if (registrationId.equals("google")) {
 
-			oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
+			oAuth2ResponseDto = new GoogleResponseDtoDto(oAuth2User.getAttributes());
 
 		} else {
-			oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
+			oAuth2ResponseDto = new KakaoResponseDtoDto(oAuth2User.getAttributes());
 		}
 
 		UserEntity user = null;
 
-		if (userRepository.existsByEmail(oAuth2Response.getEmail())) {
-			user = userRepository.findByEmailOrElseThrow(oAuth2Response.getEmail());
+		if (userRepository.existsByEmail(oAuth2ResponseDto.getEmail())) {
+			user = userRepository.findByEmailOrElseThrow(oAuth2ResponseDto.getEmail());
 			if (user.getIsDeleted()) {
 				throw new OAuth2AuthenticationException(ErrorCode.ALREADY_DELETED_USER.toString());
 			}
@@ -58,8 +58,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			}
 		} else {
 			user = UserEntity.builder()
-				.email(oAuth2Response.getEmail())
-				.nickName(oAuth2Response.getNickName())
+				.email(oAuth2ResponseDto.getEmail())
+				.nickName(oAuth2ResponseDto.getNickName())
 				.role(UserRole.USER)
 				.provider(registrationId + "new")
 				.build();

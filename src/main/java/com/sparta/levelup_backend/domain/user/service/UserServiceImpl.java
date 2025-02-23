@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.user.service;
 
-import static com.sparta.levelup_backend.domain.sse.dto.request.UserSseMessage.*;
+import static com.sparta.levelup_backend.domain.sse.dto.request.UserSseMessageDto.*;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

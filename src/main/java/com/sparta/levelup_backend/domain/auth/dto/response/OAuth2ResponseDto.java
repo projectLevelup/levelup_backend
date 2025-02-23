@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.auth.dto.response;
 
-public interface OAuth2Response {
+public interface OAuth2ResponseDto {
 
 	String getProvider();
 
