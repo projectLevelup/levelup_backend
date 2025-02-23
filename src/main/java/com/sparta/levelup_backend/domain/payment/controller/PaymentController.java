@@ -1,14 +1,20 @@
 package com.sparta.levelup_backend.domain.payment.controller;
 
+import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
+import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
+import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
+import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
-import com.sparta.levelup_backend.domain.payment.service.PaymentService;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.exception.common.PaymentException;
+import com.sparta.levelup_backend.utill.BillStatus;
+import com.sparta.levelup_backend.utill.OrderStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -17,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -25,9 +30,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Objects;
 
 @Slf4j
 @Controller
@@ -36,8 +39,9 @@ import java.util.Objects;
 public class PaymentController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final PaymentService paymentService;
     private final PaymentRepository paymentRepository;
+    private final BillServiceImplV2 billService;
+    private final BillRepository billRepository;
     private final int MAX_RETRIES = 3;
 
     @Value("${toss.secret.key}")
@@ -87,6 +91,68 @@ public class PaymentController {
                 if (attempt >= MAX_RETRIES) {
                     logger.error("결제 승인 요청 실패 - 데이터: {}", jasonData.toString());
                     throw new PaymentException(ErrorCode.PAYMENT_FAILED_RITRY);
+                }
+                Thread.sleep(2000);
+            }
+        }
+        throw new PaymentException(ErrorCode.PAYMENT_FAILED);
+    }
+
+    @RequestMapping("/cancel/payment")
+    public ResponseEntity<JSONObject> cancelPayment(@RequestBody CancelPaymentRequestDto dto) throws Exception {
+
+        PaymentEntity payment = paymentRepository.findByPaymentKey(dto.getKey())
+                .orElseThrow(() -> new PaymentException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        BillEntity bill = billRepository.findByOrder(payment.getOrder())
+                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+
+        logger.info("결제취소 할 상품: {}, 취소 할 금액: {}", bill.getBillHistory(), bill.getPrice());
+
+        String secretKey = tossSecretKey;
+        String url = "https://api.tosspayments.com/v1/payments/" + dto.getKey() + "/cancel";
+
+        int attempt = 0;
+
+        JSONObject response = null;
+
+        JSONObject cancelRequest = new JSONObject();
+        cancelRequest.put("cancelReason", dto.getReason());
+
+        while (attempt < MAX_RETRIES) {
+            try {
+                response = sendRequest(cancelRequest, secretKey, url);
+                int statusCode = response.containsKey("error") ? 400 : 200;
+
+                if (statusCode == 200) {
+
+                    JSONArray cancelsArray = (JSONArray) response.get("cancels");
+
+                    for (Object object : cancelsArray) {
+                        JSONObject cancelData = (JSONObject) object;
+
+                        String canceledAt = (String) cancelData.get("canceledAt");
+
+                        logger.info("취소 한 상품: {}, 취소 한 가격: {}, 취소 한 이유: {}, 취소 한 시간: {}",
+                                bill.getBillHistory(), bill.getPrice(), dto.getReason(), canceledAt);
+
+                    }
+
+                    payment.setIscanceled(true);
+                    bill.setStatus(BillStatus.PAYCANCELED);
+                    payment.getOrder().setStatus(OrderStatus.CANCELED);
+                    paymentRepository.save(payment);
+                    billRepository.save(bill);
+                }
+
+                return ResponseEntity.status(statusCode).body(response);
+            } catch (Exception e) {
+                attempt++;
+                logger.error("취소 승인 요청 실패 - 시도 횟수: {}/{}, 내용: {}", attempt, MAX_RETRIES, e.getMessage());
+
+                if (attempt >= MAX_RETRIES) {
+                    logger.error("취소 승인 요청 실패 - 데이터: {}", dto.getKey());
+                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RETRY);
                 }
                 Thread.sleep(2000);
             }

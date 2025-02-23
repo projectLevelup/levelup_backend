@@ -7,17 +7,17 @@ import lombok.Setter;
 @Getter
 public class PaymentResponseDto {
 
-    private Long amount;
+    private final Long amount;
 
-    private String orderName;
+    private final String orderName;
 
-    private String orderId;
+    private final String orderId;
 
-    private String customerEmail;
+    private final String customerEmail;
 
-    private String customerName;
+    private final String customerName;
 
-    private String customerKey;
+    private final String customerKey;
 
     @Setter
     private String successUrl;

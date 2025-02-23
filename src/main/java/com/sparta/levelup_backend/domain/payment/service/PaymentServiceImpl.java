@@ -5,6 +5,8 @@ import com.sparta.levelup_backend.config.TossPaymentConfig;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
+import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
+import com.sparta.levelup_backend.domain.payment.dto.response.CancelResponseDto;
 import com.sparta.levelup_backend.domain.payment.dto.response.PaymentResponseDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
@@ -13,10 +15,11 @@ import com.sparta.levelup_backend.exception.common.*;
 import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -24,10 +27,13 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PaymentServiceImpl implements PaymentService{
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final TossPaymentConfig tossPaymentConfig;
     private final BillServiceImplV2 billService;
+    private final UserRepository userRepository;
+    private final RateLimitService rateLimitService;
 
     @Transactional
     @Override
@@ -39,8 +45,8 @@ public class PaymentServiceImpl implements PaymentService{
             throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
-        log.info("주문상태: {}", order.getStatus());
-        // 결제 대기 상태가 아니라면 변경 불가
+        logger.info("주문상태: {}", order.getStatus());
+        // 결제 대기 상태에서 결제요청 불가
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
         }
@@ -52,7 +58,7 @@ public class PaymentServiceImpl implements PaymentService{
             PaymentResponseDto response = new PaymentResponseDto(existingPayment);
             response.setSuccessUrl(tossPaymentConfig.getSuccessUrl());
             response.setFailUrl(tossPaymentConfig.getFailUrl());
-            log.info("결제정보Id: {}", existingPayment.getPaymentId());
+            logger.info("결제정보Id: {}", existingPayment.getPaymentId());
             return response;
         }
 
@@ -73,25 +79,42 @@ public class PaymentServiceImpl implements PaymentService{
         response.setSuccessUrl(tossPaymentConfig.getSuccessUrl());
         response.setFailUrl(tossPaymentConfig.getFailUrl());
         paymentRepository.save(payment);
-        log.info("결제정보Id 생성: {}", payment.getPaymentId());
+        logger.info("결제정보Id 생성: {}", payment.getPaymentId());
 
         return response;
     }
 
     @Override
-    @Transactional
-    public void updatePayment(String paymentKey, String approvedAt, String method, String orderId) {
-        PaymentEntity payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.PAYMENT_NOT_FOUND));
+    public CancelResponseDto requestCancel(CustomUserDetails auth, CancelPaymentRequestDto dto) {
 
-        payment.setPaymentKey(paymentKey);
-        payment.setIspaid(true);
-        payment.setCompletedAt(approvedAt);
-        payment.setPayType(method);
-        payment.getOrder().setStatus(OrderStatus.TRADING);
-        billService.createBill(payment.getOrder().getUser().getId(), payment.getOrder().getId());
-        log.info("영수증 생성");
+        PaymentEntity payment = paymentRepository.findByPaymentKey(dto.getKey())
+                .orElseThrow(() -> new PaymentException(ErrorCode.PAYMENT_NOT_FOUND));
 
-        paymentRepository.save(payment);
+        // 판매자 검증
+        if (!payment.getOrder().getProduct().getUser().getId().equals(auth.getId())) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        // 취소 완료 되었는지 검증
+        if (payment.getOrder().getStatus().equals(OrderStatus.CANCELED)) {
+            throw new PaymentException(ErrorCode.PAYMENT_CANCELED_OK);
+        }
+
+        // 결제 요청 상태일 때 취소 불가
+        if (payment.getOrder().getStatus().equals(OrderStatus.PENDING)) {
+            throw new PaymentException(ErrorCode.PAYMENT_PENDING);
+        }
+
+        if (!rateLimitService.isRequest(auth.getId())) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST_MANY);
+        }
+
+        logger.info("취소 이유: {}, paymentKey: {}", dto.getReason(), dto.getKey());
+
+        return CancelResponseDto.builder()
+                .cancelReason(dto.getReason())
+                .paymentKey(dto.getKey())
+                .build();
     }
+
 }
