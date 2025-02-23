@@ -23,7 +23,7 @@ public class SseController {
 
 	@GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public ResponseEntity<SseEmitter> userChangeAlert(@AuthenticationPrincipal CustomUserDetails userDetails,
-		@RequestHeader(value = " Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
+		@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
 		SseEmitter alert = sseService.sseSubscribe(userDetails.getId(), lastEventId);
 		return new ResponseEntity(alert, HttpStatus.OK);
 	}

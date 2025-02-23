@@ -1,6 +1,8 @@
 package com.sparta.levelup_backend.domain.sse.service;
 
 import static com.sparta.levelup_backend.domain.sse.dto.request.UserSseMessage.*;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static org.springframework.web.servlet.mvc.method.annotation.SseEmitter.*;
 
 import java.util.List;
 
@@ -10,6 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.sparta.levelup_backend.domain.sse.entity.SseMessageEntity;
 import com.sparta.levelup_backend.domain.sse.repository.SseMessageRepository;
 import com.sparta.levelup_backend.domain.sse.repository.SseRepository;
+import com.sparta.levelup_backend.exception.common.NotFoundException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +39,7 @@ public class SseServiceImpl implements SseService {
 		}
 
 		if (!lastEventId.equals("")) {
+			sendSseMessage(alert, alertId, new SseMessageEntity(id, "sseCreated"));
 			sendSseMessageExceedingId(alert, alertId, Long.parseLong(lastEventId));
 		} else {
 			sendSseMessage(alert, alertId, new SseMessageEntity(id, "sseCreated"));
@@ -51,8 +55,8 @@ public class SseServiceImpl implements SseService {
 	public void sendSseMessage(SseEmitter alert, String alertId, SseMessageEntity SseMessageEntity) {
 		try {
 			String jsonMessage = jsonConverter(SseMessageEntity);
-			alert.send(SseEmitter.event()
-				.name("userDataChanged")
+			alert.send(event()
+				.name("alert")
 				.id(String.valueOf(SseMessageEntity.getId()))
 				.data(jsonMessage));
 		} catch (Exception e) {
@@ -66,13 +70,25 @@ public class SseServiceImpl implements SseService {
 
 		SseMessageEntity sseMessage = sseMessageRepository.findByIdOrElseThrow(id);
 		List<SseMessageEntity> sseMessages = sseMessageRepository.findAllByUserId(sseMessage.getUserId());
-		for (SseMessageEntity sseMessageData : sseMessages) {
-			if (sseMessageData.getId() <= id) {
-				continue;
-			} else {
-				sendSseMessage(alert, alertId, sseMessageData);
-			}
+		if (sseMessages.isEmpty()) {
+			new NotFoundException(ALERT_MESSAGE_NOT_FOUND);
 		}
+
+		SseEventBuilder event = event().name("alert");
+		String jsonMessage = "";
+		try {
+			for (SseMessageEntity sseMessageData : sseMessages) {
+				if (sseMessageData.getId() > id) {
+					jsonMessage = jsonMessage + jsonConverter(sseMessageData);
+					event = event().data(jsonMessage);
+				}
+			}
+			alert.send(event);
+		} catch (Exception e) {
+			alert.completeWithError(e);
+			sseRepository.deleteById(alertId);
+		}
+
 	}
 
 	public void sendSseMessage(Long userId, SseMessageEntity sseMessage) {
