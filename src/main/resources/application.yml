@@ -11,8 +11,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  profiles:
-    active: chat-test
   data:
     mongodb:
       uri: mongodb+srv://levelup:ZsM2V6brfRdizhx6@cluster0.5rnlx.mongodb.net/levelup?retryWrites=true&w=majority&appName=Cluster0&tls=true
