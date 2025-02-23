@@ -40,6 +40,7 @@ dependencies {
 
     // mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
+    testImplementation 'com.h2database:h2'
 
     //jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
