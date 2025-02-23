@@ -1,25 +1,4 @@
 services:
-  app:
-    image: levelup0210/levelup:latest
-    ports:
-      - 8080:8080
-  jenkins:
-    image: jenkins/jenkins:jdk17
-    ports:
-      - "8081:8080"
-      - "50000:50000"
-    volumes:
-      - ${HOST_JENKINS_HOME}:/var/jenkins_home
-    links:
-      - worker-1
-
-  worker-1:
-    image: jenkins/ssh-agent:jdk17
-    volumes:
-      - ${HOST_JENKINS_WORKER_1}:/home/jenkins
-    environment:
-      - JENKINS_SLAVE_SSH_PUBKEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDHGQZiC11dHD/GeBbOR0wDrU43xOXW9ez2YMxJF7Y0XcGYtjmxMivPob9+knwHwG9YkJ6QZfJVdqcWSPrhG/Kj/efj3LJEw/nhWyXlejwHmMaolG/mRCGR/+ARttL1FcUVPr0+ZEMDsm9pUCIBEnZnzCHBBvx7E5P2SC8IxmBQ+xn4DcxQvaZhCQXawdFERbNZcPo0iOS46de9yzigDjBmAHEIzUEHUiycpSkaLKDgjzcaNj5X+ZN0IjoXK0u4muKusvPibls9KlQIkenHyPgkoX743tidtXlE8lOvqtqRpMZpfUvoF4iqUgNotjcvg8uYRgxuPwNnc0rUq4JkFforvfFa/D/laOEQE9yoEPk/8NmbXuv6/UtPJl4VojuZaKYdAMSlTWeAbsd1kuIKAyaZJr31lkHPKwOouXevCmrHvVbqQ5+L4dXiqIgYWHkKUmDAAYR1MEdhVC3PF0WXiv8avMaNgKbHN9DYf9q7tVoNE8E+YahczIQwyyJbFTw5PJE=
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
     container_name: elasticsearch
@@ -57,7 +36,6 @@ services:
       dockerfile: logstash.Dockerfile
     container_name: logstash
     depends_on:
-      - mysql
       - elasticsearch
     networks:
       - app-network
@@ -68,22 +46,6 @@ services:
       - XPACK_MONITORING_ELASTICSEARCH_PASSWORD=your-secure-password
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: "0515"  # root 비밀번호 설정
-      MYSQL_DATABASE: levelup
-      MYSQL_USER: 'user'
-      MYSQL_PASSWORD: '1111'
-      MYSQL_ROOT_HOST: "%"  # 모든 호스트에서 root 계정 접근 허용
-    ports:
-      - "3306:3306"
-    networks:
-      - app-network
-    volumes:
-      - ./db/mysql/data:/var/lib/mysql
 
   redis:
     image: redis:7.0
@@ -96,26 +58,6 @@ services:
     volumes:
       - redis-data:/data
 
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    ports:
-      - "9090:9090"
-    networks:
-      - monitoring-network
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    networks:
-      - monitoring-network
-
 volumes:
   mysql-data:
     driver: local
@@ -126,6 +68,4 @@ volumes:
 
 networks:
   app-network:
-    driver: bridge
-  monitoring-network:
     driver: bridge
