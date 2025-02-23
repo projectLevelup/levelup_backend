@@ -55,6 +55,7 @@ jobs:
       - name: docker app service container stop
         run: docker-compose down app
 
+
       - name: docker app service container start
         run: docker compose up -d app
 
