@@ -192,7 +192,7 @@ public class CommunityServiceImpl implements CommunityService {
 		CommunityEntity community = communityRepository.save(
 			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
 
-		String redisKey = COMMUNITY_CACHE_KEY + community.getTitle();
+		String redisKey = COMMUNITY_CACHE_KEY + community.getId();
 
 		CommunityDocument communityDocument = CommunityDocument.from(community);
 		redisTemplate.opsForValue().set(redisKey, communityDocument);
@@ -218,6 +218,46 @@ public class CommunityServiceImpl implements CommunityService {
 		}
 
 		return new CommunityListResponseDto(results);
+	}
+
+	@Override
+	public CommunityResponseDto updateCommunityRedis(Long userId, CommunityUpdateRequestDto dto) {
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
+
+		String key = COMMUNITY_CACHE_KEY + community.getId();
+		CommunityDocument communityDocument = (CommunityDocument)redisTemplate.opsForValue().get(key);
+		checkAuth(community, userId);
+		checkCommunityIsDeleted(community);
+
+		if (communityDocument.getIsDeleted()) {
+			throw new DuplicateException(COMMUNITY_ISDELETED);
+		}
+
+		if (Objects.nonNull(dto.getTitle())) {
+			community.updateTitle(dto.getTitle());
+			communityDocument.updateTitle(dto.getTitle());
+		}
+		if (Objects.nonNull(dto.getContent())) {
+			community.updateContent(dto.getContent());
+			communityDocument.updateContent(dto.getContent());
+		}
+
+		redisTemplate.opsForValue().set(key, communityDocument);
+		communityESRepository.save(communityDocument);
+
+		return CommunityResponseDto.from(communityDocument);
+	}
+
+	@Override
+	public void deleteCommunityRedis(Long userId, Long communityId) {
+		String key = COMMUNITY_CACHE_KEY + communityId;
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
+		checkAuth(community, userId);
+		checkCommunityIsDeleted(community);
+
+		redisTemplate.delete(key);
+		community.deleteCommunity();
+
 	}
 
 	private void checkGameIsDeleted(GameEntity game) {
