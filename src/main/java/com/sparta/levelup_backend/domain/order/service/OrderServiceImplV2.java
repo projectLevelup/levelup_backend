@@ -85,7 +85,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
             saveOrder = orderRepository.save(order);
 
             // Redis에 주문 Id 저장 (10분 TTL)
-            redisTemplate.opsForValue().set("order:expire:" + order.getId(), "PENDING", Duration.ofSeconds(30));
+            redisTemplate.opsForValue().set("order:expire:" + order.getId(), "PENDING", Duration.ofMinutes(10));
         } catch (InterruptedException e) {
             throw new LockException(ErrorCode.CONFLICT_LOCK_ERROR);
         } finally {
