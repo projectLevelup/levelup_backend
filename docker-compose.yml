@@ -18,7 +18,7 @@ services:
     container_name: elasticsearch
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=true
+      - xpack.security.enabled=false
       - ELASTIC_PASSWORD=your-secure-password
       - xpack.security.authc.api_key.enabled=true
       - bootstrap.memory_lock=true
