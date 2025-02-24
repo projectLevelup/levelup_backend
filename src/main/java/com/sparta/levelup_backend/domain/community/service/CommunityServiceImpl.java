@@ -3,11 +3,15 @@ package com.sparta.levelup_backend.domain.community.service;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static com.sparta.levelup_backend.utill.UserRole.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +44,9 @@ public class CommunityServiceImpl implements CommunityService {
 	private final GameRepository gameRepository;
 
 	private final CommunityESRepository communityESRepository;
+	private final RedisTemplate redisTemplate;
+
+	private static final String COMMUNITY_CACHE_KEY = "community:*";
 
 	@Override
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
@@ -113,7 +120,7 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	public CommunityListResponseDto findCommunityES(String searchKeyword, int page, int size) {
+	public CommunityListResponseDto findCommunitiesES(String searchKeyword, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		Page<CommunityDocument> communityDocuments = communityESRepository.findByTitleAndIsDeletedFalse(searchKeyword,
 			pageable);
@@ -131,6 +138,12 @@ public class CommunityServiceImpl implements CommunityService {
 		}
 
 		return responseDto;
+	}
+
+	@Override
+	public CommunityResponseDto findCommunityES(String communityId) {
+		CommunityDocument communityDocument = communityESRepository.findByIdOrElseThrow(communityId);
+		return CommunityResponseDto.from(communityDocument);
 	}
 
 	@Override
@@ -169,6 +182,42 @@ public class CommunityServiceImpl implements CommunityService {
 		community.deleteCommunity();
 		communityDocument.updateIsDeleted(true);
 		communityESRepository.save(communityDocument);
+	}
+
+	@Override
+	public CommunityResponseDto saveCommunityRedis(Long userId, CommnunityCreateRequestDto dto) {
+		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+		GameEntity game = gameRepository.findByIdOrElseThrow(dto.getGameId());
+		checkGameIsDeleted(game);
+		CommunityEntity community = communityRepository.save(
+			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
+
+		String redisKey = COMMUNITY_CACHE_KEY + community.getTitle();
+
+		CommunityDocument communityDocument = CommunityDocument.from(community);
+		redisTemplate.opsForValue().set(redisKey, communityDocument);
+		return CommunityResponseDto.of(community, user, game);
+	}
+
+	@Override
+	public CommunityListResponseDto findCommunityRedis(String searchKeyword) {
+		Set<String> keys = redisTemplate.keys(COMMUNITY_CACHE_KEY + "*");
+
+		List<CommunityReadResponseDto> results = new ArrayList<>();
+		if (keys != null) {
+			for (String key : keys) {
+				CommunityDocument community = (CommunityDocument)redisTemplate.opsForValue().get(key);
+				if (community != null && community.getTitle().contains(searchKeyword)) {
+					results.add(CommunityReadResponseDto.from(community));
+				}
+			}
+		}
+
+		if (results.isEmpty()) {
+			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+		}
+
+		return new CommunityListResponseDto(results);
 	}
 
 	private void checkGameIsDeleted(GameEntity game) {
