@@ -14,6 +14,7 @@ services:
       - ELASTIC_PASSWORD=your-secure-password
       - xpack.security.authc.api_key.enabled=true
       - bootstrap.memory_lock=true
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
