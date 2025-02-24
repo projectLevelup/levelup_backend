@@ -1,15 +1,15 @@
 package com.sparta.levelup_backend.domain.user.service;
 
-import static com.sparta.levelup_backend.domain.sse.dto.request.UserSseMessageDto.*;
+import static com.sparta.levelup_backend.domain.sse.dto.request.AlertMessageDto.*;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.levelup_backend.domain.sse.entity.SseMessageEntity;
-import com.sparta.levelup_backend.domain.sse.event.SseEventPublisher;
-import com.sparta.levelup_backend.domain.sse.repository.SseMessageRepository;
+import com.sparta.levelup_backend.domain.sse.entity.AlertMessageEntity;
+import com.sparta.levelup_backend.domain.sse.event.AlertEventPublisher;
+import com.sparta.levelup_backend.domain.sse.repository.AlertMessageRepository;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserImgUrlReqeustDto;
@@ -28,9 +28,9 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
-	private final SseMessageRepository sseMessageRepository;
+	private final AlertMessageRepository alertMessageRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-	private final SseEventPublisher sseEventPublisher;
+	private final AlertEventPublisher alertEvent;
 
 	@Override
 	public UserResponseDto findUserById(String role, Long id) {
@@ -72,9 +72,9 @@ public class UserServiceImpl implements UserService {
 		if (dto.getPhoneNumber() != null) {
 			user.updatePhoneNumber(dto.getPhoneNumber());
 		}
-		SseMessageEntity sseMessageEntity = sseMessageRepository.save(
-			new SseMessageEntity(id, USER_CHANGED_MESSAGE));
-		sseEventPublisher.publisher(user, sseMessageEntity);
+		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(user.getId(),
+			new AlertMessageEntity(USER_CHANGED_MESSAGE));
+		alertEvent.publisher(user.getId(), alertMessageEntity);
 
 		return UserResponseDto.from(user);
 	}
@@ -93,9 +93,10 @@ public class UserServiceImpl implements UserService {
 		} else {
 			throw new CurrentPasswordNotMatchedException();
 		}
-		SseMessageEntity sseMessageEntity = sseMessageRepository.save(
-			new SseMessageEntity(id, USER_PASSWORD_CHANGED_MESSAGE));
-		sseEventPublisher.publisher(user, sseMessageEntity);
+		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(
+			user.getId(),
+			new AlertMessageEntity(USER_PASSWORD_CHANGED_MESSAGE));
+		alertEvent.publisher(user.getId(), alertMessageEntity);
 	}
 
 	@Override
@@ -104,9 +105,10 @@ public class UserServiceImpl implements UserService {
 		UserEntity user = userRepository.findByIdOrElseThrow(id);
 		user.updateImgUrl(dto.getImgUrl());
 
-		SseMessageEntity sseMessageEntity = sseMessageRepository.save(
-			new SseMessageEntity(id, USER_CHANGED_MESSAGE));
-		sseEventPublisher.publisher(user, sseMessageEntity);
+		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(
+			user.getId(),
+			new AlertMessageEntity(USER_CHANGED_MESSAGE));
+		alertEvent.publisher(user.getId(), alertMessageEntity);
 
 		return UserResponseDto.from(user);
 

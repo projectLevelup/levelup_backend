@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Repository
-public class SseRepository {
+public class AlertRepository {
 
 	private final Map<String, SseEmitter> userAlert = new ConcurrentHashMap<>();
 
@@ -17,10 +17,10 @@ public class SseRepository {
 		userAlert.put(emitterId, sse);
 	}
 
-	public List<String> findAllSseById(String emitterId) {
+	public List<String> findAllAlertById(String userId) {
 		List<String> emitterIds = new ArrayList<>();
 		userAlert.keySet().forEach(key -> {
-			if (key.startsWith(emitterId + "_")) {
+			if (key.startsWith(userId + "_")) {
 				emitterIds.add(key);
 			}
 		});
