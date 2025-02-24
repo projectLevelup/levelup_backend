@@ -1,4 +1,8 @@
 spring:
+  elasticsearch:
+    uris: http://${SPRING_ELASTICSEARCH_HOST}:${SPRING_ELASTICSEARCH_PORT}
+    username: ${SPRING_ELASTICSEARCH_USERNAME}
+    password: ${SPRING_ELASTICSEARCH_PASSWORD}
   datasource:
     url: jdbc:mysql://db-mysql.ctw4cseqk9v4.ap-northeast-2.rds.amazonaws.com:3306/levelup
     username: admin

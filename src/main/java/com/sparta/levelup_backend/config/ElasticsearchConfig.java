@@ -6,6 +6,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
@@ -17,31 +18,38 @@ import co.elastic.clients.transport.ElasticsearchTransport;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 
 @Configuration
-@EnableElasticsearchRepositories(basePackages = { // 레파지토리 생성지(패키지) 넣을 것
+@EnableElasticsearchRepositories(basePackages = {
 	"com.sparta.levelup_backend.domain.community.repositoryES",
 	"com.sparta.levelup_backend.domain.product.repositoryES",
 	"com.sparta.levelup_backend.domain.review.repositoryES"
 })
 public class ElasticsearchConfig {
 
-	private static final String ELASTICSEARCH_HOST = "elasticsearch";
-	private static final int ELASTICSEARCH_PORT = 9200;
-	private static final String ELASTICSEARCH_SCHEME = "http"; // "https" 사용 시 변경
-	private static final String ELASTICSEARCH_USERNAME = "elastic";
-	private static final String ELASTICSEARCH_PASSWORD = "your-secure-password";
+	@Value("${spring.elasticsearch.host:elasticsearch}")
+	private String elasticsearchHost;
+
+	@Value("${spring.elasticsearch.port:9200}")
+	private int elasticsearchPort;
+
+	@Value("${spring.elasticsearch.scheme:http}")
+	private String elasticsearchScheme;
+
+	@Value("${spring.elasticsearch.username:elastic}")
+	private String elasticsearchUsername;
+
+	@Value("${spring.elasticsearch.password:your-secure-password}")
+	private String elasticsearchPassword;
 
 	@Bean
 	public RestClient restClient() {
-		// 인증 정보 설정
 		final BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 		credentialsProvider.setCredentials(AuthScope.ANY,
-			new UsernamePasswordCredentials(ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD));
+										   new UsernamePasswordCredentials(elasticsearchUsername, elasticsearchPassword));
 
-		// RestClient 설정
 		RestClientBuilder builder = RestClient.builder(
-				new HttpHost(ELASTICSEARCH_HOST, ELASTICSEARCH_PORT, ELASTICSEARCH_SCHEME))
+				new HttpHost(elasticsearchHost, elasticsearchPort, elasticsearchScheme))
 			.setHttpClientConfigCallback(httpClientBuilder ->
-				httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+											 httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
 			);
 
 		return builder.build();
@@ -61,6 +69,6 @@ public class ElasticsearchConfig {
 	public ElasticsearchAsyncClient elasticsearchAsyncClient(ElasticsearchTransport transport) {
 		return new ElasticsearchAsyncClient(transport);
 	}
-
 }
+
 
