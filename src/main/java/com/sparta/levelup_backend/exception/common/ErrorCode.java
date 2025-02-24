@@ -10,7 +10,7 @@ public enum ErrorCode {
 	// 400 BAD_REQUEST
 	INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "ERR001", "요청값이 올바르지 않습니다."),
 	INVALID_JSON_FORMAT(HttpStatus.BAD_REQUEST, "ERR002", "잘못된 JSON 형식입니다."),
-	INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ERR003", "이미 취소 되었거나 결제 정책에 의해 상태 변경 요청이 불가능합니다."),
+	INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ERR003", "이미 취소 되었거나 결제완료 상태입니다."),
 	MISMATCH_REVIEW_PRODUCT(HttpStatus.BAD_REQUEST, "ERR004", "해당 상품의 리뷰가 아닙니다."),
 	INVALID_ORDER_CANCELED(HttpStatus.BAD_REQUEST, "ERR005", "주문 취소 기능 요청으로 가능합니다."),
 	INVALID_ORDER_COMPLETED(HttpStatus.BAD_REQUEST, "ERR006", "이미 거래가 완료되었습니다."),
@@ -20,9 +20,11 @@ public enum ErrorCode {
 	ALREADY_DELETED_USER(HttpStatus.BAD_REQUEST, "ERR010", "이미 탈퇴된 유저입니다."),
 	INVALID_ORDER_CREATE(HttpStatus.BAD_REQUEST, "ERR011", "본인의 상품은 주문할 수 없습니다."),
 	PAGE_OUT_OF_BOUNDS(HttpStatus.BAD_REQUEST, "ERR012", "페이지 범위를 초과하였습니다."),
-  AUTH_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "ERR013", "가입한 로그인 방식과 일치하지 않습니다."),
-  INVALID_CHATROOM_CREATE(HttpStatus.BAD_REQUEST, "ERR014", "자기자신과 채팅방을 만들 수 없습니다."),
-  
+    AUTH_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "ERR013", "가입한 로그인 방식과 일치하지 않습니다."),
+    INVALID_CHATROOM_CREATE(HttpStatus.BAD_REQUEST, "ERR014", "자기자신과 채팅방을 만들 수 없습니다."),
+    PAYMENT_ERROR_ORDER_PRICE(HttpStatus.BAD_REQUEST, "ERR015", "요청한 가격과 상품의 가격이 일치하지않습니다."),
+	PAYMENT_ERROR_ORDER_NAME(HttpStatus.BAD_REQUEST, "ERR016", "존재하지 않는 결제 방법입니다."),
+
 	// 401 UNAUTHORIZED
 	UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),
 	LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "ERR102", "로그인에 실패했습니다."),
@@ -45,6 +47,7 @@ public enum ErrorCode {
 	CHATROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR308", "채팅방을 찾을 수 없습니다"),
 	BILL_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR309", "거래내역을 찾을 수 없습니다."),
 	COMMUNITY_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR310", "커뮤니티를 찾을 수 없습니다."),
+	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR311", "결제정보를 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "ERR401", "이미 사용 중인 이메일입니다."),
@@ -60,9 +63,18 @@ public enum ErrorCode {
 	PARTICIPANT_ISDELETED(HttpStatus.CONFLICT, "ERR411", "이미 나간 채팅방입니다."),
 	DUPLICATE_DELETED_BILL(HttpStatus.CONFLICT, "ERR412", "삭제된 결제내역입니다."),
 	COMMUNITY_ISDELETED(HttpStatus.CONFLICT, "ERR413", "이미 삭제된 커뮤니티입니다."),
+	DB_ERROR_SAVE(HttpStatus.CONFLICT, "ERR414", "데이터 저장 중 오류가 발생했습니다."),
+	CONFLICT_PRICE_EQUALS(HttpStatus.CONFLICT, "ERR415", "요청한 금액이 결제 금액과 맞지않습니다."),
+	PAYMENT_CANCELED_OK(HttpStatus.CONFLICT,"ERR416", "이미 취소 완료되었습니다." ),
+	PAYMENT_PENDING(HttpStatus.CONFLICT,"ERR417", "아직 결제되지 않은 상품입니다."),
+	INVALID_REQUEST_MANY(HttpStatus.CONFLICT, "ERR418", "취소 요청이 너무 많습니다. 잠시 후 다시 시도해주세요." ),
 
 	// 500 INTERNAL_SERVER_ERROR
-	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다.");
+	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다."),
+
+	// 424 FAIL
+	PAYMENT_FAILED_RETRY(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 반복적으로 실패했습니다."),
+	PAYMENT_FAILED(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 실패했습니다.");
 
 	private final HttpStatus status;
 	private final String code;

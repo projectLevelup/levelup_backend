@@ -11,11 +11,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -45,9 +48,11 @@ public class UserEntity extends BaseEntity {
 
 	private String provider;
 
-	public void updateEmail(String email) {
-		this.email = email;
-	}
+    private String customerKey;
+
+    public void updateEmail(String email){
+        this.email = email;
+    }
 
 	public void updateImgUrl(String imgUrl) {
 		this.imgUrl = imgUrl;
@@ -68,4 +73,8 @@ public class UserEntity extends BaseEntity {
 	public void updateProvider(String provider) {
 		this.provider = provider;
 	}
+
+    public String generateCustomerKey() {
+        return "UUID-" + this.id + "-" + UUID.randomUUID().toString();
+    }
 }

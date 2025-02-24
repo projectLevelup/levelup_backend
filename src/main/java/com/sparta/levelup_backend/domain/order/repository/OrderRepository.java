@@ -13,5 +13,4 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     default OrderEntity findByIdOrElseThrow(Long orderId) {
         return findById(orderId).orElseThrow(() -> new NotFoundException(ErrorCode.ORDER_NOT_FOUND));
     }
-
 }

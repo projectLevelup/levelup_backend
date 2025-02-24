@@ -50,4 +50,8 @@ public class CustomUserDetails implements UserDetails {
 	public String getNickName() {
 		return user.getNickName();
 	}
+
+	public String getCustomerKey() {
+		return user.getCustomerKey();
+	}
 }
