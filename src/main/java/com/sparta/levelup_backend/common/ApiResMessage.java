@@ -53,5 +53,6 @@ public class ApiResMessage {
 	//ALERT
 	public static final String ALERT_ALL_READ_SUCCESS = "알림을 모두 읽음처리했습니다.";
 	public static final String ALERT_READ_SUCCESS = "알림을 읽음처리했습니다.";
+	public static final String ALERT_LOG_READ_SUCCESS = "알림로그 조회에 성공했습니다.";
 }
 

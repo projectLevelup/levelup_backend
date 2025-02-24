@@ -58,7 +58,7 @@ public class AlertMessageRepository {
 		String key = "Alert_" + userId;
 		List<Object> objectMessages = alertMessage.range(key, alertId, alertId);
 		List<AlertMessageEntity> alertMessageEntitys = new ArrayList<>();
-		
+
 		for (Object objectMessage : objectMessages) {
 			AlertMessageEntity messageEntity = (AlertMessageEntity)objectMessage;
 			alertMessageEntitys.add(messageEntity);

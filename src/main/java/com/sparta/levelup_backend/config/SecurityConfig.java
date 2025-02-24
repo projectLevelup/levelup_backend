@@ -1,8 +1,5 @@
 package com.sparta.levelup_backend.config;
 
-import com.sparta.levelup_backend.domain.auth.service.CustomOAuth2UserService;
-import com.sparta.levelup_backend.utill.JwtUtils;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +11,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.sparta.levelup_backend.domain.auth.service.CustomOAuth2UserService;
+import com.sparta.levelup_backend.utill.JwtUtils;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -69,7 +71,7 @@ public class SecurityConfig {
 		http.
 			authorizeHttpRequests((auth) -> auth
 				.requestMatchers("/", "/v2/home", "/v2/sign**", "/v2/oauth2sign*").permitAll()
-				.requestMatchers("/v2/admin/**").hasRole("ADMIN")
+				.requestMatchers("/v2/admin/**", "/v3/admin/**").hasRole("ADMIN")
 				.anyRequest().authenticated());
 
 		http.exceptionHandling(exceptionHandling ->

@@ -3,6 +3,9 @@ package com.sparta.levelup_backend.domain.sse.controller;
 import static com.sparta.levelup_backend.common.ApiResMessage.*;
 import static com.sparta.levelup_backend.common.ApiResponse.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.domain.sse.dto.response.AlertLogResponseDto;
 import com.sparta.levelup_backend.domain.sse.service.AlertService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +35,7 @@ public class AlertController {
 	public ResponseEntity<SseEmitter> userChangeAlert(@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
 		SseEmitter alert = alertService.alertSubscribe(userDetails.getId(), lastEventId);
-		
+
 		return new ResponseEntity(alert, HttpStatus.OK);
 	}
 
@@ -48,5 +52,12 @@ public class AlertController {
 		alertService.readAlert(userDetails.getId(), alertId);
 
 		return success(HttpStatus.OK, ALERT_READ_SUCCESS);
+	}
+
+	@GetMapping("/admin/sse/log/{userId}")
+	public ApiResponse<Page<AlertLogResponseDto>> findLogByuserId(@PageableDefault Pageable pageable,
+		@PathVariable Long userId) {
+		Page<AlertLogResponseDto> results = alertService.findLogByuserId(userId, pageable);
+		return success(HttpStatus.OK, ALERT_LOG_READ_SUCCESS, results);
 	}
 }

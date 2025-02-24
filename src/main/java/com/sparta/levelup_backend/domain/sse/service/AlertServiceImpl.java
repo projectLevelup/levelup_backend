@@ -7,10 +7,13 @@ import static org.springframework.web.servlet.mvc.method.annotation.SseEmitter.*
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.sparta.levelup_backend.domain.sse.dto.response.AlertLogResponseDto;
 import com.sparta.levelup_backend.domain.sse.entity.AlertMessageEntity;
 import com.sparta.levelup_backend.domain.sse.entity.AlertMessageLogEntity;
 import com.sparta.levelup_backend.domain.sse.repository.AlertMessageLogRepository;
@@ -93,6 +96,11 @@ public class AlertServiceImpl implements AlertService {
 		List<AlertMessageEntity> readTargetAlertMessage = alertMessageRepository.findById(userId, alertId);
 		alertMessageRepository.deleteById(userId, readTargetAlertMessage);
 
+	}
+
+	@Override
+	public Page<AlertLogResponseDto> findLogByuserId(Long userId, Pageable pageable) {
+		return alertMessageLogRepository.findAllByUserId(userId, pageable);
 	}
 
 	@Override
