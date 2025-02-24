@@ -58,6 +58,13 @@ public class PaymentController {
     @Value("${toss.secret.key}")
     private String tossSecretKey;
 
+    /**
+     * 결제 승인 요청 및 payments 생성
+     * @param request 프론트에서 전달받음
+     * @param jasonBody 응답 받을 바디
+     * @return 결제 완료 및 Bill 생성 , order 상태 변환
+     * @throws Exception
+     */
     @RequestMapping(value = {"/confirm/payment"})
     public ResponseEntity<JSONObject> confirmPayment(HttpServletRequest request, @RequestBody String jasonBody) throws Exception {
 
@@ -117,6 +124,12 @@ public class PaymentController {
         throw new PaymentException(PAYMENT_FAILED);
     }
 
+    /**
+     * 결제 취소 승인 요청
+     * @param dto 프론트에서 결제취소정보 API 호출
+     * @return 취소 완료
+     * @throws Exception
+     */
     @RequestMapping("/cancel/payment")
     public ResponseEntity<JSONObject> cancelPayment(@RequestBody CancelPaymentRequestDto dto) throws Exception {
 
