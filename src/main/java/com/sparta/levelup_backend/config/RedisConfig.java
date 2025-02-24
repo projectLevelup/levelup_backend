@@ -1,13 +1,16 @@
 package com.sparta.levelup_backend.config;
 
+import com.sparta.levelup_backend.domain.bill.service.BillStatusSubscriber;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -55,7 +58,7 @@ public class RedisConfig {
         return container;
     }
 
-    // Redis 리스너 설정 추가
+    // Redis 리스너 설정 추가 (주문 생성 자동삭제)
     @Bean
     public RedisMessageListenerContainer expireEventListener(
             RedisConnectionFactory redisConnectionFactory,
@@ -67,4 +70,26 @@ public class RedisConfig {
         return container;
     }
 
+    // Redis 리스너 설정 추가 (결제 관련 알림)
+    @Bean
+    public RedisMessageListenerContainer redisMessageListener(
+            RedisConnectionFactory connectionFactory,
+            MessageListenerAdapter messageListenerAdapter,
+            ChannelTopic BillStatusChannel) {
+
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(messageListenerAdapter, BillStatusChannel);
+        return container;
+    }
+
+    @Bean
+    public MessageListenerAdapter messageListenerAdapter(BillStatusSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "onMessage");
+    }
+
+    @Bean
+    public ChannelTopic BillStatusChannel() {
+        return new ChannelTopic("billStatusChannel");
+    }
 }
