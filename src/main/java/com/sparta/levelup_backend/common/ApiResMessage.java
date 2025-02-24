@@ -9,6 +9,8 @@ public class ApiResMessage {
 	public static final String UPDATE_SUCCESS = "사용자 정보 수정에 성공했습니다.";
 	public static final String PASSWORD_CHANGE_SUCCESS = "사용자 비밀번호 변경에 성공했습니다.";
 	public static final String DELETE_SUCCESS = "탈퇴가 완료되었습니다.";
+	public static final String RESET_EMAIL_SEND_SUCCESS = "비밀번호 재설정 인증번호 발송 성공";
+	public static final String RESET_PASSWORD_SUCCESS = "비밀번호 초기화 성공";
 
 	//Review
 	public static final String REVIEW_SUCCESS = "리뷰 작성이 완료되었습니다.";

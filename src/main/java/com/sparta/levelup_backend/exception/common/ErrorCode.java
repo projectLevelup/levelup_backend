@@ -22,6 +22,8 @@ public enum ErrorCode {
 	PAGE_OUT_OF_BOUNDS(HttpStatus.BAD_REQUEST, "ERR012", "페이지 범위를 초과하였습니다."),
 	AUTH_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "ERR013", "가입한 로그인 방식과 일치하지 않습니다."),
 	INVALID_CHATROOM_CREATE(HttpStatus.BAD_REQUEST, "ERR014", "자기자신과 채팅방을 만들 수 없습니다."),
+	INVALID_NICKNAME(HttpStatus.BAD_REQUEST, "ERR015", "유저이름이 일치하지 않습니다."),
+	INVALID_RESETCODE(HttpStatus.BAD_REQUEST, "ERR016", "인증코드가 만료되었거나 일치하지 않습니다."),
 
 	// 401 UNAUTHORIZED
 	UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),
