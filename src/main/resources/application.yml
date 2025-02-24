@@ -1,8 +1,8 @@
 spring:
   elasticsearch:
-    uris: http://elasticsearch:9200
-    username: elastic
-    password: your-secure-password
+    uris: ${SPRING_ELASTICSEARCH_URI:http://elasticsearch:9200}
+    username: ${SPRING_ELASTICSEARCH_USERNAME:elastic}
+    password: ${SPRING_ELASTICSEARCH_PASSWORD:your-secure-password}
   datasource:
     url: jdbc:mysql://db-mysql.ctw4cseqk9v4.ap-northeast-2.rds.amazonaws.com:3306/levelup
     username: admin
@@ -15,6 +15,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  data:
     mongodb:
       uri: mongodb+srv://levelup:ZsM2V6brfRdizhx6@cluster0.5rnlx.mongodb.net/levelup?retryWrites=true&w=majority&appName=Cluster0&tls=true
   security:
@@ -43,7 +44,6 @@ spring:
             user-name-attribute: response
 
 management:
-  endpoint:
   endpoints:
     web:
       exposure:
