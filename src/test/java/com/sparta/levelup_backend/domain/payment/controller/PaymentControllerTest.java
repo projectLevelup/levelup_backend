@@ -67,7 +67,7 @@ class PaymentControllerTest {
             } catch (Exception e) {
                 retryCount++;
                 if (retryCount >= maxRetries) {
-                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RITRY);
+                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RETRY);
                 }
             }
         }

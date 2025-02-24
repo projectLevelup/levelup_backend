@@ -18,11 +18,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.utill.OrderStatus.*;
 
 @Slf4j
 @Service
@@ -34,6 +39,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
     private final RedissonClient redissonClient;
     private final BillServiceImplV2 billService;
     private final BillRepository billRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 주문생성
@@ -54,25 +60,25 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
         try {
             boolean avaiable = lock.tryLock(1, 10, TimeUnit.SECONDS);
             if (!avaiable) {
-                throw new LockException(ErrorCode.CONFLICT_LOCK_GET);
+                throw new LockException(CONFLICT_LOCK_GET);
             }
 
             // 비관적 락
             ProductEntity product = productService.getFindByIdWithLock(dto.getProductId());
 
             if (product.getStatus().equals(ProductStatus.INACTIVE)) {
-                throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+                throw new NotFoundException(PRODUCT_NOT_FOUND);
             }
 
             if (user.getId() == product.getUser().getId()) {
-                throw new OrderException(ErrorCode.INVALID_ORDER_CREATE);
+                throw new OrderException(INVALID_ORDER_CREATE);
             }
 
             product.decreaseAmount();
 
             OrderEntity order = OrderEntity.builder()
                     .user(user)
-                    .status(OrderStatus.PENDING)
+                    .status(PENDING)
                     .totalPrice(product.getPrice())
                     .product(product)
                     .orderName(product.getProductName())
@@ -81,8 +87,10 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
             saveOrder = orderRepository.save(order);
 
+            // Redis에 주문 Id 저장 (10분 TTL)
+            redisTemplate.opsForValue().set("order:expire:" + order.getId(), "PENDING", Duration.ofMinutes(10));
         } catch (InterruptedException e) {
-            throw new LockException(ErrorCode.CONFLICT_LOCK_ERROR);
+            throw new LockException(CONFLICT_LOCK_ERROR);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -104,7 +112,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
         // 구매자와 판매자만 조회 가능
         if (!order.getUser().getId().equals(userId) && !order.getProduct().getUser().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
         return new OrderResponseDto(order);
@@ -124,15 +132,15 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
         // 구매자인지 확인
         if (!order.getUser().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
         // 결제 대기 상태가 아니라면 변경 불가
-        if (order.getStatus() != OrderStatus.PENDING) {
-            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        if (order.getStatus() != PENDING) {
+            throw new OrderException(INVALID_ORDER_STATUS);
         }
 
-        order.setStatus(OrderStatus.TRADING);
+        order.setStatus(TRADING);
         OrderEntity saveOrder = orderRepository.save(order);
         billService.createBill(userId, orderId);
         return new OrderResponseDto(saveOrder);
@@ -152,16 +160,17 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
         // 구매자인지 확인
         if (!order.getUser().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
         // 거래중 상태가 아니라면 변경 불가
-        if (order.getStatus() != OrderStatus.TRADING) {
-            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        if (order.getStatus() != TRADING) {
+            throw new OrderException(INVALID_ORDER_STATUS);
         }
 
-        order.setStatus(OrderStatus.COMPLETED);
+        order.setStatus(COMPLETED);
         orderRepository.save(order);
+        log.info("order {} 거래 완료.", order.getId());
         return new OrderResponseDto(order);
     }
 
@@ -182,26 +191,26 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
         // 판매자 구매자 둘 다 취소 가능
         if (!order.getUser().getId().equals(userId) && !order.getProduct().getUser().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
         // 거래요청이 아닐 때 예외 발생
-        if (order.getStatus() != OrderStatus.PENDING) {
-            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        if (order.getStatus() != PENDING) {
+            throw new OrderException(INVALID_ORDER_STATUS);
         }
 
         try {
             boolean avaiable = lock.tryLock(1, 10, TimeUnit.SECONDS);
             if (!avaiable) {
-                throw new LockException(ErrorCode.CONFLICT_LOCK_GET);
+                throw new LockException(CONFLICT_LOCK_GET);
             }
             ProductEntity product = productService.getFindByIdWithLock(order.getProduct().getId());
             product.increaseAmount();
-            order.setStatus(OrderStatus.CANCELED);
+            order.setStatus(CANCELED);
             order.orderDelete();
             orderRepository.save(order);
         } catch (InterruptedException e) {
-            throw new LockException(ErrorCode.CONFLICT_LOCK_ERROR);
+            throw new LockException(CONFLICT_LOCK_ERROR);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
@@ -227,26 +236,26 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
         // 판매자인지 확인
         if (!order.getProduct().getUser().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
         // 거래중이 아닐 때 예외 발생
-        if (order.getStatus() != OrderStatus.TRADING) {
-            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+        if (order.getStatus() != TRADING) {
+            throw new OrderException(INVALID_ORDER_STATUS);
         }
 
         try {
             boolean avaiable = lock.tryLock(1, 10, TimeUnit.SECONDS);
             if (!avaiable) {
-                throw new LockException(ErrorCode.CONFLICT_LOCK_GET);
+                throw new LockException(CONFLICT_LOCK_GET);
             }
             ProductEntity product = productService.getFindByIdWithLock(order.getProduct().getId());
             product.increaseAmount();
-            order.setStatus(OrderStatus.CANCELED);
+            order.setStatus(CANCELED);
             order.orderDelete();
 
             BillEntity bill = billRepository.findByOrderId(orderId)
-                    .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+                    .orElseThrow(() -> new NotFoundException(BILL_NOT_FOUND));
 
             bill.cancelBill();
 
@@ -254,7 +263,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
             billRepository.save(bill);
 
         } catch (InterruptedException e) {
-            throw new LockException(ErrorCode.CONFLICT_LOCK_ERROR);
+            throw new LockException(CONFLICT_LOCK_ERROR);
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
