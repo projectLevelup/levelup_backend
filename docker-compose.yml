@@ -93,7 +93,8 @@ volumes:
     driver: local
   redis-data:
     driver: local
-
+  mongodb-data:
+    driver: local
 networks:
   app-network:
     driver: bridge
