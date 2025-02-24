@@ -1,5 +1,8 @@
 package com.sparta.levelup_backend.config;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static org.springframework.util.StringUtils.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -32,10 +35,11 @@ import lombok.RequiredArgsConstructor;
 public class JwtFilter extends OncePerRequestFilter {
 
 	private final JwtUtils jwtUtils;
-	private final RequestMatcher HOME_PAGE = new AntPathRequestMatcher("/");
 	private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
 		new AntPathRequestMatcher("/v2/home"),
 		new AntPathRequestMatcher("/v2/sign**"),
+		new AntPathRequestMatcher("/v**/users/resetPassword**"),
+		new AntPathRequestMatcher("/resetPassword**"),
 		new AntPathRequestMatcher("/oauth2/authorization/naver"),
 		new AntPathRequestMatcher("/v2/oauth2sign*"));
 	private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
@@ -49,107 +53,123 @@ public class JwtFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		if (HOME_PAGE.matches(request)) {
-			response.sendRedirect("/v2/home");
-			filterChain.doFilter(request, response);
-			return;
-		}
-
-		String accessToken = request.getHeader("Authorization");
-		String refreshToken = extractToken(request, "refreshToken");
-		accessToken = extractToken(request, "accessToken");
 
 		try {
-			if (refreshToken != null) {
-				if (isTokenExpired(accessToken)) {
-					String token = jwtUtils.refresingToken(refreshToken);
-					response.addHeader("Authorization", token);
-					response.addHeader("Set-Cookie", "accessToken=" + token);
-				} else if (isTokenExpired(refreshToken)) {
-					String token = jwtUtils.refresingToken(accessToken);
-					response.addHeader("Set-Cookie", "refreshToken=" + token);
-				}
+			// 헤더에서 토큰 추출
+			String accessToken = extractAccessToken(request);
+			String refreshToken = extractCookieToken(request, "refreshToken");
+
+			// 토큰이 전부 없을 시
+			if (!hasText(accessToken) && !hasText(refreshToken)) {
+				throw new NotFoundException(TOKEN_NOT_FOUND);
 			}
 
-			Claims accessTokenClaims = jwtUtils.extractClaims(jwtUtils.substringToken(accessToken));
+			reissueExpiredTokens(accessToken, refreshToken, response);
 
-			String email = accessTokenClaims.getSubject();
-			String role = accessTokenClaims.get("role", String.class);
-			role = role.substring(5);
-			Long id = Long.parseLong(accessTokenClaims.get("id", String.class));
-			String nickName = accessTokenClaims.get("nickName", String.class);
+			Claims accessTokenClaims = jwtUtils.extractClaims(accessToken);
+			Authentication authentication = createAuthentication(accessTokenClaims);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			UserEntity tokenUser = UserEntity.builder()
-				.id(id)
-				.email(email)
-				.nickName(nickName)
-				.role(UserRole.valueOf(role))
-				.build();
-
-			CustomUserDetails userDetails = new CustomUserDetails(tokenUser);
-
-			Authentication authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
-				userDetails.getAuthorities());
-
-			SecurityContextHolder.getContext().setAuthentication(authToken);
 			filterChain.doFilter(request, response);
+
 		} catch (SecurityException | MalformedJwtException e) {
-			filterResponse.responseErrorMsg(response,
-				ErrorCode.INVALID_JWT_TOKEN.getStatus().value(),
-				ErrorCode.INVALID_JWT_TOKEN.getCode(),
-				ErrorCode.INVALID_JWT_TOKEN.getMessage());
+			handleException(response, INVALID_JWT_TOKEN);
 		} catch (ExpiredJwtException e) {
-			filterResponse.responseErrorMsg(response,
-				ErrorCode.EXPIRED_JWT_TOKEN.getStatus().value(),
-				ErrorCode.EXPIRED_JWT_TOKEN.getCode(),
-				ErrorCode.EXPIRED_JWT_TOKEN.getMessage());
+			handleException(response, EXPIRED_JWT_TOKEN);
 		} catch (UnsupportedJwtException e) {
-			filterResponse.responseErrorMsg(response,
-				ErrorCode.INVALID_FORMAT_TOKEN.getStatus().value(),
-				ErrorCode.INVALID_FORMAT_TOKEN.getCode(),
-				ErrorCode.INVALID_FORMAT_TOKEN.getMessage());
+			handleException(response, INVALID_FORMAT_TOKEN);
 		} catch (NotFoundException e) {
-			filterResponse.responseErrorMsg(response, ErrorCode.TOKEN_NOT_FOUND.getStatus().value(),
-				ErrorCode.TOKEN_NOT_FOUND.getCode(),
-				ErrorCode.TOKEN_NOT_FOUND.getMessage());
+			handleException(response, TOKEN_NOT_FOUND);
 		} catch (Exception e) {
-			filterResponse.responseErrorMsg(response,
-				ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value(),
-				ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
-				ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
+			handleException(response, INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	public String extractToken(HttpServletRequest request, String tokenName) {
-		String token = null;
-		if (request.getHeader("Cookie") != null) {
-			String cookie = request.getHeader("Cookie");
-			String[] cookies = cookie.split("; ");
-			for (String cookiedata : cookies) {
-				if (cookiedata.startsWith(tokenName)) {
-					int index = cookiedata.indexOf("=");
-					token = cookiedata.substring(index + 1);
-				}
+	/**
+	 * 쿠키에서 토큰 추출
+	 */
+	public String extractCookieToken(HttpServletRequest request, String tokenName) {
+		String cookieHeader = request.getHeader("Cookie");
+		if (cookieHeader == null) {
+			return null;
+		}
+		String[] cookies = cookieHeader.split("; ");
+		for (String c : cookies) {
+			if (c.startsWith(tokenName + "=")) {
+				return c.substring((tokenName + "=").length());
 			}
 		}
-		return token;
+		return null;
+	}
+
+	/**
+	 * 헤더에서 토큰 추출
+	 */
+	private String extractAccessToken(HttpServletRequest request) {
+		String headerToken = request.getHeader("Authorization");
+		if (headerToken != null && headerToken.startsWith("Bearer ")) {
+			return headerToken.substring(7);
+		}
+		return extractCookieToken(request, "accessToken");
 	}
 
 	public boolean isTokenExpired(String token) throws Exception {
 
+		if (token == null || token.isBlank()) {
+			throw new NotFoundException(TOKEN_NOT_FOUND);
+		}
 		try {
-
-			if (token == null || token.isBlank()) {
-				throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
-			}
-			Claims claims = jwtUtils.extractClaims(jwtUtils.substringToken(token));
-			if (claims == null) {
-				throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
-			}
+			jwtUtils.extractClaims(token);
 			return false;
-
 		} catch (ExpiredJwtException e) {
 			return true;
 		}
 	}
+
+	/**
+	 * Refresh 토큰 존재 여부 확인 후 재발급 처리 메서드
+	 */
+	private void reissueExpiredTokens(String accessToken, String refreshToken, HttpServletResponse response) throws
+		Exception {
+
+		if (hasText(refreshToken)) {
+			if (isTokenExpired(accessToken)) {
+				String newAccessToken = jwtUtils.refresingToken(refreshToken);
+				response.addHeader("Authorization", "Bearer " + newAccessToken);
+				response.addHeader("Set-Cookie", "accessToken=" + newAccessToken + "; Path=/; Domain=localhost;");
+			} else if (isTokenExpired(refreshToken)) {
+				String newRefreshToken = jwtUtils.refresingToken(accessToken);
+				response.addHeader("Set-Cookie", "refreshToken=" + newRefreshToken + "; Path=/; Domain=localhost;");
+			}
+		}
+	}
+
+	// Authentication 객체 생성 메서드
+	private Authentication createAuthentication(Claims claims) {
+		String email = claims.getSubject();
+		String role = claims.get("role", String.class);
+		Long id = Long.parseLong(claims.get("id", String.class));
+		String nickName = claims.get("nickName", String.class);
+
+		UserEntity tokenUser = UserEntity.builder()
+			.id(id)
+			.email(email)
+			.nickName(nickName)
+			.role(UserRole.valueOf(role.substring(5)))
+			.build();
+
+		CustomUserDetails userDetails = new CustomUserDetails(tokenUser);
+		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+	}
+
+	// 공통 예외 처리
+	private void handleException(HttpServletResponse response, ErrorCode errorCode) {
+		filterResponse.responseErrorMsg(
+			response,
+			errorCode.getStatus().value(),
+			errorCode.getCode(),
+			errorCode.getMessage()
+		);
+	}
+
 }

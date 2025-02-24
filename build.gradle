@@ -70,6 +70,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch:3.2.2'
     implementation 'org.springframework.data:spring-data-elasticsearch:5.4.3'
 
+    // Email
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
     // OpenKoreanTextProcessor (한글 형태소 분석)
     implementation 'org.openkoreantext:open-korean-text:2.1.0'
 

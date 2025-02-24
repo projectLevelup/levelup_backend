@@ -7,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class GoogleResponse implements OAuth2Response {
+public class NaverResponseDtoDto implements OAuth2ResponseDto {
 
 	private final Map<String, Object> attribute;
 
 	@Override
 	public String getProvider() {
 
-		return "google";
+		return "naver";
 	}
 
 	@Override
