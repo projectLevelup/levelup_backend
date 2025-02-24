@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.domain.payment.controller;
 
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
+import com.sparta.levelup_backend.domain.bill.service.BillEventPubService;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
@@ -53,6 +54,7 @@ public class PaymentController {
     private final BillRepository billRepository;
     private final RedissonClient redissonClient;
     private final ProductServiceImpl productService;
+    private final BillEventPubService billEventPubService;
     private final int MAX_RETRIES = 3;
 
     @Value("${toss.secret.key}")
@@ -179,8 +181,7 @@ public class PaymentController {
                         }
                         ProductEntity product = productService.getFindByIdWithLock(bill.getOrder().getProduct().getId());
                         product.increaseAmount();
-                        bill.cancelBill();
-                        billRepository.save(bill);
+                        billEventPubService.createCancelEvent(bill);
                         log.info("상품: {} 수량 복구 완료", product.getProductName());
 
                     } catch (InterruptedException e) {

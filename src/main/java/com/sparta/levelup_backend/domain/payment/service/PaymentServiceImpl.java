@@ -33,8 +33,6 @@ public class PaymentServiceImpl implements PaymentService{
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final TossPaymentConfig tossPaymentConfig;
-    private final BillServiceImplV2 billService;
-    private final UserRepository userRepository;
     private final RateLimitService rateLimitService;
 
     @Transactional
