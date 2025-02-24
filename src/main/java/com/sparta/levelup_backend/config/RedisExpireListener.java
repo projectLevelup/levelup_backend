@@ -33,8 +33,6 @@ public class RedisExpireListener implements MessageListener {
     private final ProductRepository productRepository;
     private final ProductServiceImpl productService;
     private final RedissonClient redissonClient;
-    private final BillServiceImplV2 billService;
-    private final BillRepository billRepository;
 
     @Transactional
     public void handleOrderExpiration(Long orderId) {
