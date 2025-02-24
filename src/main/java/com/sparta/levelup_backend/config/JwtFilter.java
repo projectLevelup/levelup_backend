@@ -39,6 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
 		new AntPathRequestMatcher("/v2/home"),
 		new AntPathRequestMatcher("/v2/sign**"),
 		new AntPathRequestMatcher("/v**/users/resetPassword**"),
+		new AntPathRequestMatcher("/resetPassword**"),
 		new AntPathRequestMatcher("/oauth2/authorization/naver"),
 		new AntPathRequestMatcher("/v2/oauth2sign*"));
 	private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);

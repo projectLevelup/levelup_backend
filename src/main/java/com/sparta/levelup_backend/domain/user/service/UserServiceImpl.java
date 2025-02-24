@@ -122,6 +122,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public UserResponseDto updateImgUrl(Long id, UpdateUserImgUrlReqeustDto dto) {
 
 		UserEntity user = userRepository.findByIdOrElseThrow(id);
@@ -156,6 +157,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public void resetPassword(ResetPasswordDto dto) {
 		UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 		if (user.getNickName().equals(dto.getNickName())) {
@@ -171,6 +173,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional
 	public void resetPasswordConfirm(ResetPasswordConfirmDto dto) {
 
 		ValueOperations<String, Object> passwordResetCodes = redisTemplate.opsForValue();
@@ -181,7 +184,7 @@ public class UserServiceImpl implements UserService {
 			if (dto.getNewPassword().equals(dto.getPasswordConfirm())) {
 				user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
 				passwordResetCodes.set(PASSWORD_RESET_CODE_PREFIX + dto.getEmail(), passwordResetCode,
-					Duration.ofSeconds(0));
+					Duration.ofSeconds(1));
 			} else {
 				throw new PasswordConfirmNotMatchedException();
 			}

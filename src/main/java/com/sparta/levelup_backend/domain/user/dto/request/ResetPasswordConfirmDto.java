@@ -3,6 +3,7 @@ package com.sparta.levelup_backend.domain.user.dto.request;
 import static com.sparta.levelup_backend.domain.user.dto.UserValidMessage.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sparta.levelup_backend.config.annotaion.FormToJson;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@FormToJson
 public class ResetPasswordConfirmDto {
 
 	@NotBlank
@@ -22,7 +24,7 @@ public class ResetPasswordConfirmDto {
 		message = PASSWORD_NOT_VALID)
 	@NotBlank
 	String newPassword;
-	
+
 	@JsonProperty(value = "passwordConfirm")
 	@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[\\W_]).{8,}$",
 		message = PASSWORD_NOT_VALID)

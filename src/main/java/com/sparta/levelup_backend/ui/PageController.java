@@ -67,9 +67,9 @@ public class PageController {
 	// 채팅방 페이지
 	@GetMapping("/chatroom")
 	public String getChatroomPage(@RequestParam String chatroomId,
-								  @AuthenticationPrincipal CustomUserDetails authUser,
-								  Model model,
-								  RedirectAttributes redirectAttributes) {
+		@AuthenticationPrincipal CustomUserDetails authUser,
+		Model model,
+		RedirectAttributes redirectAttributes) {
 		// 현재 사용자가 해당 채팅방의 참가자인지 확인
 		if (!chatroomMongoRepository.findByUserIdAndChatroomId(authUser.getId(), chatroomId).isEmpty()) {
 			redirectAttributes.addFlashAttribute("errorMessage", "참여하지 않은 채팅방에 접근하실 수 없습니다.");
@@ -93,5 +93,15 @@ public class PageController {
 	public String productDetail(@RequestParam("productId") Long productId, Model model) {
 		model.addAttribute("productId", productId);
 		return "productDetail";
+	}
+
+	@GetMapping("/resetPassword")
+	public String resetPassword() {
+		return "resetPassword";
+	}
+
+	@GetMapping("/resetPasswordConfirm")
+	public String resetPasswordConfirm() {
+		return "resetPasswordConfirm";
 	}
 }
