@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.levelup_backend.domain.sse.entity.AlertMessageEntity;
+import com.sparta.levelup_backend.domain.sse.entity.AlertMessageLogEntity;
 import com.sparta.levelup_backend.domain.sse.event.AlertEventPublisher;
+import com.sparta.levelup_backend.domain.sse.repository.AlertMessageLogRepository;
 import com.sparta.levelup_backend.domain.sse.repository.AlertMessageRepository;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
 	private final AlertMessageRepository alertMessageRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final AlertEventPublisher alertEvent;
+	private final AlertMessageLogRepository alertMessageLogRepository;
 
 	@Override
 	public UserResponseDto findUserById(String role, Long id) {
@@ -74,7 +77,10 @@ public class UserServiceImpl implements UserService {
 		}
 		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(user.getId(),
 			new AlertMessageEntity(USER_CHANGED_MESSAGE));
-		alertEvent.publisher(user.getId(), alertMessageEntity);
+		AlertMessageLogEntity log = new AlertMessageLogEntity(user.getId(),
+			USER_CHANGED_MESSAGE);
+		AlertMessageLogEntity savedLog = alertMessageLogRepository.save(log);
+		alertEvent.publisher(user.getId(), savedLog.getId(), alertMessageEntity);
 
 		return UserResponseDto.from(user);
 	}
@@ -96,7 +102,10 @@ public class UserServiceImpl implements UserService {
 		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(
 			user.getId(),
 			new AlertMessageEntity(USER_PASSWORD_CHANGED_MESSAGE));
-		alertEvent.publisher(user.getId(), alertMessageEntity);
+		AlertMessageLogEntity log = new AlertMessageLogEntity(user.getId(),
+			USER_PASSWORD_CHANGED_MESSAGE);
+		AlertMessageLogEntity savedLog = alertMessageLogRepository.save(log);
+		alertEvent.publisher(user.getId(), savedLog.getId(), alertMessageEntity);
 	}
 
 	@Override
@@ -108,7 +117,10 @@ public class UserServiceImpl implements UserService {
 		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(
 			user.getId(),
 			new AlertMessageEntity(USER_CHANGED_MESSAGE));
-		alertEvent.publisher(user.getId(), alertMessageEntity);
+		AlertMessageLogEntity log = new AlertMessageLogEntity(user.getId(),
+			USER_CHANGED_MESSAGE);
+		AlertMessageLogEntity savedLog = alertMessageLogRepository.save(log);
+		alertEvent.publisher(user.getId(), savedLog.getId(), alertMessageEntity);
 
 		return UserResponseDto.from(user);
 

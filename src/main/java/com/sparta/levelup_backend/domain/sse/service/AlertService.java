@@ -8,7 +8,7 @@ public interface AlertService {
 
 	SseEmitter alertSubscribe(Long userId, String lastEventId);
 
-	void sendAlertMessage(Long userId, AlertMessageEntity sseMessage);
+	void sendAlertMessage(Long userId, AlertMessageEntity sseMessage, Long logId);
 
 	void sendAlertMessage(SseEmitter alert, String alertId, AlertMessageEntity alertMessageEntity);
 

@@ -8,9 +8,12 @@ import static org.springframework.web.servlet.mvc.method.annotation.SseEmitter.*
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.sparta.levelup_backend.domain.sse.entity.AlertMessageEntity;
+import com.sparta.levelup_backend.domain.sse.entity.AlertMessageLogEntity;
+import com.sparta.levelup_backend.domain.sse.repository.AlertMessageLogRepository;
 import com.sparta.levelup_backend.domain.sse.repository.AlertMessageRepository;
 import com.sparta.levelup_backend.domain.sse.repository.AlertRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -26,6 +29,7 @@ public class AlertServiceImpl implements AlertService {
 	private final AlertMessageRepository alertMessageRepository;
 	private final AlertRepository alertRepository;
 	private final UserRepository userRepository;
+	private final AlertMessageLogRepository alertMessageLogRepository;
 
 	@Override
 	public SseEmitter alertSubscribe(Long userId, String lastEventId) {
@@ -72,7 +76,6 @@ public class AlertServiceImpl implements AlertService {
 			alert.completeWithError(e);
 			alertRepository.deleteById(alertId);
 		}
-
 	}
 
 	@Override
@@ -93,13 +96,18 @@ public class AlertServiceImpl implements AlertService {
 	}
 
 	@Override
-	public void sendAlertMessage(Long userId, AlertMessageEntity sseMessage) {
+	@Transactional
+	public void sendAlertMessage(Long userId, AlertMessageEntity sseMessage, Long logId) {
 
 		List<String> sses = alertRepository.findAllAlertById(userId.toString());
 
 		for (String sse : sses) {
 			SseEmitter alert = alertRepository.findById(sse);
 			sendAlertMessage(alert, sse, sseMessage);
+		}
+		if (logId != 0) {
+			AlertMessageLogEntity log = alertMessageLogRepository.findByIdOrElseThrow(logId);
+			log.sended();
 		}
 
 	}

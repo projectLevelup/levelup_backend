@@ -9,5 +9,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class AlertEvent {
 	Long userId;
+	Long logId;
 	AlertMessageEntity alertMessageEntity;
 }

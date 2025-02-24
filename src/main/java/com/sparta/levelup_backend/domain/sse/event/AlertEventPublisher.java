@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class AlertEventPublisher {
 	private final ApplicationEventPublisher applicationEventPublisher;
 
-	public void publisher(Long userId, AlertMessageEntity alertMessageEntity) {
-		applicationEventPublisher.publishEvent(new AlertEvent(userId, alertMessageEntity));
+	public void publisher(Long userId, Long logId, AlertMessageEntity alertMessageEntity) {
+		applicationEventPublisher.publishEvent(new AlertEvent(userId, logId, alertMessageEntity));
 	}
 }

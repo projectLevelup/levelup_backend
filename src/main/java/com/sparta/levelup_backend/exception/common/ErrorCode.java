@@ -46,6 +46,7 @@ public enum ErrorCode {
 	COMMUNITY_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR310", "커뮤니티를 찾을 수 없습니다."),
 
 	ALERT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR312", "알림메시지를 찾을 수 없습니다."),
+	ALERT_LOG_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR313", "알림메시지로그를 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "ERR401", "이미 사용 중인 이메일입니다."),
