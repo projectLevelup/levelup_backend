@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.auth.service;
 
+import static com.sparta.levelup_backend.domain.user.dto.UserMessage.*;
+
 import java.util.Map;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -13,6 +15,8 @@ import com.sparta.levelup_backend.domain.auth.dto.response.GoogleResponseDtoDto;
 import com.sparta.levelup_backend.domain.auth.dto.response.KakaoResponseDtoDto;
 import com.sparta.levelup_backend.domain.auth.dto.response.NaverResponseDtoDto;
 import com.sparta.levelup_backend.domain.auth.dto.response.OAuth2ResponseDto;
+import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
+import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
@@ -25,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 	private final UserRepository userRepository;
+	private final EmailEventPublisher emailEventPublisher;
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -64,6 +69,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				.provider(registrationId + "new")
 				.build();
 			userRepository.save(user);
+			emailEventPublisher.publisher(
+				new SendEmailDto(user.getEmail(), CONGRATULATION_SIGNUP, CONGRATULATION_SIGNUP));
 		}
 
 		return new CustomOAuth2User(user);

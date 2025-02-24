@@ -1,7 +1,8 @@
 package com.sparta.levelup_backend.domain.auth.service;
 
-import org.springframework.http.HttpHeaders;
+import static com.sparta.levelup_backend.domain.user.dto.UserMessage.*;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,6 +13,8 @@ import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignUpUserRequestDto;
+import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
+import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.utill.JwtUtils;
@@ -29,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final JwtUtils jwtUtils;
 	private final UserDetailsService userDetailsService;
+	private final EmailEventPublisher emailEventPublisher;
 
 	@Override
 	@Transactional
@@ -47,6 +51,9 @@ public class AuthServiceImpl implements AuthService {
 			.build();
 
 		userRepository.save(user);
+		emailEventPublisher.publisher(
+			new SendEmailDto(user.getEmail(), CONGRATULATION_SIGNUP, CONGRATULATION_SIGNUP));
+
 	}
 
 	@Override
@@ -62,7 +69,7 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public HttpHeaders authenticate(SignInUserRequestDto dto) {
 
-		CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(dto.getEmail());
+		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(dto.getEmail());
 
 		String email = userDetails.getUsername();
 		Long userId = userDetails.getId();

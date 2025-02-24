@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
-import com.sparta.levelup_backend.domain.email.service.EmailService;
+import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.sse.entity.AlertMessageEntity;
 import com.sparta.levelup_backend.domain.sse.entity.AlertMessageLogEntity;
 import com.sparta.levelup_backend.domain.sse.event.AlertEventPublisher;
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
 	private final AlertEventPublisher alertEvent;
 	private final AlertMessageLogRepository alertMessageLogRepository;
-	private final EmailService emailService;
+	private final EmailEventPublisher emailEventPublisher;
 	private final RedisTemplate<String, Object> redisTemplate;
 
 	@Override
@@ -165,7 +165,7 @@ public class UserServiceImpl implements UserService {
 			ValueOperations<String, Object> passwordResetCodes = redisTemplate.opsForValue();
 			passwordResetCodes.set(PASSWORD_RESET_CODE_PREFIX + dto.getEmail(), passwordResetCode,
 				Duration.ofSeconds(300));
-			emailService.mailSender(
+			emailEventPublisher.publisher(
 				new SendEmailDto(dto.getEmail(), PASSWORD_RESET_SUBJECT, PASSWORD_RESET_PREFIX + passwordResetCode));
 		} else {
 			throw new MismatchException(INVALID_NICKNAME);
