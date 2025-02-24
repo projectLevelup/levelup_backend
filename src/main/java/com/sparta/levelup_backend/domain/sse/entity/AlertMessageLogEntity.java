@@ -27,7 +27,7 @@ public class AlertMessageLogEntity extends BaseEntity {
 
 	String message;
 
-	boolean isSend = false;
+	boolean isSendSucess = false;
 
 	public AlertMessageLogEntity(Long userId, String message) {
 		this.userId = userId;
@@ -35,6 +35,6 @@ public class AlertMessageLogEntity extends BaseEntity {
 	}
 
 	public void sended() {
-		isSend = true;
+		isSendSucess = true;
 	}
 }

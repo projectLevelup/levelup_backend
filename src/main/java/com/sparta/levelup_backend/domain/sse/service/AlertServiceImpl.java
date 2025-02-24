@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -104,7 +105,7 @@ public class AlertServiceImpl implements AlertService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void sendAlertMessage(Long userId, AlertMessageEntity sseMessage, Long logId) {
 
 		List<String> sses = alertRepository.findAllAlertById(userId.toString());
@@ -113,7 +114,7 @@ public class AlertServiceImpl implements AlertService {
 			SseEmitter alert = alertRepository.findById(sse);
 			sendAlertMessage(alert, sse, sseMessage);
 		}
-		if (logId != 0) {
+		if (logId != 0 && !sses.isEmpty()) {
 			AlertMessageLogEntity log = alertMessageLogRepository.findByIdOrElseThrow(logId);
 			log.sended();
 		}
