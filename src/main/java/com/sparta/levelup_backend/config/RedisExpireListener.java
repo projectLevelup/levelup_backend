@@ -9,6 +9,8 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.sparta.levelup_backend.utill.OrderStatus.*;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class RedisExpireListener implements MessageListener {
     public void handleOrderExpiration(Long orderId) {
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
-        if (order.getStatus() == OrderStatus.PENDING) {
+        if (order.getStatus() == PENDING) {
             orderRepository.delete(order);
             log.info("Order {}가 만료로 인해 삭제되었습니다.", orderId);
         }

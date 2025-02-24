@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -42,13 +44,13 @@ public class PaymentServiceImpl implements PaymentService{
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
         if (!order.getUser().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
         logger.info("주문상태: {}", order.getStatus());
         // 결제 대기 상태에서 결제요청 불가
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new OrderException(ErrorCode.INVALID_ORDER_STATUS);
+            throw new OrderException(INVALID_ORDER_STATUS);
         }
 
 
@@ -88,25 +90,25 @@ public class PaymentServiceImpl implements PaymentService{
     public CancelResponseDto requestCancel(CustomUserDetails auth, CancelPaymentRequestDto dto) {
 
         PaymentEntity payment = paymentRepository.findByPaymentKey(dto.getKey())
-                .orElseThrow(() -> new PaymentException(ErrorCode.PAYMENT_NOT_FOUND));
+                .orElseThrow(() -> new PaymentException(PAYMENT_NOT_FOUND));
 
         // 판매자 검증
         if (!payment.getOrder().getProduct().getUser().getId().equals(auth.getId())) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
         // 취소 완료 되었는지 검증
         if (payment.getOrder().getStatus().equals(OrderStatus.CANCELED)) {
-            throw new PaymentException(ErrorCode.PAYMENT_CANCELED_OK);
+            throw new PaymentException(PAYMENT_CANCELED_OK);
         }
 
         // 결제 요청 상태일 때 취소 불가
         if (payment.getOrder().getStatus().equals(OrderStatus.PENDING)) {
-            throw new PaymentException(ErrorCode.PAYMENT_PENDING);
+            throw new PaymentException(PAYMENT_PENDING);
         }
 
         if (!rateLimitService.isRequest(auth.getId())) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST_MANY);
+            throw new BusinessException(INVALID_REQUEST_MANY);
         }
 
         logger.info("취소 이유: {}, paymentKey: {}", dto.getReason(), dto.getKey());

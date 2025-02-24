@@ -31,6 +31,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+
 @Slf4j
 @Controller
 @RequestMapping
@@ -55,10 +57,10 @@ public class PaymentController {
         String orderId = (String) jasonData.get("orderId");
 
         PaymentEntity payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.PAYMENT_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(PAYMENT_NOT_FOUND));
 
         if (Long.parseLong(price) != payment.getAmount()) {
-            throw new PaymentException(ErrorCode.CONFLICT_PRICE_EQUALS);
+            throw new PaymentException(CONFLICT_PRICE_EQUALS);
         }
 
         String secretKey = tossSecretKey;
@@ -97,22 +99,22 @@ public class PaymentController {
 
                 if (attempt >= MAX_RETRIES) {
                     log.error("결제 승인 요청 실패 - 데이터: {}", jasonData.toString());
-                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RETRY);
+                    throw new PaymentException(PAYMENT_FAILED_RETRY);
                 }
                 Thread.sleep(2000);
             }
         }
-        throw new PaymentException(ErrorCode.PAYMENT_FAILED);
+        throw new PaymentException(PAYMENT_FAILED);
     }
 
     @RequestMapping("/cancel/payment")
     public ResponseEntity<JSONObject> cancelPayment(@RequestBody CancelPaymentRequestDto dto) throws Exception {
 
         PaymentEntity payment = paymentRepository.findByPaymentKey(dto.getKey())
-                .orElseThrow(() -> new PaymentException(ErrorCode.PAYMENT_NOT_FOUND));
+                .orElseThrow(() -> new PaymentException(PAYMENT_NOT_FOUND));
 
         BillEntity bill = billRepository.findByOrder(payment.getOrder())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(BILL_NOT_FOUND));
 
         log.info("결제취소 할 상품: {}, 취소 할 금액: {}", bill.getBillHistory(), bill.getPrice());
 
@@ -159,12 +161,12 @@ public class PaymentController {
 
                 if (attempt >= MAX_RETRIES) {
                     log.error("취소 승인 요청 실패 - 데이터: {}", dto.getKey());
-                    throw new PaymentException(ErrorCode.PAYMENT_FAILED_RETRY);
+                    throw new PaymentException(PAYMENT_FAILED_RETRY);
                 }
                 Thread.sleep(2000);
             }
         }
-        throw new PaymentException(ErrorCode.PAYMENT_FAILED);
+        throw new PaymentException(PAYMENT_FAILED);
     }
 
 
