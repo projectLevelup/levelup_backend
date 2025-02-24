@@ -5,6 +5,8 @@ services:
     image: levelup0210/levelup:latest
     ports:
       - "8080:8080"
+    networks:
+      - app-network
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
     container_name: elasticsearch
