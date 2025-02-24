@@ -13,7 +13,7 @@ spring:
         format_sql: true
   data:
     elasticsearch:
-      uris: http://elasticsearch:9200
+      uris: http://localhost:9200/_cluster
       username: elastic
       password: your-secure-password
     mongodb:
