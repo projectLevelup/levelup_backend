@@ -24,7 +24,7 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 })
 public class ElasticsearchConfig {
 
-	private static final String ELASTICSEARCH_HOST = "localhost";
+	private static final String ELASTICSEARCH_HOST = "elasticsearch";
 	private static final int ELASTICSEARCH_PORT = 9200;
 	private static final String ELASTICSEARCH_SCHEME = "http"; // "https" 사용 시 변경
 	private static final String ELASTICSEARCH_USERNAME = "elastic";
