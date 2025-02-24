@@ -14,10 +14,12 @@ public class AlertRepository {
 	private final Map<String, SseEmitter> userAlert = new ConcurrentHashMap<>();
 
 	public void save(String emitterId, SseEmitter sse) {
+		
 		userAlert.put(emitterId, sse);
 	}
 
 	public List<String> findAllAlertById(String userId) {
+
 		List<String> emitterIds = new ArrayList<>();
 		userAlert.keySet().forEach(key -> {
 			if (key.startsWith(userId + "_")) {
@@ -29,14 +31,12 @@ public class AlertRepository {
 	}
 
 	public SseEmitter findById(String emitterId) {
+
 		return userAlert.get(emitterId);
 	}
 
 	public void deleteById(String emitterId) {
-		userAlert.remove(emitterId);
-	}
 
-	public boolean existsById(String emitterId) {
-		return findById(emitterId) != null;
+		userAlert.remove(emitterId);
 	}
 }

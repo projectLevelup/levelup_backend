@@ -77,15 +77,19 @@ public class AlertServiceImpl implements AlertService {
 
 	@Override
 	public void readAllAlert(Long userId) {
+
 		List<AlertMessageEntity> readTargetAlertMessages = alertMessageRepository.findByIdAndRange(userId, 0L, -1L);
 		alertMessageRepository.deleteById(userId, readTargetAlertMessages);
+
 	}
 
 	@Override
 	public void readAlert(Long userId, Long alertId) {
+
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		List<AlertMessageEntity> readTargetAlertMessage = alertMessageRepository.findById(userId, alertId);
 		alertMessageRepository.deleteById(userId, readTargetAlertMessage);
+
 	}
 
 	@Override
@@ -97,6 +101,7 @@ public class AlertServiceImpl implements AlertService {
 			SseEmitter alert = alertRepository.findById(sse);
 			sendAlertMessage(alert, sse, sseMessage);
 		}
+
 	}
 
 	private void sendSseMessageExceedingId(SseEmitter alert, String emitterId, Long alertId, Long userId) {
@@ -125,5 +130,4 @@ public class AlertServiceImpl implements AlertService {
 		}
 
 	}
-
 }

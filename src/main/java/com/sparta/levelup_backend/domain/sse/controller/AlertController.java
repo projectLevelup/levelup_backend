@@ -31,12 +31,14 @@ public class AlertController {
 	public ResponseEntity<SseEmitter> userChangeAlert(@AuthenticationPrincipal CustomUserDetails userDetails,
 		@RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
 		SseEmitter alert = alertService.alertSubscribe(userDetails.getId(), lastEventId);
+		
 		return new ResponseEntity(alert, HttpStatus.OK);
 	}
 
 	@PostMapping("/sse/allRead")
 	public ApiResponse<Void> readAllAlert(@AuthenticationPrincipal CustomUserDetails userDetails) {
 		alertService.readAllAlert(userDetails.getId());
+
 		return success(HttpStatus.OK, ALERT_ALL_READ_SUCCESS);
 	}
 
@@ -44,6 +46,7 @@ public class AlertController {
 	public ApiResponse<Void> readAlert(@AuthenticationPrincipal CustomUserDetails userDetails,
 		@PathVariable Long alertId) {
 		alertService.readAlert(userDetails.getId(), alertId);
+
 		return success(HttpStatus.OK, ALERT_READ_SUCCESS);
 	}
 }

@@ -20,6 +20,5 @@ public class AlertEventListener {
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	public void eventListener(AlertEvent alertEvent) {
 		alertService.sendAlertMessage(alertEvent.getUserId(), alertEvent.getAlertMessageEntity());
-
 	}
 }
