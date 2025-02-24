@@ -6,7 +6,11 @@ import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
+import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
+import com.sparta.levelup_backend.domain.product.service.ProductService;
+import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.LockException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.exception.common.PaymentException;
 import com.sparta.levelup_backend.utill.BillStatus;
@@ -18,6 +22,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +36,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.utill.OrderStatus.CANCELED;
 
 @Slf4j
 @Controller
@@ -43,6 +51,8 @@ public class PaymentController {
     private final PaymentRepository paymentRepository;
     private final BillServiceImplV2 billService;
     private final BillRepository billRepository;
+    private final RedissonClient redissonClient;
+    private final ProductServiceImpl productService;
     private final int MAX_RETRIES = 3;
 
     @Value("${toss.secret.key}")
@@ -116,6 +126,8 @@ public class PaymentController {
         BillEntity bill = billRepository.findByOrder(payment.getOrder())
                 .orElseThrow(() -> new NotFoundException(BILL_NOT_FOUND));
 
+        RLock lock = redissonClient.getLock("stock_lock_" + bill.getOrder().getProduct().getId());
+
         log.info("결제취소 할 상품: {}, 취소 할 금액: {}", bill.getBillHistory(), bill.getPrice());
 
         String secretKey = tossSecretKey;
@@ -147,11 +159,29 @@ public class PaymentController {
 
                     }
 
+                    try {
+                        boolean avaiable = lock.tryLock(1, 10, TimeUnit.SECONDS);
+                        if (!avaiable) {
+                            throw new LockException(CONFLICT_LOCK_GET);
+                        }
+                        ProductEntity product = productService.getFindByIdWithLock(bill.getOrder().getProduct().getId());
+                        product.increaseAmount();
+                        bill.cancelBill();
+                        billRepository.save(bill);
+                        log.info("상품: {} 수량 복구 완료", product.getProductName());
+
+                    } catch (InterruptedException e) {
+                        throw new LockException(CONFLICT_LOCK_ERROR);
+                    } finally {
+                        if (lock.isHeldByCurrentThread()) {
+                            lock.unlock();
+                        }
+                    }
+
                     payment.setIscanceled(true);
-                    bill.setStatus(BillStatus.PAYCANCELED);
                     payment.getOrder().setStatus(OrderStatus.CANCELED);
                     paymentRepository.save(payment);
-                    billRepository.save(bill);
+
                 }
 
                 return ResponseEntity.status(statusCode).body(response);

@@ -497,6 +497,7 @@ public class ProductServiceImpl implements ProductService {
 		return product.getUser().getId().equals(userId);
 	}
 
+	@Transactional
 	public ProductEntity getFindByIdWithLock(Long productId) {
 		return productRepository.findByIdWithLock(productId)
 			.orElseThrow(() -> new NotFoundException(PRODUCT_NOT_FOUND));
