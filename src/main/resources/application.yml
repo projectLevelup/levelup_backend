@@ -12,6 +12,10 @@ spring:
       hibernate:
         format_sql: true
   data:
+    elasticsearch:
+      uris: http://elasticsearch:9200
+      username: elastic
+      password: your-secure-password
     mongodb:
       uri: mongodb+srv://levelup:ZsM2V6brfRdizhx6@cluster0.5rnlx.mongodb.net/levelup?retryWrites=true&w=majority&appName=Cluster0&tls=true
   security:
