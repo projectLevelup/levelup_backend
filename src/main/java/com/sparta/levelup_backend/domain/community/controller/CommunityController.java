@@ -160,6 +160,16 @@ public class CommunityController {
 		return success(OK, COMMUNITY_UPDATE_SUCCESS, requestDto);
 	}
 
+	@DeleteMapping("/redis")
+	public ApiResponse<Void> deleteCommunityRedis(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@RequestParam Long communityId) {
+
+		Long userId = customUserDetails.getId();
+
+		communityService.deleteCommunityRedis(userId, communityId);
+		return success(OK, COMMUNITY_DELETE_SUCCESS);
+	}
+
 	// 나중에 지울것
 	@GetMapping("/es/test")
 	public ApiResponse<List<CommunityDocument>> findAllComunity() {

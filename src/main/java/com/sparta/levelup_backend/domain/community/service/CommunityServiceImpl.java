@@ -248,6 +248,18 @@ public class CommunityServiceImpl implements CommunityService {
 		return CommunityResponseDto.from(communityDocument);
 	}
 
+	@Override
+	public void deleteCommunityRedis(Long userId, Long communityId) {
+		String key = COMMUNITY_CACHE_KEY + communityId;
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
+		checkAuth(community, userId);
+		checkCommunityIsDeleted(community);
+
+		redisTemplate.delete(key);
+		community.deleteCommunity();
+
+	}
+
 	private void checkGameIsDeleted(GameEntity game) {
 		if (game.getIsDeleted()) {
 			throw new DuplicateException(GAME_ISDELETED);

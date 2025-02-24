@@ -29,4 +29,6 @@ public interface CommunityService {
 	CommunityListResponseDto findCommunityRedis(String searchKeyword);
 
 	CommunityResponseDto updateCommunityRedis(Long userId, CommunityUpdateRequestDto dto);
+
+	void deleteCommunityRedis(Long userId, Long communityId);
 }
