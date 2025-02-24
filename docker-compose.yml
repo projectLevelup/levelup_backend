@@ -16,6 +16,15 @@ services:
     depends_on:
       - elasticsearch
     command: ["./wait-for-it.sh", "elasticsearch:9200", "--", "java", "-jar", "app.jar"]
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+    volumes:
+      - mongodb-data:/data/db
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
     container_name: elasticsearch
@@ -26,6 +35,11 @@ services:
       - xpack.security.authc.api_key.enabled=true
       - bootstrap.memory_lock=true
       - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9200" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     ports:
