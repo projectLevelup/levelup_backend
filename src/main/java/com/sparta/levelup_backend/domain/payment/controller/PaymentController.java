@@ -18,9 +18,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,7 +37,7 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public class PaymentController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final RedisTemplate<String, String> redisTemplate;
     private final PaymentRepository paymentRepository;
     private final BillServiceImplV2 billService;
     private final BillRepository billRepository;
@@ -87,16 +86,17 @@ public class PaymentController {
                     payment.setPayType(method);
                     payment.getOrder().setStatus(OrderStatus.TRADING);
                     billService.createBill(payment.getOrder().getUser().getId(), payment.getOrder().getId());
+                    redisTemplate.delete("order:expire:" + orderId);
                     log.info("영수증 생성");
                     paymentRepository.save(payment);
                 }
                 return ResponseEntity.status(statusCode).body(response);
             } catch (Exception e) {
                 attempt++;
-                logger.error("결제 승인 요청 실패 - 시도 횟수: {}/{}, 내용: {}", attempt, MAX_RETRIES, e.getMessage());
+                log.error("결제 승인 요청 실패 - 시도 횟수: {}/{}, 내용: {}", attempt, MAX_RETRIES, e.getMessage());
 
                 if (attempt >= MAX_RETRIES) {
-                    logger.error("결제 승인 요청 실패 - 데이터: {}", jasonData.toString());
+                    log.error("결제 승인 요청 실패 - 데이터: {}", jasonData.toString());
                     throw new PaymentException(ErrorCode.PAYMENT_FAILED_RETRY);
                 }
                 Thread.sleep(2000);
@@ -114,7 +114,7 @@ public class PaymentController {
         BillEntity bill = billRepository.findByOrder(payment.getOrder())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
 
-        logger.info("결제취소 할 상품: {}, 취소 할 금액: {}", bill.getBillHistory(), bill.getPrice());
+        log.info("결제취소 할 상품: {}, 취소 할 금액: {}", bill.getBillHistory(), bill.getPrice());
 
         String secretKey = tossSecretKey;
         String url = "https://api.tosspayments.com/v1/payments/" + dto.getKey() + "/cancel";
@@ -140,7 +140,7 @@ public class PaymentController {
 
                         String canceledAt = (String) cancelData.get("canceledAt");
 
-                        logger.info("취소 한 상품: {}, 취소 한 가격: {}, 취소 한 이유: {}, 취소 한 시간: {}",
+                        log.info("취소 한 상품: {}, 취소 한 가격: {}, 취소 한 이유: {}, 취소 한 시간: {}",
                                 bill.getBillHistory(), bill.getPrice(), dto.getReason(), canceledAt);
 
                     }
@@ -155,10 +155,10 @@ public class PaymentController {
                 return ResponseEntity.status(statusCode).body(response);
             } catch (Exception e) {
                 attempt++;
-                logger.error("취소 승인 요청 실패 - 시도 횟수: {}/{}, 내용: {}", attempt, MAX_RETRIES, e.getMessage());
+                log.error("취소 승인 요청 실패 - 시도 횟수: {}/{}, 내용: {}", attempt, MAX_RETRIES, e.getMessage());
 
                 if (attempt >= MAX_RETRIES) {
-                    logger.error("취소 승인 요청 실패 - 데이터: {}", dto.getKey());
+                    log.error("취소 승인 요청 실패 - 데이터: {}", dto.getKey());
                     throw new PaymentException(ErrorCode.PAYMENT_FAILED_RETRY);
                 }
                 Thread.sleep(2000);
@@ -172,7 +172,7 @@ public class PaymentController {
         try {
             return (JSONObject) new JSONParser().parse(jsonBody);
         } catch (ParseException e) {
-            logger.error("JSON Parsing Error", e);
+            log.error("JSON Parsing Error", e);
             return new JSONObject();
         }
     }
@@ -188,7 +188,7 @@ public class PaymentController {
              Reader reader = new InputStreamReader(responseStream, StandardCharsets.UTF_8)) {
             return (JSONObject) new JSONParser().parse(reader);
         } catch (Exception e) {
-            logger.error("Error reading response", e);
+            log.error("Error reading response", e);
             JSONObject errorResponse = new JSONObject();
             errorResponse.put("error", "Error reading response");
             return errorResponse;

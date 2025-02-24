@@ -18,9 +18,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +36,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
     private final RedissonClient redissonClient;
     private final BillServiceImplV2 billService;
     private final BillRepository billRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 주문생성
@@ -81,6 +84,8 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
             saveOrder = orderRepository.save(order);
 
+            // Redis에 주문 Id 저장 (10분 TTL)
+            redisTemplate.opsForValue().set("order:expire:" + order.getId(), "PENDING", Duration.ofSeconds(30));
         } catch (InterruptedException e) {
             throw new LockException(ErrorCode.CONFLICT_LOCK_ERROR);
         } finally {
@@ -162,6 +167,7 @@ public class OrderServiceImplV2 implements OrderServiceV2 {
 
         order.setStatus(OrderStatus.COMPLETED);
         orderRepository.save(order);
+        log.info("order {} 거래 완료.", order.getId());
         return new OrderResponseDto(order);
     }
 

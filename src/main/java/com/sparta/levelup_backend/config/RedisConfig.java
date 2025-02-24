@@ -55,4 +55,16 @@ public class RedisConfig {
         return container;
     }
 
+    // Redis 리스너 설정 추가
+    @Bean
+    public RedisMessageListenerContainer expireEventListener(
+            RedisConnectionFactory redisConnectionFactory,
+            RedisExpireListener redisExpireListener
+    ) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(redisConnectionFactory);
+        container.addMessageListener(redisExpireListener, new PatternTopic("__keyevent@*__:expired"));
+        return container;
+    }
+
 }
