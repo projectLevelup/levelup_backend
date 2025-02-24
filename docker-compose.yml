@@ -77,8 +77,6 @@ services:
       - redis-data:/data
 
 volumes:
-  mysql-data:
-    driver: local
   elasticsearch-data:
     driver: local
   redis-data:
