@@ -149,6 +149,18 @@ public class CommunityController {
 		return success(OK, COMMUNITY_FOUND_SUCCESS, responseDto);
 	}
 
+	@PatchMapping("/redis")
+	public ApiResponse<CommunityResponseDto> updateCommunityRedis(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@Valid @RequestBody CommunityUpdateRequestDto dto) {
+
+		Long userId = customUserDetails.getId();
+
+		CommunityResponseDto requestDto = communityService.updateCommunityRedis(userId, dto);
+		return success(OK, COMMUNITY_UPDATE_SUCCESS, requestDto);
+	}
+
+	// 나중에 지울것
 	@GetMapping("/es/test")
 	public ApiResponse<List<CommunityDocument>> findAllComunity() {
 		List<CommunityDocument> communityDocuments = StreamSupport

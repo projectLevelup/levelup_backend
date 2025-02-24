@@ -27,4 +27,6 @@ public interface CommunityService {
 	CommunityResponseDto saveCommunityRedis(Long userId, CommnunityCreateRequestDto dto);
 
 	CommunityListResponseDto findCommunityRedis(String searchKeyword);
+
+	CommunityResponseDto updateCommunityRedis(Long userId, CommunityUpdateRequestDto dto);
 }
