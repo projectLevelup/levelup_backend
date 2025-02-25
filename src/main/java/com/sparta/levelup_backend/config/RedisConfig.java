@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
@@ -21,16 +22,22 @@ import com.sparta.levelup_backend.domain.chat.service.RedisSubscriber;
 @EnableRedisRepositories
 public class RedisConfig {
 
-    @Value("localhost")
+    @Value("${spring.data.redis.host}")
     private String host;
 
-    @Value("6379")
+    @Value("${spring.data.redis.port}")
     private int port;
+
+    @Value("${spring.data.redis.password}")
+    private String redisPassword;
 
     // 포트 설정 (설정 안해도 Spring 기본 제공 포트인 127.0.0.1 6379로 접속)
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(host, port);
+        RedisStandaloneConfiguration redisConfiguration = new RedisStandaloneConfiguration(host);
+        redisConfiguration.setPort(port);
+        redisConfiguration.setPassword(redisPassword);
+        return new LettuceConnectionFactory(redisConfiguration);
     }
 
     @Bean // 기본 Serializer - 필요할 시 추가 해야함
@@ -61,8 +68,8 @@ public class RedisConfig {
     // Redis 리스너 설정 추가 (주문 생성 자동삭제)
     @Bean
     public RedisMessageListenerContainer expireEventListener(
-            RedisConnectionFactory redisConnectionFactory,
-            RedisExpireListener redisExpireListener
+        RedisConnectionFactory redisConnectionFactory,
+        RedisExpireListener redisExpireListener
     ) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnectionFactory);
@@ -73,9 +80,9 @@ public class RedisConfig {
     // Redis 리스너 설정 추가 (결제 관련 알림)
     @Bean
     public RedisMessageListenerContainer redisMessageListener(
-            RedisConnectionFactory connectionFactory,
-            MessageListenerAdapter messageListenerAdapter,
-            ChannelTopic BillStatusChannel) {
+        RedisConnectionFactory connectionFactory,
+        MessageListenerAdapter messageListenerAdapter,
+        ChannelTopic BillStatusChannel) {
 
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
