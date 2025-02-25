@@ -6,6 +6,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
@@ -24,24 +25,26 @@ import co.elastic.clients.transport.rest_client.RestClientTransport;
 })
 public class ElasticsearchConfig {
 
-	private static final String ELASTICSEARCH_HOST = "localhost";
-	private static final int ELASTICSEARCH_PORT = 9200;
-	private static final String ELASTICSEARCH_SCHEME = "http"; // "https" 사용 시 변경
-	private static final String ELASTICSEARCH_USERNAME = "elastic";
-	private static final String ELASTICSEARCH_PASSWORD = "your-secure-password";
+	@Value("${spring.elasticsearch.uris}")
+	private String elasticsearchUrl;
+
+	@Value("${spring.elasticsearch.username}")
+	private String username;
+
+	@Value("${spring.elasticsearch.password}")
+	private String elasticsearchPassword;
 
 	@Bean
 	public RestClient restClient() {
 		// 인증 정보 설정
 		final BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 		credentialsProvider.setCredentials(AuthScope.ANY,
-			new UsernamePasswordCredentials(ELASTICSEARCH_USERNAME, ELASTICSEARCH_PASSWORD));
+										   new UsernamePasswordCredentials(username, elasticsearchPassword));
 
 		// RestClient 설정
-		RestClientBuilder builder = RestClient.builder(
-				new HttpHost(ELASTICSEARCH_HOST, ELASTICSEARCH_PORT, ELASTICSEARCH_SCHEME))
+		RestClientBuilder builder = RestClient.builder(HttpHost.create(elasticsearchUrl))
 			.setHttpClientConfigCallback(httpClientBuilder ->
-				httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+											 httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
 			);
 
 		return builder.build();
