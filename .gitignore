@@ -39,5 +39,4 @@ out/
 ### VS Code ###
 .vscode/
 
-*.yml
 *.env
