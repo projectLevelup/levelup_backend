@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class CommentRequestDto {
-	private final Long communityId;
+public class CommentUpdateRequestDto {
+	private final Long commentId;
 	private final String content;
 }

@@ -33,4 +33,8 @@ public class CommentEntity extends BaseEntity {
 		this.user = user;
 		this.community = community;
 	}
+
+	public void updateContent(String content) {
+		this.content = content;
+	}
 }
