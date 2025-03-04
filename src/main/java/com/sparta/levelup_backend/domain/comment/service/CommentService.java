@@ -8,4 +8,6 @@ public interface CommentService {
 	CommentResponseDto saveComment(Long userId, CommentCreateRequestDto dto);
 
 	CommentResponseDto updateComment(Long userId, CommentUpdateRequestDto dto);
+
+	void deleteComment(Long userId, Long commentId);
 }

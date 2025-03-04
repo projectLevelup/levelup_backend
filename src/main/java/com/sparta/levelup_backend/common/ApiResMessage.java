@@ -67,5 +67,6 @@ public class ApiResMessage {
 	// Comment
 	public static final String COMMENT_SAVE_SUCCESS = "댓글이 생성되었습니다.";
 	public static final String COMMENT_UPDATE_SUCCESS = "댓글이 수정되었습니다.";
+	public static final String COMMENT_DELETE_SUCCESS = "댓글이 삭제되었습니다.";
 }
 
