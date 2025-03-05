@@ -65,7 +65,6 @@ spring:
             user-name-attribute: response
 
 management:
-  endpoint:
   endpoints:
     web:
       exposure:

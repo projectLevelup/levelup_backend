@@ -71,7 +71,7 @@ public class SecurityConfig {
 		http.
 			authorizeHttpRequests((auth) -> auth
 				.requestMatchers("/", "/v2/home", "/v2/sign**", "/v2/oauth2sign**", "/v**/users/resetPassword**",
-					"/resetPassword**")
+					"/resetPassword**", "/actuator/prometheus")
 				.permitAll()
 				.requestMatchers("/v2/admin/**", "/v3/admin/**")
 				.hasRole("ADMIN")
