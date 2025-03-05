@@ -34,6 +34,9 @@ public class CommunityDocument {
 	private String userEmail;
 
 	@Field(type = FieldType.Text)
+	private String userNickName;
+
+	@Field(type = FieldType.Text)
 	private String gameName;
 
 	@Field(type = FieldType.Keyword)
@@ -44,6 +47,7 @@ public class CommunityDocument {
 
 	@Builder
 	public CommunityDocument(Long communityId, String title, String content, Long userId, String userEmail,
+		String userNickName,
 		String gameName,
 		String gameGenre, Boolean isDeleted) {
 		this.id = String.valueOf(communityId);
@@ -51,6 +55,7 @@ public class CommunityDocument {
 		this.content = content;
 		this.userId = userId;
 		this.userEmail = userEmail;
+		this.userNickName = userNickName;
 		this.gameName = gameName;
 		this.gameGenre = gameGenre;
 		this.isDeleted = isDeleted;
@@ -63,6 +68,7 @@ public class CommunityDocument {
 			.content(community.getContent())
 			.userId(community.getUser().getId())
 			.userEmail(community.getUser().getEmail())
+			.userNickName(community.getUser().getNickName())
 			.gameName(community.getGame().getName())
 			.gameGenre(community.getGame().getGenre())
 			.isDeleted(community.getIsDeleted())
