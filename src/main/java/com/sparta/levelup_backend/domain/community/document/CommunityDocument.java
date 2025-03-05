@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Document(indexName = "community", createIndex = true)
+@Document(indexName = "community")
 public class CommunityDocument {
 
 	@Id
@@ -62,7 +62,7 @@ public class CommunityDocument {
 	}
 
 	public static CommunityDocument from(CommunityEntity community) {
-		return new CommunityDocument().builder()
+		return CommunityDocument.builder()
 			.communityId(community.getId())
 			.title(community.getTitle())
 			.content(community.getContent())
