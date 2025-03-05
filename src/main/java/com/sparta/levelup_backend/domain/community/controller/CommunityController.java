@@ -19,6 +19,7 @@ import com.sparta.levelup_backend.common.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.community.dto.request.CommnunityCreateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.request.CommunityUpdateRequestDto;
+import com.sparta.levelup_backend.domain.community.dto.response.CommunityCommentResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityListResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityResponseDto;
 import com.sparta.levelup_backend.domain.community.service.CommunityService;
@@ -55,6 +56,13 @@ public class CommunityController {
 		CommunityListResponseDto responseDtoList = communityService.findAll(page, size);
 
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
+	}
+
+	@GetMapping("/{communityId}")
+	public ApiResponse<CommunityCommentResponseDto> findCommunity(@PathVariable Long communityId) {
+		CommunityCommentResponseDto responseDto = communityService.findById(communityId);
+
+		return success(OK, COMMUNITY_FOUND_SUCCESS, responseDto);
 	}
 
 	// community 수정

@@ -16,9 +16,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.levelup_backend.domain.comment.dto.response.CommentResponseDto;
+import com.sparta.levelup_backend.domain.comment.entity.CommentEntity;
+import com.sparta.levelup_backend.domain.comment.repository.CommentRepository;
 import com.sparta.levelup_backend.domain.community.document.CommunityDocument;
 import com.sparta.levelup_backend.domain.community.dto.request.CommnunityCreateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.request.CommunityUpdateRequestDto;
+import com.sparta.levelup_backend.domain.community.dto.response.CommunityCommentResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityListResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityReadResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityResponseDto;
@@ -49,6 +53,7 @@ public class CommunityServiceImpl implements CommunityService {
 
 	private final String COMMUNITY_CACHE_KEY = "community:";
 	private final String COMMUNITY_ZSET_KEY = "community_view";
+	private final CommentRepository commentRepository;
 
 	@Override
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
@@ -83,6 +88,16 @@ public class CommunityServiceImpl implements CommunityService {
 		}
 
 		return responseDto;
+	}
+
+	@Override
+	public CommunityCommentResponseDto findById(Long communityId) {
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
+		checkCommunityIsDeleted(community);
+
+		List<CommentEntity> comments = commentRepository.findByCommunityIdAndIsDeletedFalse(communityId);
+
+		return CommunityCommentResponseDto.of(community, comments.stream().map(CommentResponseDto::from).toList());
 	}
 
 	@Override
