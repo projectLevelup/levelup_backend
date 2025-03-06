@@ -17,7 +17,7 @@ public interface CommunityService {
 
 	void delete(Long userId, Long communityId);
 
-	CommunityListResponseDto findCommunitiesES(String searchKeyword, int page, int size);
+	CommunityListResponseDto findCommunitiesES(String searchKeyword,String game, int page, int size);
 
 	CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto);
 

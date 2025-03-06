@@ -3,6 +3,7 @@ package com.sparta.levelup_backend.domain.community.service;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static com.sparta.levelup_backend.utill.UserRole.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +39,13 @@ import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.exception.common.PageOutOfBoundsException;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 @Service
@@ -47,13 +53,15 @@ public class CommunityServiceImpl implements CommunityService {
 	private final UserRepository userRepository;
 	private final CommunityRepository communityRepository;
 	private final GameRepository gameRepository;
+	private final CommentRepository commentRepository;
 
 	private final CommunityESRepository communityESRepository;
-	private final RedisTemplate<String, Object> redisTemplate;
 
+	private final RedisTemplate<String, Object> redisTemplate;
 	private final String COMMUNITY_CACHE_KEY = "community:";
 	private final String COMMUNITY_ZSET_KEY = "community_view";
-	private final CommentRepository commentRepository;
+
+	private final ElasticsearchClient elasticsearchClient;
 
 	@Override
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
@@ -137,20 +145,47 @@ public class CommunityServiceImpl implements CommunityService {
 		return CommunityResponseDto.from(communityDocument);
 	}
 
-	// community 목록 검색(elasticSearch 사용)
+	/**
+	 * community 목록 검색(elasticSearch 사용)
+	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
+	 * @param searchKeyword 제목 검색어 (null이면 모든 글 검색)
+	 * @param game 검색할 게임 (null이면 게임 필터 없이 검색)
+	 * @param page 기본값: 0
+	 * @param size 기본값: 10
+	 * @return
+	 */
 	@Override
-	public CommunityListResponseDto findCommunitiesES(String searchKeyword, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		Page<CommunityDocument> communityDocuments = communityESRepository.findByTitleAndIsDeletedFalse(searchKeyword,
-			pageable);
+	public CommunityListResponseDto findCommunitiesES(String searchKeyword, String game, int page,
+		int size) {
+		SearchRequest request = SearchRequest.of(s -> s
+			.index("community")
+			.from(page * size)
+			.size(size)
+			.query(q -> q.bool(b -> {
+				if (game != null && !game.isEmpty()) {
+					b.filter(f -> f.term(t -> t.field("gameName").value(game)));
+				}
+				if (searchKeyword != null && !searchKeyword.isEmpty()) {
+					b.must(m -> m.match(mq -> mq.field("title").query(searchKeyword)));
+				}
+				if ((game == null || game.isEmpty()) && (searchKeyword == null || searchKeyword.isEmpty())) {
+					b.must(m -> m.matchAll(ma -> ma));
+				}
+				return b;
+			})));
 
-		CommunityListResponseDto responseDto = new CommunityListResponseDto(communityDocuments.stream()
-			.map(CommunityReadResponseDto::from)
-			.toList());
-
-		if (communityDocuments.getTotalPages() <= page) {
-			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
+		SearchResponse<CommunityDocument> response;
+		try {
+			response = elasticsearchClient.search(request, CommunityDocument.class);
+		} catch (IOException e) {
+			throw new RuntimeException("Elasticsearch 검색 실패", e);
 		}
+
+		CommunityListResponseDto responseDto = new CommunityListResponseDto(
+			response.hits().hits().stream().map(community -> {
+				assert community.source() != null;
+				return CommunityReadResponseDto.from(community.source());
+			}).toList());
 
 		if (responseDto.getCommunityList().isEmpty()) {
 			throw new NotFoundException(COMMUNITY_NOT_FOUND);
