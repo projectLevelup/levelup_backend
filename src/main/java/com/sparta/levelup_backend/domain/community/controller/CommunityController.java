@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.community.controller;
 
-import static com.sparta.levelup_backend.common.apiRespons.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiRespons.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.levelup_backend.common.apiRespons.ApiResponse;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.community.dto.request.CommnunityCreateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.request.CommunityUpdateRequestDto;

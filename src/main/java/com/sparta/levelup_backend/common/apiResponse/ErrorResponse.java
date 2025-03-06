@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.common.apiRespons;
+package com.sparta.levelup_backend.common.apiResponse;
 
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import lombok.Getter;

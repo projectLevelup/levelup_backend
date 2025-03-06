@@ -29,7 +29,6 @@ import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 @AllArgsConstructor
 public class PaymentRestServiceImpl implements PaymentRestService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private final TossPaymentConfig tossPaymentConfig;
@@ -45,7 +44,7 @@ public class PaymentRestServiceImpl implements PaymentRestService {
             throw new ForbiddenException(FORBIDDEN_ACCESS);
         }
 
-        logger.info("주문상태: {}", order.getStatus());
+        log.info("주문상태: {}", order.getStatus());
         // 결제 대기 상태에서 결제요청 불가
         if (order.getStatus() != OrderStatus.PENDING) {
             throw new OrderException(INVALID_ORDER_STATUS);
@@ -58,7 +57,7 @@ public class PaymentRestServiceImpl implements PaymentRestService {
             PaymentResponseDto response = new PaymentResponseDto(existingPayment);
             response.setSuccessUrl(tossPaymentConfig.getSuccessUrl());
             response.setFailUrl(tossPaymentConfig.getFailUrl());
-            logger.info("결제정보Id: {}", existingPayment.getPaymentId());
+            log.info("결제정보Id: {}", existingPayment.getPaymentId());
             return response;
         }
 
@@ -71,15 +70,15 @@ public class PaymentRestServiceImpl implements PaymentRestService {
                 .customerName(order.getUser().getNickName())
                 .customerEmail(order.getUser().getEmail())
                 .userKey(order.getUser().getCustomerKey())
-                .ispaid(false)
-                .iscanceled(false)
+                .isPaid(false)
+                .isCanceled(false)
                 .build();
 
         PaymentResponseDto response = new PaymentResponseDto(payment);
         response.setSuccessUrl(tossPaymentConfig.getSuccessUrl());
         response.setFailUrl(tossPaymentConfig.getFailUrl());
         paymentRepository.save(payment);
-        logger.info("결제정보Id 생성: {}", payment.getPaymentId());
+        log.info("결제정보Id 생성: {}", payment.getPaymentId());
 
         return response;
     }
@@ -109,7 +108,7 @@ public class PaymentRestServiceImpl implements PaymentRestService {
             throw new BusinessException(INVALID_REQUEST_MANY);
         }
 
-        logger.info("취소 이유: {}, paymentKey: {}", dto.getReason(), dto.getKey());
+        log.info("취소 이유: {}, paymentKey: {}", dto.getReason(), dto.getKey());
 
         return CancelResponseDto.builder()
                 .cancelReason(dto.getReason())

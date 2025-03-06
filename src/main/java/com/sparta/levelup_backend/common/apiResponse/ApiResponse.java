@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.common.apiRespons;
+package com.sparta.levelup_backend.common.apiResponse;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

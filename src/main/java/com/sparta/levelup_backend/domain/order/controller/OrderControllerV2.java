@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.order.controller;
 
-import com.sparta.levelup_backend.common.apiRespons.ApiResponse;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
@@ -10,9 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import static com.sparta.levelup_backend.common.apiRespons.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiRespons.ApiResMessage.ORDER_CANCLED;
-import static com.sparta.levelup_backend.common.apiRespons.ApiResponse.success;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.ORDER_CANCLED;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.success;
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j

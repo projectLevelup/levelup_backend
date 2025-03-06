@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.common.apiRespons;
+package com.sparta.levelup_backend.common.apiResponse;
 
 public class ApiResMessage {
 
@@ -63,5 +63,7 @@ public class ApiResMessage {
     // payment
     public static final String OK_REQUEST = "결제요청을 성공했습니다.";
     public static final String OK_REQUEST_CANCEL = "취소요청을 성공했습니다";
+    public static final String OK_CANCEL = "결제 취소 되었습니다.";
 }
+
 

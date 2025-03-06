@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.payment.controller;
 
-import com.sparta.levelup_backend.common.apiRespons.ApiResponse;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.dto.response.CancelResponseDto;
@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import static com.sparta.levelup_backend.common.apiRespons.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiRespons.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j

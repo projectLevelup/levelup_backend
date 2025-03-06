@@ -110,7 +110,7 @@ public class PaymentServiceImpl implements PaymentService {
                 response = paymentHttpClient.sendRequest(cancelRequest,secretKey, url);
                 if (!response.containsKey("error")) {
                     handleCancelPayment(payment);
-                    payment.setIscanceled(true);
+                    payment.setCanceled(true);
                     payment.getOrder().setStatus(OrderStatus.CANCELED);
                     paymentRepository.save(payment);
 
@@ -183,7 +183,7 @@ public class PaymentServiceImpl implements PaymentService {
         log.info("결제 승인 완료 - paymentKey: {}, 승인시간: {}, 결제방법: {}, 상태: {}, orderId: {}", paymentKey, approvedAt, method, status, orderId);
         // 결제 정보 업데이트
         payment.setPaymentKey(paymentKey);
-        payment.setIspaid(true);
+        payment.setPaid(true);
         payment.setCompletedAt(approvedAt);
         payment.setPayType(method);
         payment.getOrder().setStatus(OrderStatus.TRADING);

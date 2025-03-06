@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.alert.controller;
 
-import static com.sparta.levelup_backend.common.apiRespons.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiRespons.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.sparta.levelup_backend.common.apiRespons.ApiResponse;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.alert.dto.response.AlertLogResponseDto;
 import com.sparta.levelup_backend.domain.alert.service.AlertService;
