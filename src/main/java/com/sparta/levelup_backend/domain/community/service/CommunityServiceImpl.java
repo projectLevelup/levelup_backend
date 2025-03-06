@@ -75,11 +75,20 @@ public class CommunityServiceImpl implements CommunityService {
 		return CommunityResponseDto.of(community, user, game);
 	}
 
+	/**
+	 * community 목록 검색
+	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
+	 * @param gameName 검색할 게임
+	 * @param searchKeyword 제목 검색어
+	 * @param page 기본값: 0
+	 * @param size 기본값: 10
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	@Override
-	public CommunityListResponseDto findAll(int page, int size) {
+	public CommunityListResponseDto findCommunities(String gameName, String searchKeyword, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
-		Page<CommunityEntity> communityPage = communityRepository.findAllByIsDeletedFalse(pageable);
+		Page<CommunityEntity> communityPage = communityRepository.findAllByGameNameAndTitleContainingAndIsDeletedFalse(gameName, searchKeyword, pageable);
 
 		CommunityListResponseDto responseDto = new CommunityListResponseDto(
 			communityPage.stream()
@@ -149,26 +158,26 @@ public class CommunityServiceImpl implements CommunityService {
 	 * community 목록 검색(elasticSearch 사용)
 	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
 	 * @param searchKeyword 제목 검색어 (null이면 모든 글 검색)
-	 * @param game 검색할 게임 (null이면 게임 필터 없이 검색)
+	 * @param gameName 검색할 게임 (null이면 게임 필터 없이 검색)
 	 * @param page 기본값: 0
 	 * @param size 기본값: 10
 	 * @return
 	 */
 	@Override
-	public CommunityListResponseDto findCommunitiesES(String searchKeyword, String game, int page,
+	public CommunityListResponseDto findCommunitiesES(String searchKeyword, String gameName, int page,
 		int size) {
 		SearchRequest request = SearchRequest.of(s -> s
 			.index("community")
 			.from(page * size)
 			.size(size)
 			.query(q -> q.bool(b -> {
-				if (game != null && !game.isEmpty()) {
-					b.filter(f -> f.term(t -> t.field("gameName").value(game)));
+				if (gameName != null && !gameName.isEmpty()) {
+					b.filter(f -> f.term(t -> t.field("gameName").value(gameName)));
 				}
 				if (searchKeyword != null && !searchKeyword.isEmpty()) {
 					b.must(m -> m.match(mq -> mq.field("title").query(searchKeyword)));
 				}
-				if ((game == null || game.isEmpty()) && (searchKeyword == null || searchKeyword.isEmpty())) {
+				if ((gameName == null || gameName.isEmpty()) && (searchKeyword == null || searchKeyword.isEmpty())) {
 					b.must(m -> m.matchAll(ma -> ma));
 				}
 				return b;

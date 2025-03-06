@@ -9,7 +9,7 @@ import com.sparta.levelup_backend.domain.community.dto.response.CommunityRespons
 public interface CommunityService {
 	CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto);
 
-	CommunityListResponseDto findAll(int page, int size);
+	CommunityListResponseDto findCommunities(String gameName, String searchKeyWord, int page, int size);
 
 	CommunityCommentResponseDto findById(Long communityId);
 
@@ -17,7 +17,7 @@ public interface CommunityService {
 
 	void delete(Long userId, Long communityId);
 
-	CommunityListResponseDto findCommunitiesES(String searchKeyword,String game, int page, int size);
+	CommunityListResponseDto findCommunitiesES(String searchKeyword,String gameName, int page, int size);
 
 	CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto);
 
