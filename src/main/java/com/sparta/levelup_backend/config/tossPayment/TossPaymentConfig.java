@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.config.tossPayment;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

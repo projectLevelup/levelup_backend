@@ -2,7 +2,6 @@ package com.sparta.levelup_backend.domain.auth.service;
 
 import static com.sparta.levelup_backend.domain.user.dto.UserMessage.*;
 
-import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.PasswordIncorrectException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -20,12 +19,10 @@ import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.utill.JwtUtils;
-import com.sparta.levelup_backend.utill.UserRole;
+import com.sparta.levelup_backend.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.util.UUID;
-
 import java.util.UUID;
 
 @Slf4j

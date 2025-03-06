@@ -2,7 +2,7 @@ package com.sparta.levelup_backend.domain.payment.controller;
 
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
-import com.sparta.levelup_backend.exception.common.PaymentException;
+import com.sparta.levelup_backend.exception.payment.PaymentException;
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

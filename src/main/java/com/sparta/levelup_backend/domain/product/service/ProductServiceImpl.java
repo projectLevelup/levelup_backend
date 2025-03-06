@@ -40,8 +40,8 @@ import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
-import com.sparta.levelup_backend.utill.ProductStatus;
-import com.sparta.levelup_backend.utill.UserRole;
+import com.sparta.levelup_backend.enums.ProductStatus;
+import com.sparta.levelup_backend.enums.UserRole;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;

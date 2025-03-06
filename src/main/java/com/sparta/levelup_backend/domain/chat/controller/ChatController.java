@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.chat.controller;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.levelup_backend.common.ApiResponse;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
 import com.sparta.levelup_backend.domain.chat.dto.ChatMessageDto;
 import com.sparta.levelup_backend.domain.chat.service.ChatService;
 

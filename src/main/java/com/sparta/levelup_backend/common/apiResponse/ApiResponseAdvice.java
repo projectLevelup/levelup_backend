@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.common;
+package com.sparta.levelup_backend.common.apiResponse;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;

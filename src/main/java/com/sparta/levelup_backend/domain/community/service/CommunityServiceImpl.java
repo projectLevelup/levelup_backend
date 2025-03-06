@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.community.service;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
-import static com.sparta.levelup_backend.utill.UserRole.*;
+import static com.sparta.levelup_backend.enums.UserRole.*;
 
 import java.util.ArrayList;
 import java.util.List;

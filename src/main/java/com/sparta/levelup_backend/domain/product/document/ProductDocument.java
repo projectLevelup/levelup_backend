@@ -7,7 +7,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
-import com.sparta.levelup_backend.utill.ProductStatus;
+import com.sparta.levelup_backend.enums.ProductStatus;
 
 import lombok.Builder;
 import lombok.Getter;

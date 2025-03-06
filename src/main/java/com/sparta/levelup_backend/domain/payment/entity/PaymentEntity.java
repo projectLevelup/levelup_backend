@@ -52,11 +52,11 @@ public class PaymentEntity {
 
     @Setter
     @Column(name = "is_paid")
-    private boolean ispaid;
+    private boolean isPaid;
 
     @Setter
     @Column(name = "is_canceled")
-    private boolean iscanceled;
+    private boolean isCanceled;
 
     @Column(name = "customer_email")
     private String customerEmail;

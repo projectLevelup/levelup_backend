@@ -12,8 +12,8 @@ import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.utill.ProductStatus;
-import com.sparta.levelup_backend.utill.UserRole;
+import com.sparta.levelup_backend.enums.ProductStatus;
+import com.sparta.levelup_backend.enums.UserRole;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

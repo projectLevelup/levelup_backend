@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.review.service;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
-import static com.sparta.levelup_backend.utill.OrderStatus.*;
+import static com.sparta.levelup_backend.enums.OrderStatus.*;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -21,7 +21,7 @@ import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.MismatchException;
-import com.sparta.levelup_backend.utill.UserRole;
+import com.sparta.levelup_backend.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;
 

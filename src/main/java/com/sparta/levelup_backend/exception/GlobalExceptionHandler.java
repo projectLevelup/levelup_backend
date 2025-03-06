@@ -1,8 +1,7 @@
 package com.sparta.levelup_backend.exception;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sparta.levelup_backend.common.ErrorResponse;
+import com.sparta.levelup_backend.common.apiResponse.ErrorResponse;
 import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;

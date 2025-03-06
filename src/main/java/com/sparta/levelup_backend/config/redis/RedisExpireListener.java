@@ -1,15 +1,11 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.config.redis;
 
-import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
-import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
 import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
-import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.LockException;
-import com.sparta.levelup_backend.utill.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -22,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.CONFLICT_LOCK_ERROR;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.CONFLICT_LOCK_GET;
-import static com.sparta.levelup_backend.utill.OrderStatus.*;
+import static com.sparta.levelup_backend.enums.OrderStatus.*;
 
 @Slf4j
 @Component
