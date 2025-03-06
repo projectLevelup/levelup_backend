@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.config.redis;
 
 import com.sparta.levelup_backend.domain.bill.service.BillStatusSubscriber;
 import org.springframework.beans.factory.annotation.Value;

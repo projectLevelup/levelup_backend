@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.auth.controller;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiRespons.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiRespons.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.HttpHeaders;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.levelup_backend.common.ApiResponse;
+import com.sparta.levelup_backend.common.apiRespons.ApiResponse;
 import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignUpUserRequestDto;

@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.nimbusds.jose.shaded.gson.annotations.SerializedName;
-import com.sparta.levelup_backend.utill.BillStatus;
+import com.sparta.levelup_backend.enums.BillStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

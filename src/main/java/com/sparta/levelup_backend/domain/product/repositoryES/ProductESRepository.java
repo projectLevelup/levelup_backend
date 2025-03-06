@@ -6,7 +6,7 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import org.springframework.stereotype.Repository;
 
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
-import com.sparta.levelup_backend.utill.ProductStatus;
+import com.sparta.levelup_backend.enums.ProductStatus;
 
 @Repository
 public interface ProductESRepository

@@ -17,8 +17,8 @@ import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
-import com.sparta.levelup_backend.utill.OrderStatus;
-import com.sparta.levelup_backend.utill.UserRole;
+import com.sparta.levelup_backend.enums.OrderStatus;
+import com.sparta.levelup_backend.enums.UserRole;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;

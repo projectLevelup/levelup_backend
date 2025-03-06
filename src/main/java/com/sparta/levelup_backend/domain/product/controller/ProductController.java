@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.product.controller;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiRespons.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiRespons.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 import java.util.List;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.levelup_backend.common.ApiResponse;
+import com.sparta.levelup_backend.common.apiRespons.ApiResponse;
 import com.sparta.levelup_backend.config.CustomUserDetails;
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;

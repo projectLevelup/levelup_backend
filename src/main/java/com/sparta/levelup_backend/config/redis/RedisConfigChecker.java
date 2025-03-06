@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.config.redis;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;

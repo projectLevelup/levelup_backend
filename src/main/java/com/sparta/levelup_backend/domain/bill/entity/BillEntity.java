@@ -3,7 +3,7 @@ package com.sparta.levelup_backend.domain.bill.entity;
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.utill.BillStatus;
+import com.sparta.levelup_backend.enums.BillStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
