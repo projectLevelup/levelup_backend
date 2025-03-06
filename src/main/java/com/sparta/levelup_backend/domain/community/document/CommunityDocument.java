@@ -44,8 +44,6 @@ public class CommunityDocument {
 	@Field(type = FieldType.Keyword)
 	private String gameGenre;
 
-	@Field(type = FieldType.Date, format = {}, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS||epoch_millis")
-	private LocalDateTime createdAt;
 
 	@Field(type = FieldType.Boolean)
 	private Boolean isDeleted;
@@ -54,7 +52,7 @@ public class CommunityDocument {
 	public CommunityDocument(Long communityId, String title, String content, Long userId, String userEmail,
 		String userNickName,
 		String gameName,
-		String gameGenre, LocalDateTime createdAt, Boolean isDeleted) {
+		String gameGenre, Boolean isDeleted) {
 		this.id = String.valueOf(communityId);
 		this.title = title;
 		this.content = content;
@@ -63,7 +61,6 @@ public class CommunityDocument {
 		this.userNickName = userNickName;
 		this.gameName = gameName;
 		this.gameGenre = gameGenre;
-		this.createdAt = createdAt;
 		this.isDeleted = isDeleted;
 	}
 
@@ -77,7 +74,6 @@ public class CommunityDocument {
 			.userNickName(community.getUser().getNickName())
 			.gameName(community.getGame().getName())
 			.gameGenre(community.getGame().getGenre())
-			.createdAt(community.getCreatedAt())
 			.isDeleted(community.getIsDeleted())
 			.build();
 	}
