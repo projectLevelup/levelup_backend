@@ -103,9 +103,9 @@ public class CommunityController {
 	// community 목록 검색(elasticSearch 사용)
 	@GetMapping("/es")
 	public ApiResponse<CommunityListResponseDto> findCommunitiesES(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword) {
+		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword, @RequestParam String game) {
 
-		CommunityListResponseDto responseDtoList = communityService.findCommunitiesES(searchKeyword, page, size);
+		CommunityListResponseDto responseDtoList = communityService.findCommunitiesES(searchKeyword, game, page, size);
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
 
