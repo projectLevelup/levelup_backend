@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.community.document;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -41,6 +43,7 @@ public class CommunityDocument {
 
 	@Field(type = FieldType.Keyword)
 	private String gameGenre;
+
 
 	@Field(type = FieldType.Boolean)
 	private Boolean isDeleted;

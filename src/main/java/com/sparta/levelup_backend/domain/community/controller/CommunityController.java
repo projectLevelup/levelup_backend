@@ -44,16 +44,19 @@ public class CommunityController {
 	}
 
 	/**
-	 * 게임생활 목록 조회
-	 * @param page 0부터 시작
-	 * @param size
+	 * community 목록 검색
+	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
+	 * @param gameName 검색할 게임
+	 * @param searchKeyword 제목 검색어
+	 * @param page 기본값: 0
+	 * @param size 기본값: 10
 	 * @return
 	 */
 	@GetMapping
-	public ApiResponse<CommunityListResponseDto> findAllCommunity(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size) {
+	public ApiResponse<CommunityListResponseDto> findCommunities(@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword, @RequestParam String gameName) {
 
-		CommunityListResponseDto responseDtoList = communityService.findAll(page, size);
+		CommunityListResponseDto responseDtoList = communityService.findCommunities(gameName, searchKeyword, page, size);
 
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
@@ -103,9 +106,9 @@ public class CommunityController {
 	// community 목록 검색(elasticSearch 사용)
 	@GetMapping("/es")
 	public ApiResponse<CommunityListResponseDto> findCommunitiesES(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword) {
+		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword, @RequestParam String gameName) {
 
-		CommunityListResponseDto responseDtoList = communityService.findCommunitiesES(searchKeyword, page, size);
+		CommunityListResponseDto responseDtoList = communityService.findCommunitiesES(searchKeyword, gameName, page, size);
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
 
