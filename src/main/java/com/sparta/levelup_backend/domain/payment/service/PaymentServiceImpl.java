@@ -3,7 +3,7 @@ package com.sparta.levelup_backend.domain.payment.service;
 import com.sparta.levelup_backend.config.tossPayment.PaymentHttpClient;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
-import com.sparta.levelup_backend.domain.bill.service.BillEventPubService;
+import com.sparta.levelup_backend.domain.bill.service.BillEventPublisher;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
@@ -39,8 +39,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final BillRepository billRepository;
     private final RedissonClient redissonClient;
     private final ProductServiceImpl productService;
-    private final BillEventPubService billEventPubService;
     private final PaymentHttpClient paymentHttpClient;
+    private final BillEventPublisher billEventPublisher;
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 2000;
 
@@ -142,7 +142,7 @@ public class PaymentServiceImpl implements PaymentService {
             }
             ProductEntity product = productService.getFindByIdWithLock(bill.getOrder().getProduct().getId());
             product.increaseAmount();
-            billEventPubService.createCancelEvent(bill);
+            billService.createCancelEvent(bill);
             log.info("상품: {} 수량 복구 완료", product.getProductName());
 
         } catch (InterruptedException e) {
