@@ -4,6 +4,7 @@ import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static com.sparta.levelup_backend.utill.UserRole.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import com.sparta.levelup_backend.domain.community.dto.response.CommunityListRes
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityReadResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityResponseDto;
 import com.sparta.levelup_backend.domain.community.entity.CommunityEntity;
+import com.sparta.levelup_backend.domain.community.repository.CommunityQueryRepository;
 import com.sparta.levelup_backend.domain.community.repository.CommunityRepository;
 import com.sparta.levelup_backend.domain.community.repositoryES.CommunityESRepository;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
@@ -62,6 +64,7 @@ public class CommunityServiceImpl implements CommunityService {
 	private final String COMMUNITY_ZSET_KEY = "community_view";
 
 	private final ElasticsearchClient elasticsearchClient;
+	private final CommunityQueryRepository communityQueryRepository;
 
 	@Override
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
@@ -88,15 +91,13 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public CommunityListResponseDto findCommunities(String gameName, String searchKeyword, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
-		Page<CommunityEntity> communityPage = communityRepository.findAllByGameNameAndTitleContainingAndIsDeletedFalse(gameName, searchKeyword, pageable);
-
+		Page<CommunityReadResponseDto> communityReadResponseDtoPages = communityQueryRepository.findCommunities(
+			gameName, searchKeyword, pageable);
 		CommunityListResponseDto responseDto = new CommunityListResponseDto(
-			communityPage.stream()
-				.map(community -> CommunityReadResponseDto.of(community, community.getUser(), community.getGame()))
-				.toList()
+			communityReadResponseDtoPages.stream().toList()
 		);
 
-		if (communityPage.getTotalPages() <= page) {
+		if (communityReadResponseDtoPages.getTotalPages() <= page) {
 			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
 		}
 

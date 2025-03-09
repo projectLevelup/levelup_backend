@@ -26,7 +26,9 @@ import com.sparta.levelup_backend.domain.community.service.CommunityService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/v2/community")
 @RequiredArgsConstructor
