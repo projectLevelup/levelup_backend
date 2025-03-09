@@ -46,16 +46,16 @@ public class CommunityController {
 	}
 
 	/**
-	 * 게임생활 목록 조회
+	 *게임생활 목록 조회(game 이름 구분)
 	 * @param page 0부터 시작
 	 * @param size
 	 * @return
 	 */
 	@GetMapping
-	public ApiResponse<CommunityListResponseDto> findAllCommunity(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size) {
+	public ApiResponse<CommunityListResponseDto> findAllCommunityByGameName(@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size, @RequestParam String gameName) {
 
-		CommunityListResponseDto responseDtoList = communityService.findAll(page, size);
+		CommunityListResponseDto responseDtoList = communityService.findAllByGameName(gameName, page, size);
 
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}

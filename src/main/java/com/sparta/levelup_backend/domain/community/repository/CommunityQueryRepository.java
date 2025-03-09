@@ -48,4 +48,27 @@ public class CommunityQueryRepository {
 
 		return new PageImpl<>(communityEntities);
 	}
+
+	public Page<CommunityReadResponseDto> findAllByGameName(String gameName, Pageable pageable){
+		QCommunityEntity community = new QCommunityEntity("community");
+		QUserEntity user = new QUserEntity("user");
+		QGameEntity game = new QGameEntity("game");
+
+		List<CommunityReadResponseDto> communityEntities = queryFactory
+			.select(new QCommunityReadResponseDto(
+				Expressions.stringTemplate("CAST({0} AS STRING)", community.id),
+				community.title,
+				user.nickName,
+				game.name))
+			.from(community)
+			.leftJoin(community.user, user)
+			.leftJoin(community.game, game)
+			.where(community.game.name.eq(gameName))
+			.where(community.isDeleted.eq(false))
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		return new PageImpl<>(communityEntities);
+	}
 }

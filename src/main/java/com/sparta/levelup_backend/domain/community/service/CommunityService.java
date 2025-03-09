@@ -35,5 +35,5 @@ public interface CommunityService {
 
 	void deleteCommunityRedis(Long userId, Long communityId);
 
-	CommunityListResponseDto findAll(int page, int size);
+	CommunityListResponseDto findAllByGameName(String gameName, int page, int size);
 }

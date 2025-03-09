@@ -79,14 +79,12 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public CommunityListResponseDto findAll(int page, int size) {
+	public CommunityListResponseDto findAllByGameName(String gameName, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
-		Page<CommunityEntity> communityPage = communityRepository.findAllByIsDeletedFalse(pageable);
+		Page<CommunityReadResponseDto> communityPage = communityQueryRepository.findAllByGameName(gameName, pageable);
 
 		CommunityListResponseDto responseDto = new CommunityListResponseDto(
-			communityPage.stream()
-				.map(community -> CommunityReadResponseDto.of(community, community.getUser(), community.getGame()))
-				.toList()
+			communityPage.stream().toList()
 		);
 
 		if (communityPage.getTotalPages() <= page) {
@@ -213,11 +211,15 @@ public class CommunityServiceImpl implements CommunityService {
 			throw new RuntimeException("Elasticsearch 검색 실패", e);
 		}
 
+
 		CommunityListResponseDto responseDto = new CommunityListResponseDto(
 			response.hits().hits().stream().map(community -> {
 				assert community.source() != null;
 				return CommunityReadResponseDto.from(community.source());
 			}).toList());
+		assert response.hits().total() != null;
+		long totalHits = response.hits().total().value();
+		int totalPages = (int) Math.ceil((double) totalHits / size);
 
 		if (responseDto.getCommunityList().isEmpty()) {
 			throw new NotFoundException(COMMUNITY_NOT_FOUND);
