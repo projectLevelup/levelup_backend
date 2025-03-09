@@ -15,17 +15,15 @@ import com.sparta.levelup_backend.domain.community.entity.QCommunityEntity;
 import com.sparta.levelup_backend.domain.game.entity.QGameEntity;
 import com.sparta.levelup_backend.domain.user.entity.QUserEntity;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
 public class CommunityQueryRepository {
 
-	private final EntityManager em;
 	private final JPAQueryFactory queryFactory;
 
-	public Page<CommunityReadResponseDto> findCommunities(String gameName, String searchKeyword, Pageable pageable){
+	public Page<CommunityReadResponseDto> findCommunities(String gameName, String searchKeyword, Pageable pageable) {
 		QCommunityEntity community = new QCommunityEntity("community");
 		QUserEntity user = new QUserEntity("user");
 		QGameEntity game = new QGameEntity("game");
@@ -49,7 +47,7 @@ public class CommunityQueryRepository {
 		return new PageImpl<>(communityEntities);
 	}
 
-	public Page<CommunityReadResponseDto> findAllByGameName(String gameName, Pageable pageable){
+	public Page<CommunityReadResponseDto> findAllByGameName(String gameName, Pageable pageable) {
 		QCommunityEntity community = new QCommunityEntity("community");
 		QUserEntity user = new QUserEntity("user");
 		QGameEntity game = new QGameEntity("game");

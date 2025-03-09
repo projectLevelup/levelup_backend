@@ -71,9 +71,11 @@ public class CommunityController {
 	 */
 	@GetMapping("/search")
 	public ApiResponse<CommunityListResponseDto> findCommunities(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword, @RequestParam String gameName) {
+		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword,
+		@RequestParam String gameName) {
 
-		CommunityListResponseDto responseDtoList = communityService.findCommunities(gameName, searchKeyword, page, size);
+		CommunityListResponseDto responseDtoList = communityService.findCommunities(gameName, searchKeyword, page,
+			size);
 
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
@@ -123,9 +125,11 @@ public class CommunityController {
 	// community 목록 검색(elasticSearch 사용)
 	@GetMapping("/es")
 	public ApiResponse<CommunityListResponseDto> findCommunitiesES(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword, @RequestParam String gameName) {
+		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword,
+		@RequestParam String gameName) {
 
-		CommunityListResponseDto responseDtoList = communityService.findCommunitiesES(searchKeyword, gameName, page, size);
+		CommunityListResponseDto responseDtoList = communityService.findCommunitiesES(searchKeyword, gameName, page,
+			size);
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
 
@@ -156,72 +160,6 @@ public class CommunityController {
 		Long userId = customUserDetails.getId();
 
 		communityService.deleteCommunityES(userId, communityId);
-		return success(OK, COMMUNITY_DELETE_SUCCESS);
-	}
-
-	/**
-	 * community 생성(redis활용)
-	 * @param customUserDetails 사용자 Id
-	 * @param dto title, content, gameId
-	 * @return ApiResponse<CommunityResponseDto>
-	 */
-	@PostMapping("/redis")
-	public ApiResponse<CommunityResponseDto> saveCommunityRedis(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Valid @RequestBody CommnunityCreateRequestDto dto) {
-		Long userId = customUserDetails.getId();
-
-		CommunityResponseDto responseDto = communityService.saveCommunityRedis(userId, dto);
-		return success(OK, COMMUNITY_SAVE_SUCCESS, responseDto);
-	}
-
-	/**
-	 * community 검색(redis 활용)
-	 * @param searchKeyword 검색할 단어
-	 * @param page 페이지 수
-	 * @param size 한 페이지에 표시할 데이터 수
-	 * @return ApiResponse<CommunityListResponseDto>
-	 */
-	@GetMapping("/redis")
-	public ApiResponse<CommunityListResponseDto> findCommunityRedis(@RequestParam String searchKeyword,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size) {
-
-		CommunityListResponseDto responseDto = communityService.findCommunityRedis(searchKeyword, page, size);
-
-		return success(OK, COMMUNITY_FOUND_SUCCESS, responseDto);
-	}
-
-	/**
-	 * community 수정(redis 활용)
-	 * @param customUserDetails 사용자 Id
-	 * @param dto communityId, title, content
-	 * @return ApiResponse<CommunityResponseDto>
-	 */
-	@PatchMapping("/redis")
-	public ApiResponse<CommunityResponseDto> updateCommunityRedis(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Valid @RequestBody CommunityUpdateRequestDto dto) {
-
-		Long userId = customUserDetails.getId();
-
-		CommunityResponseDto requestDto = communityService.updateCommunityRedis(userId, dto);
-		return success(OK, COMMUNITY_UPDATE_SUCCESS, requestDto);
-	}
-
-	/**
-	 * community 삭제(redis 활용)
-	 * @param customUserDetails 사용자 Id
-	 * @param communityId community Id
-	 * @return ApiResponse<Void>
-	 */
-	@DeleteMapping("/redis")
-	public ApiResponse<Void> deleteCommunityRedis(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestParam Long communityId) {
-
-		Long userId = customUserDetails.getId();
-
-		communityService.deleteCommunityRedis(userId, communityId);
 		return success(OK, COMMUNITY_DELETE_SUCCESS);
 	}
 }
