@@ -193,6 +193,9 @@ public class ProductServiceImpl implements ProductService {
 		ProductDocument document = ProductDocument.fromEntity(product);
 		document.updateIsDeleted(true);
 		productESRepository.save(document);
+
+		product.deleteProduct();
+		
 		return new ProductDeleteResponseDto(document);
 	}
 

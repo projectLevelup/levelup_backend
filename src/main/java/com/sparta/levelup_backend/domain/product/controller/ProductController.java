@@ -35,7 +35,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/products")
+@RequestMapping("/products")
 @RequiredArgsConstructor
 public class ProductController {
 
