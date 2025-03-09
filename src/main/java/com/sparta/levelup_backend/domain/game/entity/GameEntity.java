@@ -14,7 +14,7 @@ import lombok.Builder;
 @Entity
 @Getter
 @Builder
-@Table(name = "game")
+@Table(name = "game", indexes = {@Index(name = "idx_game_name", columnList = "name")})
 @NoArgsConstructor
 @AllArgsConstructor( access = AccessLevel.PROTECTED)
 public class GameEntity extends BaseEntity {
