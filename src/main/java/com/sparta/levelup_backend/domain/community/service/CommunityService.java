@@ -34,4 +34,6 @@ public interface CommunityService {
 	CommunityResponseDto updateCommunityRedis(Long userId, CommunityUpdateRequestDto dto);
 
 	void deleteCommunityRedis(Long userId, Long communityId);
+
+	CommunityListResponseDto findAll(int page, int size);
 }

@@ -15,4 +15,6 @@ public interface CommunityRepository extends JpaRepository<CommunityEntity, Long
 	}
 
 	Page<CommunityEntity> findAllByGameNameAndTitleContainingAndIsDeletedFalse(String gameName, String title, Pageable pageable);
+
+	Page<CommunityEntity> findAllByIsDeletedFalse(Pageable pageable);
 }

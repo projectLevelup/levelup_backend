@@ -4,7 +4,6 @@ import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static com.sparta.levelup_backend.utill.UserRole.*;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +75,29 @@ public class CommunityServiceImpl implements CommunityService {
 			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
 
 		return CommunityResponseDto.of(community, user, game);
+	}
+
+	@Transactional(readOnly = true)
+	@Override
+	public CommunityListResponseDto findAll(int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<CommunityEntity> communityPage = communityRepository.findAllByIsDeletedFalse(pageable);
+
+		CommunityListResponseDto responseDto = new CommunityListResponseDto(
+			communityPage.stream()
+				.map(community -> CommunityReadResponseDto.of(community, community.getUser(), community.getGame()))
+				.toList()
+		);
+
+		if (communityPage.getTotalPages() <= page) {
+			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
+		}
+
+		if (responseDto.getCommunityList().isEmpty()) {
+			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+		}
+
+		return responseDto;
 	}
 
 	/**
@@ -380,6 +402,7 @@ public class CommunityServiceImpl implements CommunityService {
 		community.deleteCommunity();
 
 	}
+
 
 	public void incrementViews(String communityKey) {
 		redisTemplate.opsForZSet().incrementScore(COMMUNITY_ZSET_KEY, communityKey, 1);
