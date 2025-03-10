@@ -39,6 +39,10 @@ public class ChatroomServiceImpl implements ChatroomService {
 	private final ChatroomMongoRepository chatroomMongoRepository;
 	private final UserRepository userRepository;
 
+	public static final String UNREAD_MESSAGES = "unreadMessages.";
+	public static final String LAST_MESSAGE = "lastMessage";
+	public static final String DB_ID = "_id";
+
 	@Override
 	public ChatroomCreateResponseDto createChatroom(Long userId, Long targetUserId, String title) {
 
@@ -111,16 +115,16 @@ public class ChatroomServiceImpl implements ChatroomService {
 
 		// 마지막 메시지 업데이트
 		Update update = new Update();
-		update.set("lastMessage", Message);
+		update.set(LAST_MESSAGE, Message);
 
 		// 발행자가 아닌 사용자의 unreadMessageCount 증가
 		for (Participant participant : chatroom.getParticipants()) {
 			if (!participant.getUserId().equals(publisherId)) {
-				update.inc("unreadMessages." + participant.getUserId(), 1);
+				update.inc(UNREAD_MESSAGES + participant.getUserId(), 1);
 			}
 		}
 
-		Query query = new Query(Criteria.where("_id").is(chatroomId));
+		Query query = new Query(Criteria.where(DB_ID).is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
@@ -132,11 +136,11 @@ public class ChatroomServiceImpl implements ChatroomService {
 		Update update = new Update();
 		for (Participant participant : chatroom.getParticipants()) {
 			if (participant.getUserId().equals(readUserId)) {
-				update.set("unreadMessages." + participant.getUserId(), 0);
+				update.set(UNREAD_MESSAGES + participant.getUserId(), 0);
 			}
 		}
 
-		Query query = new Query(Criteria.where("_id").is(chatroomId));
+		Query query = new Query(Criteria.where(DB_ID).is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
