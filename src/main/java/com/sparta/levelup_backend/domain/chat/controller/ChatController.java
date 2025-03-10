@@ -4,14 +4,16 @@ import static com.sparta.levelup_backend.common.ApiResMessage.*;
 import static com.sparta.levelup_backend.common.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
-import java.util.List;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.levelup_backend.common.ApiResponse;
@@ -20,7 +22,6 @@ import com.sparta.levelup_backend.domain.chat.dto.ChatResponseDto;
 import com.sparta.levelup_backend.domain.chat.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
@@ -47,7 +48,10 @@ public class ChatController {
 	 * 메시지 기록 저장 API
 	 */
 	@GetMapping("/v1/chats/{chatroomId}/history")
-	public ApiResponse<List<ChatResponseDto>> findChatHistory(@PathVariable String chatroomId) {
-		return success(CREATED, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId));
+	public ApiResponse<Slice<ChatResponseDto>> findChatHistory(
+		@PathVariable String chatroomId,
+		@PageableDefault(size = 10) Pageable pageable
+	) {
+		return success(CREATED, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId, pageable));
 	}
 }

@@ -1,9 +1,13 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -56,34 +60,37 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public List<ChatResponseDto> findChatHistory(String chatroomId) {
-		List<ChatMessage> messages = chatMongoRepository.findByChatroomId(chatroomId);
-		return messages.stream()
-			.map(msg -> {
-				ChatResponseDto dto = new ChatResponseDto(
-					msg.getUserId(),
-					msg.getNickname(),
-					msg.getMessage()
-				);
-				return dto;
-			})
+	public Slice<ChatResponseDto> findChatHistory(String chatroomId, Pageable pageable) {
+		Slice<ChatMessage> messages = chatMongoRepository.findByChatroomIdOrderByTimestampDesc(chatroomId, pageable);
+
+		List<ChatResponseDto> dtos = messages.stream()
+			.map(msg -> new ChatResponseDto(
+				msg.getUserId(),
+				msg.getNickname(),
+				msg.getMessage()))
 			.collect(Collectors.toList());
+
+		return new SliceImpl<>(dtos, pageable, messages.hasNext());
 	}
 
-	public ChannelTopic getTopic(String chatroomId) {
+	private ChannelTopic getTopic(String chatroomId) {
 		return new ChannelTopic(REDIS_CHATROOM_KEY + chatroomId);
 	}
 
 	@Scheduled(cron = "0 */5 * * * ?")
 	private void SaveMessage() {
+
 		Set<String> keys = redisTemplateMessage.keys(REDIS_CHATROOM_KEY + "*");
+
 		if (keys.isEmpty()) {
 			log.info("Not saving any messages");
 			return;
 		}
 
 		for (String key : keys) {
+
 			List<ChatMessage> cachedMessages = redisTemplateMessage.opsForList().range(key, 0, -1);
+
 			if (cachedMessages != null && !cachedMessages.isEmpty()) {
 				chatMongoRepository.saveAll(cachedMessages);
 				log.info("Successfully saved messages: {}, key: {}", cachedMessages.size(), key);
