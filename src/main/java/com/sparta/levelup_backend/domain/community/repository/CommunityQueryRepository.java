@@ -56,36 +56,4 @@ public class CommunityQueryRepository {
 
 		return new SliceImpl<>(communities, pageable, hasNext);
 	}
-
-	public Slice<CommunityReadResponseDto> findCommunities(String gameName, String searchKeyword, Pageable pageable) {
-		QCommunityEntity community = new QCommunityEntity("community");
-		QUserEntity user = new QUserEntity("user");
-		QGameEntity game = new QGameEntity("game");
-
-		List<CommunityReadResponseDto> communities = queryFactory
-			.select(new QCommunityReadResponseDto(
-				Expressions.stringTemplate("CAST({0} AS STRING)", community.id),
-				community.title,
-				user.nickName,
-				game.name))
-			.from(community)
-			.leftJoin(community.user, user)
-			.leftJoin(community.game, game)
-			.where(community.game.name.eq(gameName))
-			.where(community.title.contains(searchKeyword))
-			.where(community.isDeleted.eq(false))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize()+1) //다음 페이지가 있는지 확인하기 위해 데이터를 1개 더 불러옴
-			.fetch();
-
-		// 다음 페이지 여부 확인
-		boolean hasNext = communities.size() > pageable.getPageSize();
-
-		//마지막 페이지가 아니면 더 가져온 페이지는 필요 없기 때문에 삭제
-		if (hasNext) {
-			communities.remove(pageable.getPageSize());
-		}
-
-		return new SliceImpl<>(communities, pageable, hasNext);
-	}
 }

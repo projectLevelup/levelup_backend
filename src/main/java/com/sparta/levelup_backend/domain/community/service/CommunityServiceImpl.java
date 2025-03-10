@@ -57,6 +57,7 @@ public class CommunityServiceImpl implements CommunityService {
 	private final ElasticsearchClient elasticsearchClient;
 	private final CommunityQueryRepository communityQueryRepository;
 
+	// community 생성
 	@Override
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
@@ -65,10 +66,17 @@ public class CommunityServiceImpl implements CommunityService {
 
 		CommunityEntity community = communityRepository.save(
 			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
+		CommunityDocument communityDocument = communityESRepository.save(CommunityDocument.from(community));
 
-		return CommunityResponseDto.of(community, user, game);
+		return CommunityResponseDto.from(community);
 	}
 
+	/**
+	 *게임생활 목록 조회
+	 * @param pageable 0부터 시작
+	 * @param gameName 어떤 게임의 게임생활을 조회할건지
+	 * @return
+	 */
 	@Transactional(readOnly = true)
 	@Override
 	public CommunityListResponseDto findAllByGameName(String gameName, Pageable pageable) {
@@ -85,74 +93,6 @@ public class CommunityServiceImpl implements CommunityService {
 	/**
 	 * community 목록 검색
 	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
-	 * @param gameName 검색할 게임
-	 * @param searchKeyword 제목 검색어
-	 * @param pageable 0부터 시작
-	 * @return
-	 */
-	@Transactional(readOnly = true)
-	@Override
-	public CommunityListResponseDto findCommunities(String gameName, String searchKeyword, Pageable pageable) {
-		Slice<CommunityReadResponseDto> communityReadResponseDtoPages = communityQueryRepository.findCommunities(
-			gameName, searchKeyword, pageable);
-
-		if (communityReadResponseDtoPages.isEmpty()) {
-			throw new NotFoundException(COMMUNITY_NOT_FOUND);
-		}
-		return new CommunityListResponseDto(
-			communityReadResponseDtoPages.stream().toList(), communityReadResponseDtoPages.hasNext());
-	}
-
-	@Override
-	public CommunityCommentResponseDto findById(Long communityId) {
-		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
-		checkCommunityIsDeleted(community);
-
-		List<CommentEntity> comments = commentRepository.findByCommunityIdAndIsDeletedFalse(communityId);
-
-		return CommunityCommentResponseDto.of(community, comments.stream().map(CommentResponseDto::from).toList());
-	}
-
-	@Override
-	public CommunityResponseDto update(Long userId, CommunityUpdateRequestDto dto) {
-		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
-		checkAuth(community, userId);
-		checkCommunityIsDeleted(community);
-
-		if (Objects.nonNull(dto.getTitle())) {
-			community.updateTitle(dto.getTitle());
-		}
-		if (Objects.nonNull(dto.getContent())) {
-			community.updateContent(dto.getContent());
-		}
-
-		return CommunityResponseDto.from(community);
-	}
-
-	@Override
-	public void delete(Long userId, Long communityId) {
-		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
-		checkAuth(community, userId);
-		checkCommunityIsDeleted(community);
-
-		community.deleteCommunity();
-	}
-
-	// community 생성(elasticSearch 사용)
-	@Override
-	public CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto) {
-		UserEntity user = userRepository.findByIdOrElseThrow(userId);
-		GameEntity game = gameRepository.findByIdOrElseThrow(dto.getGameId());
-		CommunityEntity community = communityRepository.save(
-			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
-		CommunityDocument communityDocument = communityESRepository.save(CommunityDocument.from(community));
-
-		return CommunityResponseDto.from(communityDocument);
-	}
-
-	/**
-	 * community 목록 검색(elasticSearch 사용)
-	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
 	 * @param searchKeyword 제목 검색어 (null이면 모든 글 검색)
 	 * @param gameName 검색할 게임 (null이면 게임 필터 없이 검색)
 	 * @param page 기본값: 0
@@ -160,10 +100,10 @@ public class CommunityServiceImpl implements CommunityService {
 	 * @return
 	 */
 	@Override
-	public CommunityListResponseDto findCommunitiesES(String searchKeyword, String gameName, int page,
+	public CommunityListResponseDto findCommunities(String searchKeyword, String gameName, int page,
 		int size) {
 		// 10000개 이상의 데이터 조회 방지
-		if((page+1)*size >= 9999){
+		if ((page + 1) * size >= 9999) {
 			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
 		}
 
@@ -210,16 +150,19 @@ public class CommunityServiceImpl implements CommunityService {
 		return new CommunityListResponseDto(responseDto, hasNext);
 	}
 
-	// community 단건 조회(elasticSearch 사용)
 	@Override
-	public CommunityResponseDto findCommunityES(String communityId) {
-		CommunityDocument communityDocument = communityESRepository.findByIdOrElseThrow(communityId);
-		return CommunityResponseDto.from(communityDocument);
+	public CommunityCommentResponseDto findById(Long communityId) {
+		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
+		checkCommunityIsDeleted(community);
+
+		List<CommentEntity> comments = commentRepository.findByCommunityIdAndIsDeletedFalse(communityId);
+
+		return CommunityCommentResponseDto.of(community, comments.stream().map(CommentResponseDto::from).toList());
 	}
 
 	// community 수정(elasticSearch 사용)
 	@Override
-	public CommunityResponseDto updateCommunityES(Long userId, CommunityUpdateRequestDto dto) {
+	public CommunityResponseDto updateCommunity(Long userId, CommunityUpdateRequestDto dto) {
 		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
 		CommunityDocument communityDocument = communityESRepository.findByIdOrElseThrow(
 			String.valueOf(dto.getCommunityId()));
@@ -236,17 +179,16 @@ public class CommunityServiceImpl implements CommunityService {
 		}
 		if (Objects.nonNull(dto.getContent())) {
 			community.updateContent(dto.getContent());
-			communityDocument.updateContent(dto.getContent());
 		}
 
 		communityESRepository.save(communityDocument);
 
-		return CommunityResponseDto.from(communityDocument);
+		return CommunityResponseDto.from(community);
 	}
 
 	// community 삭제(elasticSearch 사용)
 	@Override
-	public void deleteCommunityES(Long userId, Long communityId) {
+	public void deleteCommunity(Long userId, Long communityId) {
 		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
 		CommunityDocument communityDocument = communityESRepository.findByIdOrElseThrow(String.valueOf(communityId));
 		checkAuth(community, userId);

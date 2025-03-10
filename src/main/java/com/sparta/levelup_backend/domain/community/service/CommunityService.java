@@ -13,21 +13,11 @@ public interface CommunityService {
 
 	CommunityListResponseDto findAllByGameName(String gameName, Pageable pageable);
 
-	CommunityListResponseDto findCommunities(String gameName, String searchKeyWord, Pageable pageable);
-
 	CommunityCommentResponseDto findById(Long communityId);
 
-	CommunityResponseDto update(Long userId, CommunityUpdateRequestDto dto);
+	CommunityListResponseDto findCommunities(String searchKeyword, String gameName, int page, int size);
 
-	void delete(Long userId, Long communityId);
+	CommunityResponseDto updateCommunity(Long userId, CommunityUpdateRequestDto dto);
 
-	CommunityListResponseDto findCommunitiesES(String searchKeyword, String gameName, int page, int size);
-
-	CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto);
-
-	CommunityResponseDto updateCommunityES(Long userId, CommunityUpdateRequestDto dto);
-
-	void deleteCommunityES(Long userId, Long communityId);
-
-	CommunityResponseDto findCommunityES(String communityId);
+	void deleteCommunity(Long userId, Long communityId);
 }
