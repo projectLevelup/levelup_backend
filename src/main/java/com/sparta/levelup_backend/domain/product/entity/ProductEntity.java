@@ -6,8 +6,8 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
+import com.sparta.levelup_backend.domain.product.dto.request.ProductCreateRequestDto;
+import com.sparta.levelup_backend.domain.product.dto.request.ProductUpdateRequestDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.exception.common.ProductOutOfAmount;
 import com.sparta.levelup_backend.enums.ProductStatus;

@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.comment.service;
 
 import static com.sparta.levelup_backend.enums.UserRole.*;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

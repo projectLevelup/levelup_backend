@@ -1,9 +1,8 @@
 package com.sparta.levelup_backend.domain.payment.service;
 
-import com.sparta.levelup_backend.config.tossPayment.PaymentHttpClient;
+import com.sparta.levelup_backend.config.tosspayment.PaymentHttpClient;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
-import com.sparta.levelup_backend.domain.bill.service.BillEventPublisher;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
@@ -20,15 +19,14 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.PAYMENT_FAILED;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.PAYMENT_FAILED;
 
 @Slf4j
 @Service

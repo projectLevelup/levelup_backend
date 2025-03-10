@@ -20,7 +20,7 @@ import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
 import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;

@@ -1,10 +1,8 @@
 package com.sparta.levelup_backend.domain.chat.controller;
 
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
-
-import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -18,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomCreateResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomListResponseDto;
 import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
 
 import lombok.RequiredArgsConstructor;

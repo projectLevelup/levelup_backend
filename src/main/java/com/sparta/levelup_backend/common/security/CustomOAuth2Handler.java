@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.utill.JwtUtils;
 
 import jakarta.servlet.RequestDispatcher;

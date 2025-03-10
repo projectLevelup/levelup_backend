@@ -3,10 +3,10 @@ package com.sparta.levelup_backend.domain.user.service;
 import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_CODE_PREFIX;
 import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_PREFIX;
 import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_SUBJECT;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.AUTH_TYPE_NOT_GENERAL;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.FORBIDDEN_ACCESS;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.INVALID_NICKNAME;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.INVALID_RESETCODE;
+import static com.sparta.levelup_backend.enums.ErrorCode.AUTH_TYPE_NOT_GENERAL;
+import static com.sparta.levelup_backend.enums.ErrorCode.FORBIDDEN_ACCESS;
+import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_NICKNAME;
+import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_RESETCODE;
 
 import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
 import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;

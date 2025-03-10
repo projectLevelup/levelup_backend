@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.bill.service;
 
-import com.sparta.levelup_backend.domain.bill.dto.responseDto.BillResponseDto;
+import com.sparta.levelup_backend.domain.bill.dto.response.BillResponseDto;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
@@ -8,7 +8,7 @@ import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.user.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import lombok.RequiredArgsConstructor;

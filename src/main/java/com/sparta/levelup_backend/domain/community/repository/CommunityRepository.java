@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.community.repository;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

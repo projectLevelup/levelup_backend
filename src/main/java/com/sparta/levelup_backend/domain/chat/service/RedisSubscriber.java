@@ -6,7 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.sparta.levelup_backend.domain.chat.dto.ChatResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatResponseDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

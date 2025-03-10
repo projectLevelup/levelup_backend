@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -15,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.sparta.levelup_backend.domain.chat.document.ChatroomDocument;
 import com.sparta.levelup_backend.domain.chat.document.Participant;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomCreateResponseDto;
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;

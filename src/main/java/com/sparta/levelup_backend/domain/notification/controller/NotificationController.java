@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.notification.controller;
 
-import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.domain.notification.entity.Notification;
 import com.sparta.levelup_backend.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 @Slf4j

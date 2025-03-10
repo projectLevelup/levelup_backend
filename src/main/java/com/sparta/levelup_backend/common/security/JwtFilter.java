@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.common.security;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import static org.springframework.util.StringUtils.*;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.utill.JwtUtils;
 import com.sparta.levelup_backend.enums.UserRole;

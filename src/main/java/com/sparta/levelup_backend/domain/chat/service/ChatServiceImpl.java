@@ -1,6 +1,5 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,8 +16,8 @@ import org.springframework.stereotype.Service;
 
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.chat.document.ChatMessage;
-import com.sparta.levelup_backend.domain.chat.dto.ChatRequestDto;
-import com.sparta.levelup_backend.domain.chat.dto.ChatResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.request.ChatRequestDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatResponseDto;
 import com.sparta.levelup_backend.domain.chat.repository.ChatMongoRepository;
 
 import lombok.RequiredArgsConstructor;

@@ -11,7 +11,7 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.util.MultiValueMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.levelup_backend.config.annotaion.FormToJson;
+import com.sparta.levelup_backend.config.annotation.FormToJson;
 
 public class FormToJsonHttpMessageConverter<T> extends AbstractHttpMessageConverter<T> {
 

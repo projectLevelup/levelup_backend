@@ -3,8 +3,8 @@ package com.sparta.levelup_backend.domain.chat.service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomCreateResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomListResponseDto;
 
 public interface ChatroomService {
 

@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.community.service;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import static com.sparta.levelup_backend.enums.UserRole.*;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ import com.sparta.levelup_backend.domain.community.dto.response.CommunityRespons
 import com.sparta.levelup_backend.domain.community.entity.CommunityEntity;
 import com.sparta.levelup_backend.domain.community.repository.CommunityQueryRepository;
 import com.sparta.levelup_backend.domain.community.repository.CommunityRepository;
-import com.sparta.levelup_backend.domain.community.repositoryES.CommunityESRepository;
+import com.sparta.levelup_backend.domain.community.repositoryes.CommunityESRepository;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
