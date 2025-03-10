@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.comment.controller;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.levelup_backend.common.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.comment.dto.request.CommentCreateRequestDto;
 import com.sparta.levelup_backend.domain.comment.dto.request.CommentUpdateRequestDto;
 import com.sparta.levelup_backend.domain.comment.dto.response.CommentResponseDto;
