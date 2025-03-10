@@ -9,9 +9,6 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessageDto {
-
-	private String chatroomId;
-	private String nickname;
+public class ChatRequestDto {
 	private String message;
 }
