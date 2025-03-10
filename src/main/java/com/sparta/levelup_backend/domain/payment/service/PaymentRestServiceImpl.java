@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.payment.service;
 
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.config.tossPayment.TossPaymentConfig;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
@@ -13,10 +13,9 @@ import com.sparta.levelup_backend.exception.common.*;
 import com.sparta.levelup_backend.enums.OrderStatus;
 import com.sparta.levelup_backend.exception.order.OrderException;
 import com.sparta.levelup_backend.exception.payment.PaymentException;
+import com.sparta.levelup_backend.exception.user.ForbiddenException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.common.security;
 
 
 import java.io.IOException;
@@ -40,13 +40,13 @@ public class CustomOAuth2Handler implements AuthenticationSuccessHandler,
         String nickName = customOAuth2User.getNickName();
         String provider = customOAuth2User.getProvider();
 
-        if (provider.endsWith("new")) {
+        if (provider.endsWith("NEW")) {
             request.setAttribute("id", id);
             request.setAttribute("email", email);
             request.setAttribute("nickName", nickName);
             request.setAttribute("provider", provider);
 
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("/v2/oauth2signup");
+            RequestDispatcher requestDispatcher = request.getRequestDispatcher("/oauth2signup");
             requestDispatcher.forward(request, response);
 
         } else {

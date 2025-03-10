@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.common.security;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static org.springframework.util.StringUtils.*;
@@ -37,11 +37,11 @@ public class JwtFilter extends OncePerRequestFilter {
 	private final JwtUtils jwtUtils;
 	private final List<RequestMatcher> WHITE_LIST = Arrays.asList(
 		new AntPathRequestMatcher("/v2/home"),
-		new AntPathRequestMatcher("/v2/sign**"),
-		new AntPathRequestMatcher("/v**/users/resetPassword**"),
+		new AntPathRequestMatcher("/sign**"),
+		new AntPathRequestMatcher("/users/resetPassword**"),
 		new AntPathRequestMatcher("/resetPassword**"),
 		new AntPathRequestMatcher("/oauth2/authorization/naver"),
-		new AntPathRequestMatcher("/v2/oauth2sign*"));
+		new AntPathRequestMatcher("/oauth2sign*"));
 	private final OrRequestMatcher orRequestMatcher = new OrRequestMatcher(WHITE_LIST);
 	private final FilterResponse filterResponse;
 

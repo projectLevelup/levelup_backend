@@ -7,7 +7,7 @@ import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.success;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.levelup_backend.domain.review.service.ReviewService;

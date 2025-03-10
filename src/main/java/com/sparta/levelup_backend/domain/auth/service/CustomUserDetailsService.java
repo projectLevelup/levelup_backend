@@ -2,15 +2,16 @@ package com.sparta.levelup_backend.domain.auth.service;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 
+import com.sparta.levelup_backend.enums.ProviderType;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.AlreadyDeletedUserException;
+import com.sparta.levelup_backend.exception.user.AlreadyDeletedUserException;
 import com.sparta.levelup_backend.exception.common.MismatchException;
 
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		if (user.getIsDeleted()) {
 			throw new AlreadyDeletedUserException();
 		}
-		String provider = user.getProvider();
-		if (!provider.startsWith("none")) {
+		if (!user.getProvider().equals(ProviderType.NONE)) {
 			throw new MismatchException(AUTH_TYPE_MISMATCH);
 		}
 

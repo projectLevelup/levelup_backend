@@ -1,28 +1,25 @@
 package com.sparta.levelup_backend.domain.auth.controller;
 
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
-import static org.springframework.http.HttpStatus.*;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.LOGIN_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.SIGNUP_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.success;
+import static org.springframework.http.HttpStatus.CREATED;
 
 import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
 import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignUpUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.service.AuthService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/v2")
 @RequiredArgsConstructor
 public class AuthController {
 

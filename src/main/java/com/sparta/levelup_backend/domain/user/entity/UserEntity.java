@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.user.entity;
 
 import com.sparta.levelup_backend.common.entity.BaseEntity;
+import com.sparta.levelup_backend.enums.ProviderType;
 import com.sparta.levelup_backend.enums.UserRole;
 
 import jakarta.persistence.Column;
@@ -45,7 +46,8 @@ public class UserEntity extends BaseEntity {
 
 	private String phoneNumber;
 
-	private String provider;
+	@Enumerated(EnumType.STRING)
+	private ProviderType provider;
 
     private String customerKey;
 
@@ -69,7 +71,7 @@ public class UserEntity extends BaseEntity {
 		this.password = newPassword;
 	}
 
-	public void updateProvider(String provider) {
+	public void updateProvider(ProviderType provider) {
 		this.provider = provider;
 	}
 
