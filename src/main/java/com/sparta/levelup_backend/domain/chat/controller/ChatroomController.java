@@ -60,7 +60,7 @@ public class ChatroomController {
 	@GetMapping
 	public ApiResponse<Slice<ChatroomListResponseDto>> findChatrooms(
 		@AuthenticationPrincipal CustomUserDetails authUser,
-		@PageableDefault(size = 10) Pageable pageable
+		@PageableDefault Pageable pageable
 	) {
 		return success(OK, CHATROOM_FIND ,chatroomService.findChatrooms(authUser.getId(), pageable));
 	}

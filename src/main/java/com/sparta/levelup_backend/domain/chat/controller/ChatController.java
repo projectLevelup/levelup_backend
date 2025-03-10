@@ -49,7 +49,7 @@ public class ChatController {
 	@GetMapping("/chats/{chatroomId}/history")
 	public ApiResponse<Slice<ChatResponseDto>> findChatHistory(
 		@PathVariable String chatroomId,
-		@PageableDefault(size = 10) Pageable pageable
+		@PageableDefault Pageable pageable
 	) {
 		return success(CREATED, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId, pageable));
 	}
