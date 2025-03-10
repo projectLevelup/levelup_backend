@@ -1,60 +1,67 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.sparta.levelup_backend.config.CustomUserDetails;
-import com.sparta.levelup_backend.domain.chat.dto.ChatMessageDto;
 import com.sparta.levelup_backend.domain.chat.document.ChatMessage;
+import com.sparta.levelup_backend.domain.chat.dto.ChatRequestDto;
+import com.sparta.levelup_backend.domain.chat.dto.ChatResponseDto;
 import com.sparta.levelup_backend.domain.chat.repository.ChatMongoRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
+@EnableScheduling
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
 	private final ChatMongoRepository chatMongoRepository;
 	private final RedisPublisher redisPublisher;
-	private final ChatroomService chatroomService;
+	private final RedisTemplate<String, ChatMessage> redisTemplateMessage;
+
+	private static final String REDIS_CHATROOM_KEY = "chatroom:";
 
 	@Override
-	public ChatMessageDto handleMessage(String chatroomId, ChatMessageDto dto, Authentication authentication) {
+	public ChatResponseDto handleMessage(String chatroomId, ChatRequestDto dto, Authentication authentication) {
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
-		ChatMessageDto messageDto = new ChatMessageDto(
-			chatroomId,
-			user.getUser().getNickName(),
+		ChatResponseDto message = new ChatResponseDto(
+			user.getId(),
+			user.getNickName(),
 			dto.getMessage()
 		);
 
 		ChatMessage chatMessage = ChatMessage.builder()
 			.chatroomId(chatroomId)
-			.nickname(messageDto.getNickname())
-			.message(messageDto.getMessage())
-			.timestamp(LocalDateTime.now())
+			.userId(user.getId())
+			.nickname(message.getNickname())
+			.message(message.getMessage())
 			.build();
 
-		// 메시지 발행시 마지막 메시지, 안 읽음수 업데이트
-		chatroomService.updateUnreadCountAndLastMessage(chatroomId, user.getUser().getId(), dto.getMessage());
+		redisPublisher.publish(getTopic(chatroomId), message);
+		redisTemplateMessage.opsForList().rightPush(REDIS_CHATROOM_KEY + chatroomId, chatMessage);
 
-		redisPublisher.publish(getTopic(chatroomId), messageDto);
-		chatMongoRepository.save(chatMessage);
-		return messageDto;
+		return message;
 	}
 
 	@Override
-	public List<ChatMessageDto> findChatHistory(String chatroomId) {
+	public List<ChatResponseDto> findChatHistory(String chatroomId) {
 		List<ChatMessage> messages = chatMongoRepository.findByChatroomId(chatroomId);
 		return messages.stream()
 			.map(msg -> {
-				ChatMessageDto dto = new ChatMessageDto(
-					chatroomId,
+				ChatResponseDto dto = new ChatResponseDto(
+					msg.getUserId(),
 					msg.getNickname(),
 					msg.getMessage()
 				);
@@ -64,6 +71,26 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	public ChannelTopic getTopic(String chatroomId) {
-		return new ChannelTopic("chatroom:" + chatroomId);
+		return new ChannelTopic(REDIS_CHATROOM_KEY + chatroomId);
 	}
+
+	@Scheduled(cron = "0 */5 * * * ?")
+	private void SaveMessage() {
+		Set<String> keys = redisTemplateMessage.keys(REDIS_CHATROOM_KEY + "*");
+		if (keys.isEmpty()) {
+			log.info("Not saving any messages");
+			return;
+		}
+
+		for (String key : keys) {
+			List<ChatMessage> cachedMessages = redisTemplateMessage.opsForList().range(key, 0, -1);
+			if (cachedMessages != null && !cachedMessages.isEmpty()) {
+				chatMongoRepository.saveAll(cachedMessages);
+				log.info("Successfully saved messages: {}, key: {}", cachedMessages.size(), key);
+			}
+
+			redisTemplateMessage.delete(key);
+		}
+	}
+
 }
