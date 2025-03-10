@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
-import com.sparta.levelup_backend.exception.common.EmailDuplicatedException;
+import com.sparta.levelup_backend.exception.user.EmailDuplicatedException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long> {

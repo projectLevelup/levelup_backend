@@ -50,9 +50,6 @@ public enum ErrorCode {
 	BILL_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR309", "거래내역을 찾을 수 없습니다."),
 	COMMUNITY_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR310", "커뮤니티를 찾을 수 없습니다."),
 	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR311", "결제정보를 찾을 수 없습니다."),
-
-	ALERT_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR312", "알림메시지를 찾을 수 없습니다."),
-	ALERT_LOG_MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR313", "알림메시지로그를 찾을 수 없습니다."),
 	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR314", "댓글을 찾을 수 없습니다."),
 
 	// 409 CONFLICT

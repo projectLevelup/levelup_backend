@@ -2,8 +2,8 @@ package com.sparta.levelup_backend.domain.auth.service;
 
 import static com.sparta.levelup_backend.domain.user.dto.UserMessage.*;
 
-import com.sparta.levelup_backend.exception.common.ErrorCode;
-import com.sparta.levelup_backend.exception.common.PasswordIncorrectException;
+import com.sparta.levelup_backend.enums.ProviderType;
+import com.sparta.levelup_backend.exception.user.PasswordIncorrectException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,7 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignUpUserRequestDto;
@@ -20,12 +20,10 @@ import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.utill.JwtUtils;
-import com.sparta.levelup_backend.utill.UserRole;
+import com.sparta.levelup_backend.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import java.util.UUID;
-
 import java.util.UUID;
 
 @Slf4j
@@ -53,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
 			.role(UserRole.USER)
 			.phoneNumber(signUpUserRequestDto.getPhoneNumber())
             .customerKey(UUID.randomUUID().toString())
-			.provider("none")
+			.provider(ProviderType.NONE)
             .customerKey(UUID.randomUUID().toString())
 			.build();
 
@@ -67,7 +65,8 @@ public class AuthServiceImpl implements AuthService {
 	@Transactional
 	public void oAuth2signUpUser(OAuthUserRequestDto dto) {
 		UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
-		user.updateProvider(user.getProvider().substring(0, user.getProvider().length() - 3));
+		user.updateProvider(ProviderType.valueOf(
+            user.getProvider().toString().substring(0, user.getProvider().toString().length() - 3)));
 		user.updatePhoneNumber(dto.getPhoneNumber());
 		user.updateEmail(dto.getEmail());
 		user.updateNickName(dto.getNickName());

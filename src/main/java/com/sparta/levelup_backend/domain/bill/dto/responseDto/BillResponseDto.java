@@ -2,10 +2,9 @@ package com.sparta.levelup_backend.domain.bill.dto.responseDto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
-import com.sparta.levelup_backend.utill.BillStatus;
+import com.sparta.levelup_backend.enums.BillStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 

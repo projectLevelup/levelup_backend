@@ -6,10 +6,12 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.sparta.levelup_backend.domain.chat.dto.ChatMessageDto;
+import com.sparta.levelup_backend.domain.chat.dto.ChatResponseDto;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener {
@@ -23,7 +25,9 @@ public class RedisSubscriber implements MessageListener {
 	 */
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
-		ChatMessageDto chatMessage = (ChatMessageDto) redisTemplate.getValueSerializer().deserialize(message.getBody());
-		messagingTemplate.convertAndSend("/sub/chats/" + chatMessage.getChatroomId(), chatMessage);
+		ChatResponseDto chatMessage = (ChatResponseDto) redisTemplate.getValueSerializer().deserialize(message.getBody());
+		String channel = new String(message.getChannel());
+
+		messagingTemplate.convertAndSend("/sub/chats/" + channel.replace("chatroom:", ""), chatMessage);
 	}
 }

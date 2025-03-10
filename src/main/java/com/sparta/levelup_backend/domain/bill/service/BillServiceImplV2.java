@@ -9,7 +9,7 @@ import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
-import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.user.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,7 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.sparta.levelup_backend.utill.BillStatus.*;
+import static com.sparta.levelup_backend.enums.BillStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class BillServiceImplV2 implements BillServiceV2 {
     private final BillRepository billRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final BillEventPubService billEventPubService;
+    private final BillEventPublisher billEventPublisher;
 
     // 거래 내역 생성 (거래중으로 바뀌었을때 생성 됌)
     @Transactional
@@ -46,8 +46,10 @@ public class BillServiceImplV2 implements BillServiceV2 {
                 .tutorIsDeleted(false)
                 .studentIsDeleted(false)
                 .build();
+        bill.setStatus(PAID);
+        billRepository.save(bill);
 
-        billEventPubService.createPaidEvent(bill);
+        billEventPublisher.publishBillStatusChange(bill);
     }
 
     /**
@@ -168,5 +170,22 @@ public class BillServiceImplV2 implements BillServiceV2 {
 
         bill.billStudentDelete();
         billRepository.save(bill);
+    }
+
+    @Transactional
+    public BillEntity createPaidEvent(BillEntity bill) {
+        bill.setStatus(PAID);
+        BillEntity saveBill = billRepository.save(bill);
+        billEventPublisher.publishBillStatusChange(bill);
+        return saveBill;
+    }
+
+    @Transactional
+    public BillEntity createCancelEvent(BillEntity bill) {
+        bill.setStatus(PAYCANCELED);
+        BillEntity saveBill = billRepository.save(bill);
+
+        billEventPublisher.publishBillStatusChange(bill);
+        return saveBill;
     }
 }

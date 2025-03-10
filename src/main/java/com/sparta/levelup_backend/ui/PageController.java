@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
 
@@ -21,17 +21,17 @@ public class PageController {
 	private final ChatroomMongoRepository chatroomMongoRepository;
 	private final ChatroomService chatroomService;
 
-	@GetMapping("/v2/signin")
+	@GetMapping("/signin")
 	public String signInPage() {
 		return "signin";
 	}
 
-	@GetMapping("/v2/signup")
+	@GetMapping("/signup")
 	public String signUpUserPage() {
 		return "signup";
 	}
 
-	@GetMapping("/v2/oauth2signup")
+	@GetMapping("/oauth2signup")
 	public String oAuth2SignUpUserPage(Model model, HttpServletRequest request) {
 
 		model.addAttribute("email", request.getAttribute("email"));
@@ -74,9 +74,6 @@ public class PageController {
 		if (!chatroomMongoRepository.findByUserIdAndChatroomId(authUser.getId(), chatroomId).isEmpty()) {
 			redirectAttributes.addFlashAttribute("errorMessage", "참여하지 않은 채팅방에 접근하실 수 없습니다.");
 		}
-
-		// 채팅방 접속 시 안 읽음 수 0으로 초기화
-		chatroomService.updateUnreadCountZero(chatroomId, authUser.getId());
 
 		model.addAttribute("chatroomId", chatroomId);
 		model.addAttribute("nickname", authUser.getUser().getNickName());

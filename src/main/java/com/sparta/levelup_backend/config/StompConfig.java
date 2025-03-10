@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -15,9 +16,27 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 	 */
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/ws/chats")
+		registry.addEndpoint("/ws")
 			.setAllowedOriginPatterns("*")
 			.withSockJS();
+	}
+
+	@Override
+	public void configureClientInboundChannel(ChannelRegistration registration) {
+		registration.taskExecutor()
+			.corePoolSize(10)
+			.maxPoolSize(20)
+			.keepAliveSeconds(30)
+			.queueCapacity(100);
+	}
+
+	@Override
+	public void configureClientOutboundChannel(ChannelRegistration registration) {
+		registration.taskExecutor()
+			.corePoolSize(10)
+			.maxPoolSize(20)
+			.keepAliveSeconds(30)
+			.queueCapacity(100);
 	}
 
 	/**
@@ -26,6 +45,6 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
 		registry.setApplicationDestinationPrefixes("/pub");
-		registry.enableSimpleBroker("/sub");
+		registry.enableSimpleBroker("/sub/chat", "/sub/notification");
 	}
 }

@@ -1,13 +1,13 @@
 package com.sparta.levelup_backend.domain.review.controller;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_DELETE;
-import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_LIST_SUCCESS;
-import static com.sparta.levelup_backend.common.ApiResMessage.REVIEW_SUCCESS;
-import static com.sparta.levelup_backend.common.ApiResponse.success;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.REVIEW_DELETE;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.REVIEW_LIST_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.REVIEW_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.success;
 import static org.springframework.http.HttpStatus.OK;
 
-import com.sparta.levelup_backend.common.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.review.dto.request.ReviewRequestDto;
 import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.levelup_backend.domain.review.service.ReviewService;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1")
 public class ReviewController {
 
     private final ReviewService reviewService;
