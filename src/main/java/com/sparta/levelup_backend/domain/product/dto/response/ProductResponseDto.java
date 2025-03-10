@@ -1,0 +1,33 @@
+package com.sparta.levelup_backend.domain.product.dto.response;
+
+import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
+import com.sparta.levelup_backend.enums.ProductStatus;
+
+import lombok.Getter;
+
+@Getter
+public class ProductResponseDto {
+
+	private final Long productId;
+	private final Long userId;
+	private final Long gameId;
+	private final String productName;
+	private final String contents;
+	private final Long price;
+	private final Integer amount;
+	private final ProductStatus status;
+	private final String imgUrl;
+
+	public ProductResponseDto(ProductEntity entity) {
+		this.productId = entity.getId();
+		this.userId = entity.getUser().getId();
+		this.gameId = entity.getGame().getId();
+		this.productName = entity.getProductName();
+		this.contents = entity.getContents();
+		this.price = entity.getPrice();
+		this.amount = entity.getAmount();
+		this.status = entity.getStatus();
+		this.imgUrl = entity.getImgUrl();
+	}
+
+}

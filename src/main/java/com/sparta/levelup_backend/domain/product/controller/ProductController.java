@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.product.controller;
 
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 import java.util.List;
@@ -19,16 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductRequestAllDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
-import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteResponseDto;
-import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductResponseDto;
-import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductUpdateResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.request.ProductCreateRequestDto;
+import com.sparta.levelup_backend.domain.product.dto.request.ProductRequestAllDto;
+import com.sparta.levelup_backend.domain.product.dto.request.ProductUpdateRequestDto;
+import com.sparta.levelup_backend.domain.product.dto.response.ProductCreateResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.response.ProductDeleteResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.response.ProductResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.response.ProductUpdateResponseDto;
 import com.sparta.levelup_backend.domain.product.service.ProductService;
 
 import jakarta.validation.Valid;

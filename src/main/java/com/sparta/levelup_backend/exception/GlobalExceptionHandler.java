@@ -1,9 +1,9 @@
 package com.sparta.levelup_backend.exception;
 
 import com.fasterxml.jackson.core.JsonParseException;
-import com.sparta.levelup_backend.common.apiResponse.ErrorResponse;
+import com.sparta.levelup_backend.common.apiresponse.ErrorResponse;
 import com.sparta.levelup_backend.exception.common.BusinessException;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.enums.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

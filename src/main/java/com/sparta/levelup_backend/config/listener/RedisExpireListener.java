@@ -16,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.CONFLICT_LOCK_ERROR;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.CONFLICT_LOCK_GET;
+import static com.sparta.levelup_backend.enums.ErrorCode.CONFLICT_LOCK_ERROR;
+import static com.sparta.levelup_backend.enums.ErrorCode.CONFLICT_LOCK_GET;
 import static com.sparta.levelup_backend.enums.OrderStatus.*;
 
 @Slf4j

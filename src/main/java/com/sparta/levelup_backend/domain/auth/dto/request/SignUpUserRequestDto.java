@@ -5,7 +5,7 @@ import static com.sparta.levelup_backend.domain.user.dto.UserValidMessage.*;
 import org.hibernate.validator.constraints.URL;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sparta.levelup_backend.config.annotaion.FormToJson;
+import com.sparta.levelup_backend.config.annotation.FormToJson;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

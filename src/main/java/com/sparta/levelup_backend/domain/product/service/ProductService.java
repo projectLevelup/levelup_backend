@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductRequestAllDto;
-import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
-import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductCreateResponseDto;
-import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteResponseDto;
-import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductResponseDto;
-import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductUpdateResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.request.ProductCreateRequestDto;
+import com.sparta.levelup_backend.domain.product.dto.request.ProductRequestAllDto;
+import com.sparta.levelup_backend.domain.product.dto.request.ProductUpdateRequestDto;
+import com.sparta.levelup_backend.domain.product.dto.response.ProductCreateResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.response.ProductDeleteResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.response.ProductResponseDto;
+import com.sparta.levelup_backend.domain.product.dto.response.ProductUpdateResponseDto;
 
 public interface ProductService {
 

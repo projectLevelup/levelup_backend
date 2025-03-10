@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -18,8 +21,8 @@ import org.springframework.util.StringUtils;
 
 import com.sparta.levelup_backend.domain.chat.document.ChatroomDocument;
 import com.sparta.levelup_backend.domain.chat.document.Participant;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
-import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomCreateResponseDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomListResponseDto;
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
@@ -35,6 +38,10 @@ public class ChatroomServiceImpl implements ChatroomService {
 	private final MongoTemplate mongoTemplate;
 	private final ChatroomMongoRepository chatroomMongoRepository;
 	private final UserRepository userRepository;
+
+	public static final String UNREAD_MESSAGES = "unreadMessages.";
+	public static final String LAST_MESSAGE = "lastMessage";
+	public static final String DB_ID = "_id";
 
 	@Override
 	public ChatroomCreateResponseDto createChatroom(Long userId, Long targetUserId, String title) {
@@ -52,31 +59,12 @@ public class ChatroomServiceImpl implements ChatroomService {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		UserEntity targetUser = userRepository.findByIdOrElseThrow(targetUserId);
 
-		// 제목을 적지 않았을 경우 참여자 닉네임으로 자동 생성
-		String chatroomTitle = StringUtils.hasText(title)
-			? title
-			: user.getNickName() + ", " + targetUser.getNickName();
-
-		// 안 읽은 메시지값 기본값 0 으로 설정
-		Map<String, Integer> unreadMessages = new HashMap<>();
-		unreadMessages.put(userId.toString(), 0);
-		unreadMessages.put(targetUserId.toString(), 0);
-
-		Participant participant = new Participant(user);
-		Participant participant1 = new Participant(targetUser);
-
-		ChatroomDocument chatroom = ChatroomDocument.builder()
-			.title(chatroomTitle)
-			.participants(Arrays.asList(participant, participant1))
-			.lastMessage("")
-			.unreadMessages(unreadMessages)
-			.build();
-
+		ChatroomDocument chatroom = buildChatroom(title, user, targetUser);
 		ChatroomDocument savedChatroom = chatroomMongoRepository.save(chatroom);
 
 		return ChatroomCreateResponseDto.builder()
 			.chatroomId(savedChatroom.getId())
-			.title(chatroomTitle)
+			.title(savedChatroom.getTitle())
 			.participants(savedChatroom.getParticipants())
 			.build();
 	}
@@ -111,29 +99,14 @@ public class ChatroomServiceImpl implements ChatroomService {
 	}
 
 	@Override
-	public List<ChatroomListResponseDto> findChatrooms(Long userId) {
-		List<ChatroomDocument> chatrooms = chatroomMongoRepository.findChatroomsByUserId(userId);
+	public Slice<ChatroomListResponseDto> findChatrooms(Long userId, Pageable pageable) {
+		Slice<ChatroomDocument> chatrooms = chatroomMongoRepository.findChatroomsByUserId(userId, pageable);
 
-		return chatrooms.stream().map(chatroom -> {
-			Integer unreadCount = chatroom.getUnreadMessages().getOrDefault(userId.toString(), 0);
+		List<ChatroomListResponseDto> content = chatrooms.getContent().stream()
+			.map(chatroom -> ChatroomListResponseDto.from(chatroom, userId))
+			.collect(Collectors.toList());
 
-			// 본인이 아닌 참여자 목록
-			Participant participant = chatroom.getParticipants().stream()
-				.filter(user -> !user.getUserId().equals(userId))
-				.findFirst()
-				.orElse(null);
-
-			String nickname = (participant != null) ? participant.getNickname() : "";
-			String profileImgUrl = (participant != null) ? participant.getProfileImgUrl() : "";
-
-			return ChatroomListResponseDto.builder()
-				.chatroomId(chatroom.getId())
-				.nickname(nickname)
-				.ProfileImgUrl(profileImgUrl)
-				.lastMessage(chatroom.getLastMessage())
-				.unreadMessageCount(unreadCount)
-				.build();
-		}).collect(Collectors.toList());
+		return new SliceImpl<>(content, pageable, chatrooms.hasNext());
 	}
 
 	@Override
@@ -142,16 +115,16 @@ public class ChatroomServiceImpl implements ChatroomService {
 
 		// 마지막 메시지 업데이트
 		Update update = new Update();
-		update.set("lastMessage", Message);
+		update.set(LAST_MESSAGE, Message);
 
 		// 발행자가 아닌 사용자의 unreadMessageCount 증가
 		for (Participant participant : chatroom.getParticipants()) {
 			if (!participant.getUserId().equals(publisherId)) {
-				update.inc("unreadMessages." + participant.getUserId(), 1);
+				update.inc(UNREAD_MESSAGES + participant.getUserId(), 1);
 			}
 		}
 
-		Query query = new Query(Criteria.where("_id").is(chatroomId));
+		Query query = new Query(Criteria.where(DB_ID).is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
@@ -163,12 +136,37 @@ public class ChatroomServiceImpl implements ChatroomService {
 		Update update = new Update();
 		for (Participant participant : chatroom.getParticipants()) {
 			if (participant.getUserId().equals(readUserId)) {
-				update.set("unreadMessages." + participant.getUserId(), 0);
+				update.set(UNREAD_MESSAGES + participant.getUserId(), 0);
 			}
 		}
 
-		Query query = new Query(Criteria.where("_id").is(chatroomId));
+		Query query = new Query(Criteria.where(DB_ID).is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
+	}
+
+	/**
+	 * 채팅방 Document 빌드 메서드
+	 */
+	private ChatroomDocument buildChatroom(String title, UserEntity user, UserEntity targetUser) {
+
+		// 제목을 적지 않았을 경우 참여자 닉네임으로 자동 생성
+		String chatroomTitle = StringUtils.hasText(title)
+			? title
+			: user.getNickName() + ", " + targetUser.getNickName();
+
+		// 안 읽은 메시지값 기본값 0 으로 설정
+		Map<String, Integer> unreadMessages = new HashMap<>();
+		unreadMessages.put(user.getId().toString(), 0);
+		unreadMessages.put(targetUser.getId().toString(), 0);
+
+		List<Participant> participants = Arrays.asList(new Participant(user), new Participant(targetUser));
+
+		return ChatroomDocument.builder()
+			.title(title)
+			.participants(participants)
+			.lastMessage("")
+			.unreadMessages(unreadMessages)
+			.build();
 	}
 
 }

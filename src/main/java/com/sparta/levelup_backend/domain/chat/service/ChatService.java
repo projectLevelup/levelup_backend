@@ -1,13 +1,14 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.Authentication;
 
-import com.sparta.levelup_backend.domain.chat.dto.ChatMessageDto;
+import com.sparta.levelup_backend.domain.chat.dto.request.ChatRequestDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatResponseDto;
 
 public interface ChatService {
-	ChatMessageDto handleMessage(String chatroomId, ChatMessageDto dto, Authentication authentication);
-	List<ChatMessageDto> findChatHistory(String chatroomId);
+	ChatResponseDto handleMessage(String chatroomId, ChatRequestDto dto, Authentication authentication);
+	Slice<ChatResponseDto> findChatHistory(String chatroomId, Pageable pageable);
 }
 

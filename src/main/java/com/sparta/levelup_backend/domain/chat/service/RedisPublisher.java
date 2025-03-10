@@ -4,7 +4,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
-import com.sparta.levelup_backend.domain.chat.dto.ChatMessageDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatResponseDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +19,7 @@ public class RedisPublisher {
 	 * @param topic 발행할 채널(Topic)
 	 * @param dto 채널ID, nickname, message
 	 */
-	public void publish(ChannelTopic topic, ChatMessageDto dto) {
+	public void publish(ChannelTopic topic, ChatResponseDto dto) {
 		redisTemplate.convertAndSend(topic.getTopic(), dto);
 	}
 }

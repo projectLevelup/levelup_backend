@@ -1,11 +1,12 @@
 package com.sparta.levelup_backend.domain.chat.controller;
 
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
-import java.util.List;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,8 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
-import com.sparta.levelup_backend.domain.chat.dto.ChatMessageDto;
+import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
+import com.sparta.levelup_backend.domain.chat.dto.request.ChatRequestDto;
+import com.sparta.levelup_backend.domain.chat.dto.response.ChatResponseDto;
 import com.sparta.levelup_backend.domain.chat.service.ChatService;
 
 import lombok.RequiredArgsConstructor;
@@ -33,9 +35,9 @@ public class ChatController {
 	 * @param dto 메시지 전송 객체 (닉네임, 메시지 포함)
 	 */
 	@MessageMapping("/chats/{chatroomId}") // 메시지 전송 endpoint
-	public ChatMessageDto handleMessage(
+	public ChatResponseDto handleMessage(
 		@DestinationVariable String chatroomId,
-		@Payload ChatMessageDto dto,
+		@Payload ChatRequestDto dto,
 		Authentication authentication
 	) {
 		return chatService.handleMessage(chatroomId, dto, authentication);
@@ -44,8 +46,11 @@ public class ChatController {
 	/**
 	 * 메시지 기록 저장 API
 	 */
-	@GetMapping("/v1/chats/{chatroomId}/history")
-	public ApiResponse<List<ChatMessageDto>> findChatHistory(@PathVariable String chatroomId) {
-		return success(CREATED, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId));
+	@GetMapping("/chats/{chatroomId}/history")
+	public ApiResponse<Slice<ChatResponseDto>> findChatHistory(
+		@PathVariable String chatroomId,
+		@PageableDefault(size = 10) Pageable pageable
+	) {
+		return success(CREATED, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId, pageable));
 	}
 }

@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.game.service;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 
 import java.util.Objects;
 

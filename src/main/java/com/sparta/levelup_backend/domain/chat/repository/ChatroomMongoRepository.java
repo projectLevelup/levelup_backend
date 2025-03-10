@@ -3,11 +3,13 @@ package com.sparta.levelup_backend.domain.chat.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import com.sparta.levelup_backend.domain.chat.document.ChatroomDocument;
-import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 
 public interface ChatroomMongoRepository extends MongoRepository<ChatroomDocument, String> {
@@ -21,7 +23,7 @@ public interface ChatroomMongoRepository extends MongoRepository<ChatroomDocumen
 	}
 
 	@Query("{ 'participants.userId' : ?0 }")
-	List<ChatroomDocument> findChatroomsByUserId(Long userId);
+	Slice<ChatroomDocument> findChatroomsByUserId(Long userId, Pageable pageable);
 
 	@Query("{ '_id': ?1, 'participants.userId': ?0 }")
 	Optional<ChatroomDocument> findByUserIdAndChatroomId(Long userId, String chatroomId);

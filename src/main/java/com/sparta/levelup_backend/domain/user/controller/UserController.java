@@ -1,14 +1,14 @@
 package com.sparta.levelup_backend.domain.user.controller;
 
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.DELETE_SUCCESS;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.FIND_SUCCESS;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.PASSWORD_CHANGE_SUCCESS;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.RESET_EMAIL_SEND_SUCCESS;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.RESET_PASSWORD_SUCCESS;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.UPDATE_SUCCESS;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.success;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.DELETE_SUCCESS;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.FIND_SUCCESS;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.PASSWORD_CHANGE_SUCCESS;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.RESET_EMAIL_SEND_SUCCESS;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.RESET_PASSWORD_SUCCESS;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.UPDATE_SUCCESS;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.success;
 
-import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;

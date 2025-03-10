@@ -1,11 +1,11 @@
 package com.sparta.levelup_backend.domain.auth.controller;
 
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.LOGIN_SUCCESS;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.SIGNUP_SUCCESS;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.success;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.LOGIN_SUCCESS;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.SIGNUP_SUCCESS;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.success;
 import static org.springframework.http.HttpStatus.CREATED;
 
-import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
 import com.sparta.levelup_backend.domain.auth.dto.request.SignUpUserRequestDto;

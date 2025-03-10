@@ -3,8 +3,8 @@ package com.sparta.levelup_backend.domain.order.service;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
-import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
-import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
+import com.sparta.levelup_backend.domain.order.dto.request.OrderCreateRequestDto;
+import com.sparta.levelup_backend.domain.order.dto.response.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import static com.sparta.levelup_backend.enums.OrderStatus.*;
 
 @Slf4j

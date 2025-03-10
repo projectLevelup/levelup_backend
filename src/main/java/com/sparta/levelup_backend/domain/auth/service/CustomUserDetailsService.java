@@ -1,6 +1,6 @@
 package com.sparta.levelup_backend.domain.auth.service;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 
 import com.sparta.levelup_backend.enums.ProviderType;
 import org.springframework.security.core.userdetails.UserDetails;

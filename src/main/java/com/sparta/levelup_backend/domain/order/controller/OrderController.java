@@ -1,9 +1,9 @@
 package com.sparta.levelup_backend.domain.order.controller;
 
-import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
-import com.sparta.levelup_backend.domain.order.dto.requestDto.OrderCreateRequestDto;
-import com.sparta.levelup_backend.domain.order.dto.responseDto.OrderResponseDto;
+import com.sparta.levelup_backend.domain.order.dto.request.OrderCreateRequestDto;
+import com.sparta.levelup_backend.domain.order.dto.response.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
 import lombok.RequiredArgsConstructor;
 
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
-import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController

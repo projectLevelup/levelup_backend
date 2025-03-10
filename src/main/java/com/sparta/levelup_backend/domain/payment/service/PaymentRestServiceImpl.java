@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.payment.service;
 
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
-import com.sparta.levelup_backend.config.tossPayment.TossPaymentConfig;
+import com.sparta.levelup_backend.config.tosspayment.TossPaymentConfig;
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 
 @Slf4j
 @Service

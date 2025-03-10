@@ -4,6 +4,7 @@ import static com.sparta.levelup_backend.domain.user.dto.UserMessage.*;
 
 import com.sparta.levelup_backend.enums.ProviderType;
 import com.sparta.levelup_backend.exception.user.PasswordIncorrectException;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,6 +25,7 @@ import com.sparta.levelup_backend.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import java.util.UUID;
 
 @Slf4j
@@ -50,9 +52,9 @@ public class AuthServiceImpl implements AuthService {
 			.imgUrl(signUpUserRequestDto.getImgUrl())
 			.role(UserRole.USER)
 			.phoneNumber(signUpUserRequestDto.getPhoneNumber())
-            .customerKey(UUID.randomUUID().toString())
+			.customerKey(UUID.randomUUID().toString())
 			.provider(ProviderType.NONE)
-            .customerKey(UUID.randomUUID().toString())
+			.customerKey(UUID.randomUUID().toString())
 			.build();
 
 		userRepository.save(user);
@@ -66,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
 	public void oAuth2signUpUser(OAuthUserRequestDto dto) {
 		UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 		user.updateProvider(ProviderType.valueOf(
-            user.getProvider().toString().substring(0, user.getProvider().toString().length() - 3)));
+			user.getProvider().toString().substring(0, user.getProvider().toString().length() - 3)));
 		user.updatePhoneNumber(dto.getPhoneNumber());
 		user.updateEmail(dto.getEmail());
 		user.updateNickName(dto.getNickName());
@@ -77,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
 
 		CustomUserDetails userDetails = (CustomUserDetails)userDetailsService.loadUserByUsername(dto.getEmail());
 
-		if(bCryptPasswordEncoder.matches(dto.getPassword(),userDetails.getPassword())) {
+		if (bCryptPasswordEncoder.matches(dto.getPassword(), userDetails.getPassword())) {
 			String email = userDetails.getUsername();
 			Long userId = userDetails.getId();
 			String nickName = userDetails.getNickName();
@@ -95,7 +97,7 @@ public class AuthServiceImpl implements AuthService {
 			headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
 			return headers;
-		}else {
+		} else {
 			throw new PasswordIncorrectException();
 		}
 	}

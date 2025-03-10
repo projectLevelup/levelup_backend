@@ -75,9 +75,6 @@ public class PageController {
 			redirectAttributes.addFlashAttribute("errorMessage", "참여하지 않은 채팅방에 접근하실 수 없습니다.");
 		}
 
-		// 채팅방 접속 시 안 읽음 수 0으로 초기화
-		chatroomService.updateUnreadCountZero(chatroomId, authUser.getId());
-
 		model.addAttribute("chatroomId", chatroomId);
 		model.addAttribute("nickname", authUser.getUser().getNickName());
 		return "chatroom";

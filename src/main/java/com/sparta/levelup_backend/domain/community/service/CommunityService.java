@@ -1,34 +1,23 @@
 package com.sparta.levelup_backend.domain.community.service;
 
+import org.springframework.data.domain.Pageable;
+
 import com.sparta.levelup_backend.domain.community.dto.request.CommnunityCreateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.request.CommunityUpdateRequestDto;
+import com.sparta.levelup_backend.domain.community.dto.response.CommunityCommentResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityListResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityResponseDto;
 
 public interface CommunityService {
 	CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto);
 
-	CommunityListResponseDto findAll(int page, int size);
+	CommunityListResponseDto findAllByGameName(String gameName, Pageable pageable);
 
-	CommunityResponseDto update(Long userId, CommunityUpdateRequestDto dto);
+	CommunityCommentResponseDto findById(Long communityId);
 
-	void delete(Long userId, Long communityId);
+	CommunityListResponseDto findCommunities(String searchKeyword, String gameName, int page, int size);
 
-	CommunityListResponseDto findCommunitiesES(String searchKeyword, int page, int size);
+	CommunityResponseDto updateCommunity(Long userId, CommunityUpdateRequestDto dto);
 
-	CommunityResponseDto saveCommunityES(Long userId, CommnunityCreateRequestDto dto);
-
-	CommunityResponseDto updateCommunityES(Long userId, CommunityUpdateRequestDto dto);
-
-	void deleteCommunityES(Long userId, Long communityId);
-
-	CommunityResponseDto findCommunityES(String communityId);
-
-	CommunityResponseDto saveCommunityRedis(Long userId, CommnunityCreateRequestDto dto);
-
-	CommunityListResponseDto findCommunityRedis(String searchKeyword, int page, int size);
-
-	CommunityResponseDto updateCommunityRedis(Long userId, CommunityUpdateRequestDto dto);
-
-	void deleteCommunityRedis(Long userId, Long communityId);
+	void deleteCommunity(Long userId, Long communityId);
 }
