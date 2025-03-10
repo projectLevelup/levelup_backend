@@ -19,8 +19,6 @@ import com.sparta.levelup_backend.domain.chat.document.ChatMessage;
 import com.sparta.levelup_backend.domain.chat.dto.request.ChatRequestDto;
 import com.sparta.levelup_backend.domain.chat.dto.response.ChatResponseDto;
 import com.sparta.levelup_backend.domain.chat.repository.ChatMongoRepository;
-import com.sparta.levelup_backend.enums.ErrorCode;
-import com.sparta.levelup_backend.exception.chat.ChatException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
