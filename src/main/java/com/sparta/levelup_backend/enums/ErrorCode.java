@@ -52,7 +52,6 @@ public enum ErrorCode {
 	BILL_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR309", "거래내역을 찾을 수 없습니다."),
 	COMMUNITY_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR310", "커뮤니티를 찾을 수 없습니다."),
 	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR311", "결제정보를 찾을 수 없습니다."),
-	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR314", "댓글을 찾을 수 없습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "ERR401", "이미 사용 중인 이메일입니다."),
@@ -70,10 +69,9 @@ public enum ErrorCode {
 	COMMUNITY_ISDELETED(HttpStatus.CONFLICT, "ERR413", "이미 삭제된 커뮤니티입니다."),
 	DB_ERROR_SAVE(HttpStatus.CONFLICT, "ERR414", "데이터 저장 중 오류가 발생했습니다."),
 	CONFLICT_PRICE_EQUALS(HttpStatus.CONFLICT, "ERR415", "요청한 금액이 결제 금액과 맞지않습니다."),
-	PAYMENT_CANCELED_OK(HttpStatus.CONFLICT, "ERR416", "이미 취소 완료되었습니다."),
-	PAYMENT_PENDING(HttpStatus.CONFLICT, "ERR417", "아직 결제되지 않은 상품입니다."),
-	INVALID_REQUEST_MANY(HttpStatus.CONFLICT, "ERR418", "취소 요청이 너무 많습니다. 잠시 후 다시 시도해주세요."),
-	COMMENT_ISDELETED(HttpStatus.CONFLICT,"ERR419", "이미 삭제된 댓글입니다."),
+	PAYMENT_CANCELED_OK(HttpStatus.CONFLICT,"ERR416", "이미 취소 완료되었습니다." ),
+	PAYMENT_PENDING(HttpStatus.CONFLICT,"ERR417", "아직 결제되지 않은 상품입니다."),
+	INVALID_REQUEST_MANY(HttpStatus.CONFLICT, "ERR418", "취소 요청이 너무 많습니다. 잠시 후 다시 시도해주세요." ),
 
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다."),

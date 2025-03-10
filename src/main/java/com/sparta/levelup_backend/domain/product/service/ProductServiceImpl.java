@@ -39,9 +39,12 @@ import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.enums.ErrorCode;
+import com.sparta.levelup_backend.exception.common.ErrorCode;
+import com.sparta.levelup_backend.exception.common.LockException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.enums.ProductStatus;
 import com.sparta.levelup_backend.enums.UserRole;
+import com.sparta.levelup_backend.exception.product.ProductException;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
@@ -57,9 +60,11 @@ import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.UpdateResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import scala.collection.JavaConverters;
 import scala.collection.Seq;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -101,9 +106,11 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public ProductResponseDto getProductById(Long id, Long userId) {
 		ProductEntity product = productRepository.findByIdOrElseThrow(id);
+
 		if (product.getIsDeleted()) {
 			throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
 		}
+
 		if (isOwner(product, userId) || isAdmin(userId)) {
 			return new ProductResponseDto(product);
 		}
@@ -111,6 +118,7 @@ public class ProductServiceImpl implements ProductService {
 		if (product.getStatus() != ProductStatus.ACTIVE) {
 			throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
 		}
+
 		return new ProductResponseDto(product);
 	}
 
@@ -149,20 +157,24 @@ public class ProductServiceImpl implements ProductService {
 		ProductDocument updatedDocument = null;
 		try {
 			boolean available = lock.tryLock(1, 10, TimeUnit.SECONDS);
+
 			if (!available) {
-				throw new RuntimeException("Lock acquisition failed");
+				throw new LockException(CONFLICT_LOCK_GET);
 			}
+
 			ProductEntity product = getFindByIdWithLock(id);
+
 			if (!isOwner(product, userId) && !isAdmin(userId)) {
 				throw new DuplicateException(FORBIDDEN_ACCESS);
 			}
+
 			product.update(requestDto);
 			saveProduct = productRepository.save(product);
 			updatedDocument = ProductDocument.fromEntity(saveProduct);
 			productESRepository.save(updatedDocument);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			throw new RuntimeException("Thread interrupted during locking", e);
+			throw new LockException(CONFLICT_LOCK_ERROR);
 		} finally {
 			if (lock.isHeldByCurrentThread()) {
 				lock.unlock();
@@ -183,9 +195,11 @@ public class ProductServiceImpl implements ProductService {
 	public ProductDeleteResponseDto deleteProduct(Long id, Long userId) {
 		ProductEntity product = productRepository.findByIdOrElseThrow(id);
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
+
 		if (product.getIsDeleted()) {
 			throw new DuplicateException(PRODUCT_ISDELETED);
 		}
+
 		if (!product.getUser().getId().equals(user.getId()) && !user.getRole().equals(UserRole.ADMIN)) {
 			throw new DuplicateException(FORBIDDEN_ACCESS);
 		}
@@ -240,7 +254,7 @@ public class ProductServiceImpl implements ProductService {
 		try {
 			response = elasticsearchClient.search(request, ProductDocument.class);
 		} catch (IOException e) {
-			throw new RuntimeException("Elasticsearch 검색 실패", e);
+			throw new ProductException(PRODUCT_NOT_FOUND);
 		}
 
 		return response.hits().hits().stream()
@@ -310,7 +324,7 @@ public class ProductServiceImpl implements ProductService {
 					MultiBucketBase::docCount
 				));
 		} catch (IOException e) {
-			throw new RuntimeException("Error executing aggregation query", e);
+			throw new ProductException(Product_Aggriagtion_Error);
 		}
 	}
 
@@ -347,8 +361,7 @@ public class ProductServiceImpl implements ProductService {
 				.map(Hit::source)
 				.collect(Collectors.toList());
 		} catch (IOException e) {
-			System.err.println("Elasticsearch 검색 중 오류 발생: " + e.getMessage());
-			throw new RuntimeException("Elasticsearch 검색 실패", e);
+			throw new ProductException(PRODUCT_NOT_FOUND);
 		}
 	}
 
@@ -382,6 +395,7 @@ public class ProductServiceImpl implements ProductService {
 
 			if (aggregate.isSigsterms()) {
 				SignificantStringTermsAggregate significantTermsAggResult = aggregate.sigsterms();
+
 				if (significantTermsAggResult == null) {
 					throw new IllegalStateException("Significant terms aggregation result is null");
 				}
@@ -392,16 +406,14 @@ public class ProductServiceImpl implements ProductService {
 					for (SignificantStringTermsBucket bucket : buckets) {
 						keywordMap.put(bucket.key(), bucket.score());
 					}
+
 				}
 				return keywordMap;
 			} else {
-				throw new RuntimeException(
-					"잘못된 Aggregation 타입: expected SignificantStringTermsAggregate but got " + aggregate.getClass()
-						.getSimpleName());
+				throw new ProductException(Product_Aggriagtion_Error);
 			}
 		} catch (IOException e) {
-			System.err.println("Elasticsearch Aggregation 실행 중 오류 발생: " + e.getMessage());
-			throw new RuntimeException("Elasticsearch Aggregation 실패", e);
+			throw new ProductException(Product_Aggriagtion_Error);
 		}
 	}
 
@@ -431,10 +443,10 @@ public class ProductServiceImpl implements ProductService {
 					.id(String.valueOf(product.getProductId()))
 					.doc(ProductDocument.builder().sentimentScore(averageScore).build())
 				), ProductDocument.class);
-
 				if (response.result().name().equalsIgnoreCase("not_found")) {
 					System.err.println("ProductDocument not found in Elasticsearch: " + product.getProductId());
 				}
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -483,9 +495,11 @@ public class ProductServiceImpl implements ProductService {
 
 			if (POSITIVE_WORDS.contains(word)) {
 				score += isNegated ? -1 * multiplier : 1 * multiplier;
-			} else if (NEGATIVE_WORDS.contains(word)) {
+			}
+			if (NEGATIVE_WORDS.contains(word)) {
 				score += isNegated ? 1 * multiplier : -1 * multiplier;
 			}
+
 		}
 		return score;
 	}
