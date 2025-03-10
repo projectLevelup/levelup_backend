@@ -353,6 +353,7 @@ public class ProductServiceImpl implements ProductService {
 			.from(0)
 			.size(10)
 			.build();
+		log.info("검색결과: {}", searchRequest);
 		try {
 			SearchResponse<ProductDocument> searchResponse =
 				elasticsearchClient.search(searchRequest, ProductDocument.class);
@@ -407,6 +408,7 @@ public class ProductServiceImpl implements ProductService {
 					}
 
 				}
+				log.info("검색결과: {}", keywordMap);
 				return keywordMap;
 			} else {
 				throw new ProductException(Product_Aggriagtion_Error);
