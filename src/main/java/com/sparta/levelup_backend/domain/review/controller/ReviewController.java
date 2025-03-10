@@ -42,8 +42,7 @@ public class ReviewController {
         @Valid @RequestBody ReviewRequestDto dto,
         @PathVariable Long productId
     ) {
-        ReviewResponseDto result = reviewService.saveReview(dto, authUser.getId(), productId);
-        return success(OK ,REVIEW_SUCCESS, result);
+        return success(OK ,REVIEW_SUCCESS, reviewService.saveReview(dto, authUser.getId(), productId));
     }
 
     /**
