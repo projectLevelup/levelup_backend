@@ -4,6 +4,7 @@ import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
 import static com.sparta.levelup_backend.utill.UserRole.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +34,7 @@ import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
+import com.sparta.levelup_backend.exception.common.PageOutOfBoundsException;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -160,6 +162,11 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public CommunityListResponseDto findCommunitiesES(String searchKeyword, String gameName, int page,
 		int size) {
+		// 10000개 이상의 데이터 조회 방지
+		if((page+1)*size >= 9999){
+			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
+		}
+
 		SearchRequest request = SearchRequest.of(s -> s
 			.index("community")
 			.from(page * size)
@@ -180,28 +187,27 @@ public class CommunityServiceImpl implements CommunityService {
 		SearchResponse<CommunityDocument> response;
 		try {
 			response = elasticsearchClient.search(request, CommunityDocument.class);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Elasticsearch 검색 실패", e);
 		}
 
-		// TODO: 응답값에 아무 데이터가 없을때 예외가 제대로 발생되는지 -> 아무 값도 반환하지 않음.
-		if (Objects.isNull(response.hits().total())) {
+		if (response.hits().hits().isEmpty()) {
 			throw new NotFoundException(COMMUNITY_NOT_FOUND);
 		}
 
-		boolean hasNext = false;
-		if (size == response.hits().total().value()) {
-			hasNext = true;
-			response.hits().hits().remove(size - 1);
-		}
-
-		CommunityListResponseDto responseDto = new CommunityListResponseDto(
+		List<CommunityReadResponseDto> responseDto = new ArrayList<>(
 			response.hits().hits().stream().map(community -> {
 				assert community.source() != null;
 				return CommunityReadResponseDto.from(community.source());
-			}).toList(), hasNext);
+			}).toList());
 
-		return responseDto;
+		boolean hasNext = false;
+		if (size < response.hits().total().value()) {
+			hasNext = true;
+			responseDto.remove(size);
+		}
+
+		return new CommunityListResponseDto(responseDto, hasNext);
 	}
 
 	// community 단건 조회(elasticSearch 사용)
