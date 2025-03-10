@@ -29,13 +29,15 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
+
 	private final ChatMongoRepository chatMongoRepository;
 	private final RedisPublisher redisPublisher;
 	private final RedisTemplate<String, ChatMessage> redisTemplateMessage;
 
-	private static final String REDIS_CHATROOM_KEY = "chatroom:";
-	public static final String NOT_SAVING_MESSAGES = "Not saving any messages";
-	public static final String SUCCESS_SAVED_MESSAGES = "Successfully saved messages: {}, key: {}";
+	private static final String MIDNIGHT = "0 0 0 * * ?";
+	public static final String REDIS_CHATROOM_KEY = "chatroom:";
+	private static final String NOT_SAVING_MESSAGES = "Not saving any messages";
+	private static final String SUCCESS_SAVED_MESSAGES = "Successfully saved messages: {}, key: {}";
 
 	/**
 	 * Redis에 메시지를 기록 후 Redis Pub/Sub으로 발행합니다.
@@ -116,7 +118,7 @@ public class ChatServiceImpl implements ChatService {
 	/**
 	 * 매일 자정 Redis에 기록된 메시지를 MongoDB에 저장합니다.
 	 */
-	@Scheduled(cron = "0 0 0 * * ?")
+	@Scheduled(cron = MIDNIGHT)
 	private void SaveMessage() {
 		Set<String> keys = redisTemplateMessage.keys(REDIS_CHATROOM_KEY + "*");
 

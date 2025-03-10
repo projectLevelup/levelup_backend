@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
+import static com.sparta.levelup_backend.domain.chat.service.ChatServiceImpl.*;
+
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,6 +30,6 @@ public class RedisSubscriber implements MessageListener {
 		ChatResponseDto chatMessage = (ChatResponseDto) redisTemplate.getValueSerializer().deserialize(message.getBody());
 		String channel = new String(message.getChannel());
 
-		messagingTemplate.convertAndSend("/sub/chats/" + channel.replace("chatroom:", ""), chatMessage);
+		messagingTemplate.convertAndSend("/sub/chats/" + channel.replace(REDIS_CHATROOM_KEY, ""), chatMessage);
 	}
 }

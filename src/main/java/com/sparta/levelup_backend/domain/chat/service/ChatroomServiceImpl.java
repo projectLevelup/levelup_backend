@@ -39,14 +39,14 @@ public class ChatroomServiceImpl implements ChatroomService {
 	private final ChatroomMongoRepository chatroomMongoRepository;
 	private final UserRepository userRepository;
 
-	public static final String UNREAD_MESSAGES = "unreadMessages.";
-	public static final String LAST_MESSAGE = "lastMessage";
-	public static final String DB_ID = "_id";
+	private static final String UNREAD_MESSAGES = "unreadMessages.";
+	private static final String LAST_MESSAGE = "lastMessage";
+	private static final String DB_ID = "_id";
 
 	@Override
+	@Transactional
 	public ChatroomCreateResponseDto createChatroom(Long userId, Long targetUserId, String title) {
 
-		// 채팅방 생성자과 상대가 같은지 확인
 		if (userId.equals(targetUserId)) {
 			throw new BadRequestException(INVALID_CHATROOM_CREATE);
 		}
@@ -69,8 +69,8 @@ public class ChatroomServiceImpl implements ChatroomService {
 			.build();
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public void leaveChatroom(Long userId, String chatroomId) {
 		ChatroomDocument chatroom = chatroomMongoRepository.findByIdOrThrow(chatroomId);
 
