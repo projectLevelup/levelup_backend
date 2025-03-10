@@ -1,9 +1,6 @@
 package com.sparta.levelup_backend.config.redis;
 
 import java.util.concurrent.ThreadPoolExecutor;
-
-import com.sparta.levelup_backend.domain.bill.service.BillStatusSubscriber;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import com.sparta.levelup_backend.config.listener.RedisExpireListener;
 import org.springframework.beans.factory.annotation.Value;
