@@ -4,10 +4,11 @@ import java.util.List;
 
 import org.springframework.security.core.Authentication;
 
-import com.sparta.levelup_backend.domain.chat.dto.ChatMessageDto;
+import com.sparta.levelup_backend.domain.chat.dto.ChatRequestDto;
+import com.sparta.levelup_backend.domain.chat.dto.ChatResponseDto;
 
 public interface ChatService {
-	ChatMessageDto handleMessage(String chatroomId, ChatMessageDto dto, Authentication authentication);
-	List<ChatMessageDto> findChatHistory(String chatroomId);
+	ChatResponseDto handleMessage(String chatroomId, ChatRequestDto dto, Authentication authentication);
+	List<ChatResponseDto> findChatHistory(String chatroomId);
 }
 
