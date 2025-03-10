@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.chat.document.ChatMessage;
 import com.sparta.levelup_backend.domain.chat.dto.ChatRequestDto;
 import com.sparta.levelup_backend.domain.chat.dto.ChatResponseDto;
