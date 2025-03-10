@@ -5,11 +5,15 @@ import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "community")
 public class CommunityEntity extends BaseEntity {
@@ -22,9 +26,6 @@ public class CommunityEntity extends BaseEntity {
 
 	@Column(nullable = false)
 	private String content;
-
-	@Column(nullable = false)
-	private Integer recommendation;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -51,7 +52,6 @@ public class CommunityEntity extends BaseEntity {
 		this.content = content;
 		this.user = user;
 		this.game = game;
-		recommendation = 0;
 	}
 
 }

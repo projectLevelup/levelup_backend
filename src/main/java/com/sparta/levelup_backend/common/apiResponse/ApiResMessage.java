@@ -68,6 +68,10 @@ public class ApiResMessage {
     // Notification
     public static final String NOTIFICATION_LIST_FOUND_SUCCESS = "특정 사용자의 알림 목록이 조회되었습니다.";
     public static final String NOTIFICATION_CHECK_SUCCESS = "알림 읽음 처리 완료되었습니다.";
-}
 
+	// Comment
+	public static final String COMMENT_SAVE_SUCCESS = "댓글이 생성되었습니다.";
+	public static final String COMMENT_UPDATE_SUCCESS = "댓글이 수정되었습니다.";
+	public static final String COMMENT_DELETE_SUCCESS = "댓글이 삭제되었습니다.";
+}
 
