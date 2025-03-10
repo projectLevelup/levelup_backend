@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.game.dto.requestDto.CreateGameRequestDto;
 import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDto;

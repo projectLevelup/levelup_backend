@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.common.security;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,36 +53,7 @@ public class CustomOAuth2User implements OAuth2User {
 	}
 
 	public String getProvider() {
-		String google = providerCheck(user.getProvider(), "google");
-		String kakao = providerCheck(user.getProvider(), "kakao");
-		String naver = providerCheck(user.getProvider(), "naver");
-		if (!google.equals("mismatch")) {
-
-			return google;
-		} else if (!kakao.equals("mismatch")) {
-
-			return kakao;
-		} else if (!naver.equals("mismatch")) {
-
-			return naver;
-		} else {
-
-			return "mismatch";
-		}
-	}
-
-	private String providerCheck(String provider, String providerType) {
-		if (provider.startsWith(providerType)) {
-			if (provider.startsWith(providerType + "new")) {
-
-				return providerType + "new";
-			} else {
-
-				return providerType;
-			}
-		}
-
-		return "mismatch";
+		return user.getProvider().toString();
 	}
 
 }

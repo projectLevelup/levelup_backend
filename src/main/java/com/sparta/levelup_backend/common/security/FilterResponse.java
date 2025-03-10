@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.common.security;
 
 import static org.springframework.http.MediaType.*;
 

@@ -3,6 +3,7 @@ package com.sparta.levelup_backend.config;
 import static java.nio.charset.StandardCharsets.*;
 import static org.springframework.http.MediaType.*;
 
+import com.sparta.levelup_backend.common.security.FormToJsonHttpMessageConverter;
 import java.util.List;
 
 import org.springframework.context.annotation.Configuration;

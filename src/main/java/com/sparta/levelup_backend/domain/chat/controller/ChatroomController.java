@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomCreateResponseDto;
 import com.sparta.levelup_backend.domain.chat.dto.ChatroomListResponseDto;
 import com.sparta.levelup_backend.domain.chat.service.ChatroomService;

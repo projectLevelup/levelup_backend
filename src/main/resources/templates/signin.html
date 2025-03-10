@@ -114,12 +114,12 @@
         <input id="autoLogin" name="autoLogin" onchange="AutoLogin()" type="checkbox">
         자동로그인
     </label>
-    <a href="/v2/signin/oauth2/authorization/naver">
+    <a href="/signin/oauth2/authorization/naver">
         <img alt="네이버 로그인 버튼"
              height="50"
              src="https://static.nid.naver.com/oauth/small_g_in.PNG"/>
     </a>
-    <a href="/v2/signin/oauth2/authorization/google">
+    <a href="/signin/oauth2/authorization/google">
         <img alt="구글 로그인 버튼"
              height="50"
              src="https://cdn-icons-png.flaticon.com/256/2702/2702602.png"/>
@@ -127,7 +127,7 @@
     <a href="/resetPassword">
         비밀번호 찾기
     </a>
-    <a href="/v2/signup">
+    <a href="/signup">
         회원가입
     </a>
 </div>
@@ -159,7 +159,7 @@
 
         const loginData = {email: email, password: password};
 
-        fetch("/v2/signin", {
+        fetch("/signin", {
             method: "POST",
             credentials: "include",
             headers: {

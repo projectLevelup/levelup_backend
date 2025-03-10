@@ -11,7 +11,7 @@
     <h2>회원가입</h2>
   </div>
 
-  <form th:action="@{/v2/oauth2signup}" method="post">
+  <form th:action="@{/oauth2signup}" method="post">
     <div>
       <label for="email">이메일:</label>
       <input type="text" readonly id="email" name="email" th:value="${email}" required>

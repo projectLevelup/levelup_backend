@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.community.dto.request.CommnunityCreateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.request.CommunityUpdateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityListResponseDto;

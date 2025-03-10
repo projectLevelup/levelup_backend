@@ -1,5 +1,12 @@
-package com.sparta.levelup_backend.config;
+package com.sparta.levelup_backend.config.security;
 
+import com.sparta.levelup_backend.common.security.CustomAccessDeniedHandler;
+import com.sparta.levelup_backend.common.security.CustomOAuth2Handler;
+import com.sparta.levelup_backend.common.security.FilterResponse;
+import com.sparta.levelup_backend.common.security.JwtFilter;
+import com.sparta.levelup_backend.domain.auth.service.CustomOAuth2UserService;
+import com.sparta.levelup_backend.utill.JwtUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,11 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.sparta.levelup_backend.domain.auth.service.CustomOAuth2UserService;
-import com.sparta.levelup_backend.utill.JwtUtils;
-
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
@@ -62,18 +64,18 @@ public class SecurityConfig {
 
 		http.oauth2Login(oauth2 -> oauth2
 			.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-			.authorizationEndpoint(authorization -> authorization.baseUri("/v2/signin/oauth2/authorization"))
-			.loginPage("/v2/signin")
+			.authorizationEndpoint(authorization -> authorization.baseUri("/signin/oauth2/authorization"))
+			.loginPage("/signin")
 			.failureHandler(OAuth2Handler)
 			.successHandler(OAuth2Handler)
 		);
 
 		http.
 			authorizeHttpRequests((auth) -> auth
-				.requestMatchers("/", "/v2/home", "/v2/sign**", "/v2/oauth2sign**", "/v**/users/resetPassword**",
+				.requestMatchers("/", "/v2/home", "/sign**", "/oauth2sign**", "/users/resetPassword**",
 					"/resetPassword**")
 				.permitAll()
-				.requestMatchers("/v2/admin/**", "/v3/admin/**")
+				.requestMatchers("/admin/**","/v2/admin/**", "/v3/admin/**")
 				.hasRole("ADMIN")
 				.anyRequest()
 				.authenticated());

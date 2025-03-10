@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.bill.controller;
 
 import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.bill.dto.responseDto.BillResponseDto;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import lombok.RequiredArgsConstructor;
