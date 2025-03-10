@@ -1,7 +1,5 @@
 package com.sparta.levelup_backend.domain.community.document;
 
-import java.time.LocalDateTime;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -26,14 +24,8 @@ public class CommunityDocument {
 	@Field(type = FieldType.Text, analyzer = "standard")
 	private String title;
 
-	@Field(type = FieldType.Text)
-	private String content;
-
 	@Field(type = FieldType.Long)
 	private Long userId;
-
-	@Field(type = FieldType.Text)
-	private String userEmail;
 
 	@Field(type = FieldType.Text)
 	private String userNickName;
@@ -41,26 +33,18 @@ public class CommunityDocument {
 	@Field(type = FieldType.Text)
 	private String gameName;
 
-	@Field(type = FieldType.Keyword)
-	private String gameGenre;
-
-
 	@Field(type = FieldType.Boolean)
 	private Boolean isDeleted;
 
 	@Builder
-	public CommunityDocument(Long communityId, String title, String content, Long userId, String userEmail,
+	public CommunityDocument(Long communityId, String title, Long userId,
 		String userNickName,
-		String gameName,
-		String gameGenre, Boolean isDeleted) {
+		String gameName, Boolean isDeleted) {
 		this.id = String.valueOf(communityId);
 		this.title = title;
-		this.content = content;
 		this.userId = userId;
-		this.userEmail = userEmail;
 		this.userNickName = userNickName;
 		this.gameName = gameName;
-		this.gameGenre = gameGenre;
 		this.isDeleted = isDeleted;
 	}
 
@@ -68,12 +52,9 @@ public class CommunityDocument {
 		return CommunityDocument.builder()
 			.communityId(community.getId())
 			.title(community.getTitle())
-			.content(community.getContent())
 			.userId(community.getUser().getId())
-			.userEmail(community.getUser().getEmail())
 			.userNickName(community.getUser().getNickName())
 			.gameName(community.getGame().getName())
-			.gameGenre(community.getGame().getGenre())
 			.isDeleted(community.getIsDeleted())
 			.build();
 	}
@@ -86,7 +67,4 @@ public class CommunityDocument {
 		this.title = title;
 	}
 
-	public void updateContent(String content) {
-		this.content = content;
-	}
 }

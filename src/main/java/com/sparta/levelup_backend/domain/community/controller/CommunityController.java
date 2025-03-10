@@ -32,25 +32,26 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/v2/community")
+@RequestMapping("/community")
 @RequiredArgsConstructor
 public class CommunityController {
 	private final CommunityService communityService;
 
 	// community 생성
 	@PostMapping
-	public ApiResponse<CommunityResponseDto> SaveCommunity(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Valid @RequestBody CommnunityCreateRequestDto dto) {
+	public ApiResponse<CommunityResponseDto> saveCommunity(
+		@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommnunityCreateRequestDto dto) {
 
 		Long userId = customUserDetails.getId();
+
 		CommunityResponseDto responseDto = communityService.saveCommunity(userId, dto);
 		return success(OK, COMMUNITY_SAVE_SUCCESS, responseDto);
 	}
 
 	/**
-	 *게임생활 목록 조회(game 이름 구분)
+	 *게임생활 목록 조회
 	 * @param pageable 0부터 시작
-	 * @param gameName
+	 * @param gameName 어떤 게임의 게임생활을 조회할건지
 	 * @return
 	 */
 	@GetMapping
@@ -62,24 +63,19 @@ public class CommunityController {
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
 
-	/**
-	 * community 목록 검색
-	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
-	 * @param pageable page는 0부터 시작
-	 * @param gameName 검색할 게임
-	 * @param searchKeyword 제목 검색어
-	 * @return
-	 */
+	// 게임생활 목록 검색
 	@GetMapping("/search")
-	public ApiResponse<CommunityListResponseDto> findCommunities(@PageableDefault(size = 10) Pageable pageable,
-		@RequestParam String searchKeyword,
+	public ApiResponse<CommunityListResponseDto> findCommunitiesBySearchKeyword(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword,
 		@RequestParam String gameName) {
 
-		CommunityListResponseDto responseDtoList = communityService.findCommunities(gameName, searchKeyword, pageable);
-
+		CommunityListResponseDto responseDtoList = communityService.findCommunities(searchKeyword, gameName, page,
+			size);
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
 
+	// 게임생활 단건 조회(+ 댓글 조회)
 	@GetMapping("/{communityId}")
 	public ApiResponse<CommunityCommentResponseDto> findCommunity(@PathVariable Long communityId) {
 		CommunityCommentResponseDto responseDto = communityService.findById(communityId);
@@ -95,8 +91,8 @@ public class CommunityController {
 
 		Long userId = customUserDetails.getId();
 
-		CommunityResponseDto requestDto = communityService.update(userId, dto);
-		return success(OK, COMMUNITY_UPDATE_SUCCESS, requestDto);
+		CommunityResponseDto responseDto = communityService.updateCommunity(userId, dto);
+		return success(OK, COMMUNITY_UPDATE_SUCCESS, responseDto);
 	}
 
 	// community 삭제
@@ -106,59 +102,7 @@ public class CommunityController {
 
 		Long userId = customUserDetails.getId();
 
-		communityService.delete(userId, communityId);
-		return success(OK, COMMUNITY_DELETE_SUCCESS);
-	}
-
-	// community 생성(elasticSearch 사용)
-	@PostMapping("/es")
-	public ApiResponse<CommunityResponseDto> saveCommunityES(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommnunityCreateRequestDto dto) {
-
-		Long userId = customUserDetails.getId();
-
-		CommunityResponseDto responseDto = communityService.saveCommunityES(userId, dto);
-		return success(OK, COMMUNITY_SAVE_SUCCESS, responseDto);
-	}
-
-	// community 목록 검색(elasticSearch 사용)
-	@GetMapping("/es")
-	public ApiResponse<CommunityListResponseDto> findCommunitiesES(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword,
-		@RequestParam String gameName) {
-
-		CommunityListResponseDto responseDtoList = communityService.findCommunitiesES(searchKeyword, gameName, page,
-			size);
-		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
-	}
-
-	// community 단건 조회(elasticSearch 사용)
-	@GetMapping("/es/{communityId}")
-	public ApiResponse<CommunityResponseDto> findCommunityES(@PathVariable String communityId) {
-		CommunityResponseDto responseDto = communityService.findCommunityES(communityId);
-		return success(OK, COMMUNITY_FOUND_SUCCESS, responseDto);
-	}
-
-	// community 수정(elasticSearch 사용)
-	@PatchMapping("/es")
-	public ApiResponse<CommunityResponseDto> updateCommunityES(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@Valid @RequestBody CommunityUpdateRequestDto dto) {
-
-		Long userId = customUserDetails.getId();
-
-		CommunityResponseDto responseDto = communityService.updateCommunityES(userId, dto);
-		return success(OK, COMMUNITY_UPDATE_SUCCESS, responseDto);
-	}
-
-	// community 삭제(elasticSearch 사용)
-	@DeleteMapping("/es")
-	public ApiResponse<Void> deleteCommunityES(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestParam Long communityId) {
-
-		Long userId = customUserDetails.getId();
-
-		communityService.deleteCommunityES(userId, communityId);
+		communityService.deleteCommunity(userId, communityId);
 		return success(OK, COMMUNITY_DELETE_SUCCESS);
 	}
 }

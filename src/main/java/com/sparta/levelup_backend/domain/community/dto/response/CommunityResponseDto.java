@@ -1,6 +1,5 @@
 package com.sparta.levelup_backend.domain.community.dto.response;
 
-import com.sparta.levelup_backend.domain.community.document.CommunityDocument;
 import com.sparta.levelup_backend.domain.community.entity.CommunityEntity;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -21,12 +20,6 @@ public class CommunityResponseDto {
 		return new CommunityResponseDto(community.getId(), community.getTitle(), community.getContent(),
 			community.getUser().getNickName(),
 			community.getGame().getName());
-	}
-
-	public static CommunityResponseDto from(CommunityDocument communityDocument) {
-		return new CommunityResponseDto(Long.parseLong(communityDocument.getId()), communityDocument.getTitle(),
-			communityDocument.getContent(),
-			communityDocument.getUserNickName(), communityDocument.getGameName());
 	}
 
 	public static CommunityResponseDto of(CommunityEntity community, UserEntity user, GameEntity game) {
