@@ -64,6 +64,10 @@ public class ApiResMessage {
     public static final String OK_REQUEST = "결제요청을 성공했습니다.";
     public static final String OK_REQUEST_CANCEL = "취소요청을 성공했습니다";
     public static final String OK_CANCEL = "결제 취소 되었습니다.";
+
+    // Notification
+    public static final String NOTIFICATION_LIST_FOUND_SUCCESS = "특정 사용자의 알림 목록이 조회되었습니다.";
+    public static final String NOTIFICATION_CHECK_SUCCESS = "알림 읽음 처리 완료되었습니다.";
 }
 
 

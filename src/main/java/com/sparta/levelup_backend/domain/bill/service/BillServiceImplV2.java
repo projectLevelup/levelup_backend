@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.bill.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.levelup_backend.domain.bill.dto.responseDto.BillResponseDto;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
@@ -46,6 +47,9 @@ public class BillServiceImplV2 implements BillServiceV2 {
                 .tutorIsDeleted(false)
                 .studentIsDeleted(false)
                 .build();
+        bill.setStatus(PAID);
+        billRepository.save(bill);
+
         billEventPublisher.publishBillStatusChange(bill);
     }
 
