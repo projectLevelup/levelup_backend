@@ -1,4 +1,4 @@
-package com.sparta.levelup_backend.config.redis;
+package com.sparta.levelup_backend.config.listener;
 
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;

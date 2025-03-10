@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.bill.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sparta.levelup_backend.domain.bill.dto.responseDto.BillResponseDto;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
@@ -26,7 +27,7 @@ public class BillServiceImplV2 implements BillServiceV2 {
     private final BillRepository billRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final BillEventPubService billEventPubService;
+    private final BillEventPublisher billEventPublisher;
 
     // 거래 내역 생성 (거래중으로 바뀌었을때 생성 됌)
     @Transactional
@@ -46,8 +47,10 @@ public class BillServiceImplV2 implements BillServiceV2 {
                 .tutorIsDeleted(false)
                 .studentIsDeleted(false)
                 .build();
+        bill.setStatus(PAID);
+        billRepository.save(bill);
 
-        billEventPubService.createPaidEvent(bill);
+        billEventPublisher.publishBillStatusChange(bill);
     }
 
     /**
@@ -168,5 +171,22 @@ public class BillServiceImplV2 implements BillServiceV2 {
 
         bill.billStudentDelete();
         billRepository.save(bill);
+    }
+
+    @Transactional
+    public BillEntity createPaidEvent(BillEntity bill) {
+        bill.setStatus(PAID);
+        BillEntity saveBill = billRepository.save(bill);
+        billEventPublisher.publishBillStatusChange(bill);
+        return saveBill;
+    }
+
+    @Transactional
+    public BillEntity createCancelEvent(BillEntity bill) {
+        bill.setStatus(PAYCANCELED);
+        BillEntity saveBill = billRepository.save(bill);
+
+        billEventPublisher.publishBillStatusChange(bill);
+        return saveBill;
     }
 }
