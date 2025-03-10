@@ -31,7 +31,7 @@
             return;
         }
 
-        fetch(`/v1/chats?targetUserId=${targetUserId}&title=`, { // ✅ 쿼리 파라미터로 전달
+        fetch(`/chats?targetUserId=${targetUserId}&title=`, { // ✅ 쿼리 파라미터로 전달
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" }

@@ -138,7 +138,7 @@
 
 
     function loadChatHistory() {
-        fetch(`/v1/chats/${chatroomId}/history`)
+        fetch(`/chats/${chatroomId}/history`)
             .then(response => response.json())
             .then(result => {
                 if (result && result.data && Array.isArray(result.data.content)) {

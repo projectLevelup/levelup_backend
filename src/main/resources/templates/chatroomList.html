@@ -40,7 +40,7 @@
 
 <script>
     function loadChatrooms() {
-        fetch("/v1/chats", {
+        fetch("/chats", {
             method: "GET",
             credentials: "include",
             headers: { "Content-Type": "application/json" }
