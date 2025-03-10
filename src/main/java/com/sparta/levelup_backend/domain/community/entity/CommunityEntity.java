@@ -27,9 +27,6 @@ public class CommunityEntity extends BaseEntity {
 	@Column(nullable = false)
 	private String content;
 
-	@Column(nullable = false)
-	private Integer recommendation;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private UserEntity user;
@@ -55,7 +52,6 @@ public class CommunityEntity extends BaseEntity {
 		this.content = content;
 		this.user = user;
 		this.game = game;
-		recommendation = 0;
 	}
 
 }
