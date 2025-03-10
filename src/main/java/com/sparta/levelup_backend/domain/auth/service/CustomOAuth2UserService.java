@@ -35,7 +35,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
 		OAuth2User oAuth2User = super.loadUser(userRequest);
-
+		
 		OAuth2ResponseDto oAuth2ResponseDto = null;
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		if (registrationId.equals("naver")) {

@@ -72,6 +72,13 @@ public class ProductServiceImpl implements ProductService {
 	private final RedissonClient redissonClient;
 	private final ReviewESRepository reviewESRepository;
 
+	// 감성 분석 가중치 설정
+	private static final List<String> POSITIVE_WORDS = Arrays.asList("좋다", "최고", "만족", "훌륭", "감사");
+	private static final List<String> NEGATIVE_WORDS = Arrays.asList("나쁘다", "별로", "실망", "최악", "불만");
+	private static final List<String> NEGATION_WORDS = Arrays.asList("안", "못", "전혀");
+	private static final List<String> INTENSIFIERS = Arrays.asList("매우", "아주", "정말");
+
+
 	/**
 	 * 모든 활성화된 상품 정보를 조회합니다.
 	 * @return 활성화된 상품들의 리스트(ProductResponseDto)
@@ -186,6 +193,9 @@ public class ProductServiceImpl implements ProductService {
 		ProductDocument document = ProductDocument.fromEntity(product);
 		document.updateIsDeleted(true);
 		productESRepository.save(document);
+
+		product.deleteProduct();
+		
 		return new ProductDeleteResponseDto(document);
 	}
 
@@ -460,28 +470,20 @@ public class ProductServiceImpl implements ProductService {
 	 * @param content 리뷰 내용
 	 * @return 감성 점수
 	 */
-	private double analyzeSentiment(String content) {
+	public double analyzeSentiment(String content) {
 		CharSequence normalized = OpenKoreanTextProcessorJava.normalize(content);
 		Seq<KoreanTokenizer.KoreanToken> tokens = OpenKoreanTextProcessorJava.tokenize(normalized);
 		List<KoreanTokenizer.KoreanToken> tokenList = JavaConverters.seqAsJavaList(tokens);
-		List<String> positiveWords = Arrays.asList("좋다", "최고", "만족", "훌륭", "감사");
-		List<String> negativeWords = Arrays.asList("나쁘다", "별로", "실망", "최악", "불만");
-		List<String> negationWords = Arrays.asList("안", "못", "전혀");
-		List<String> intensifiers = Arrays.asList("매우", "아주", "정말");
+
 		double score = 0.0;
 		for (int i = 0; i < tokenList.size(); i++) {
 			String word = tokenList.get(i).text();
-			boolean isNegated = false;
-			double multiplier = 1.0;
-			if (i > 0 && negationWords.contains(tokenList.get(i - 1).text())) {
-				isNegated = true;
-			}
-			if (i > 0 && intensifiers.contains(tokenList.get(i - 1).text())) {
-				multiplier = 2.0;
-			}
-			if (positiveWords.contains(word)) {
+			boolean isNegated = (i > 0 && NEGATION_WORDS.contains(tokenList.get(i - 1).text()));
+			double multiplier = (i > 0 && INTENSIFIERS.contains(tokenList.get(i - 1).text())) ? 2.0 : 1.0;
+
+			if (POSITIVE_WORDS.contains(word)) {
 				score += isNegated ? -1 * multiplier : 1 * multiplier;
-			} else if (negativeWords.contains(word)) {
+			} else if (NEGATIVE_WORDS.contains(word)) {
 				score += isNegated ? 1 * multiplier : -1 * multiplier;
 			}
 		}

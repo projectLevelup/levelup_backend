@@ -30,21 +30,16 @@ import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductDeleteRe
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.responseDto.ProductUpdateResponseDto;
 import com.sparta.levelup_backend.domain.product.service.ProductService;
-import com.sparta.levelup_backend.domain.product.service.ProductmakedataService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/products")
+@RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
 
 	private final ProductService productService;
-	private final ProductmakedataService productmakedataService;
-
-	public ProductController(ProductService productService, ProductmakedataService productmakedataService) {
-		this.productService = productService;
-		this.productmakedataService = productmakedataService;
-	}
 
 	@PostMapping
 	public ApiResponse<ProductCreateResponseDto> saveProduct(
@@ -95,27 +90,6 @@ public class ProductController {
 		Long userId = userDetails.getId();
 		ProductDeleteResponseDto responseDto = productService.deleteProduct(id, userId);
 		return success(OK, PRODUCT_DELETE, responseDto);
-	}
-
-	// 유저 데이터 생성 (테스트용)
-	@PostMapping("/users/{count}")
-	public ResponseEntity<String> generateUsers(@PathVariable int count) {
-		productmakedataService.generateUsers(count);
-		return ResponseEntity.ok(count + "명의 유저 데이터가 생성되었습니다.");
-	}
-
-	// 게임 데이터 생성 (테스트용)
-	@PostMapping("/games/{count}")
-	public ResponseEntity<String> generateGames(@PathVariable int count) {
-		productmakedataService.generateGames(count);
-		return ResponseEntity.ok(count + "개의 게임 데이터가 생성되었습니다.");
-	}
-
-	// 상품 데이터 생성 (테스트용)
-	@PostMapping("/products/{count}")
-	public ResponseEntity<String> generateProducts(@PathVariable int count) {
-		productmakedataService.generateProducts(count);
-		return ResponseEntity.ok(count + "개의 상품 데이터가 생성되었습니다.");
 	}
 
 	// Elasticsearch를 활용한 전체 상품 검색 (ES)
