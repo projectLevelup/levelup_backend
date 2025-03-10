@@ -3,7 +3,7 @@ package com.sparta.levelup_backend.domain.payment.service;
 import com.sparta.levelup_backend.config.tossPayment.PaymentHttpClient;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
-import com.sparta.levelup_backend.domain.bill.service.BillEventPubService;
+import com.sparta.levelup_backend.domain.bill.service.BillEventPublisher;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
@@ -20,8 +20,10 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
@@ -39,7 +41,6 @@ public class PaymentServiceImpl implements PaymentService {
     private final BillRepository billRepository;
     private final RedissonClient redissonClient;
     private final ProductServiceImpl productService;
-    private final BillEventPubService billEventPubService;
     private final PaymentHttpClient paymentHttpClient;
     private static final int MAX_RETRIES = 3;
     private static final int RETRY_DELAY_MS = 2000;
@@ -48,6 +49,7 @@ public class PaymentServiceImpl implements PaymentService {
      * 결제 승인 요청 및 payments 생성
      * @throws Exception
      */
+    @Transactional
     @Override
     public JSONObject confirmPayment(String jsonBody) throws Exception {
 
@@ -91,6 +93,7 @@ public class PaymentServiceImpl implements PaymentService {
      * @return 취소 완료
      * @throws Exception
      */
+    @Transactional
     public JSONObject cancelPayment(CancelPaymentRequestDto dto) throws Exception {
 
         PaymentEntity payment = paymentRepository.findByPaymentKey(dto.getKey())
@@ -128,7 +131,8 @@ public class PaymentServiceImpl implements PaymentService {
         throw new PaymentException(PAYMENT_FAILED);
     }
 
-    private void handleCancelPayment(PaymentEntity payment) {
+    @Transactional
+    public void handleCancelPayment(PaymentEntity payment) {
 
         BillEntity bill = billRepository.findByOrder(payment.getOrder())
                 .orElseThrow(() -> new NotFoundException(BILL_NOT_FOUND));
@@ -142,7 +146,7 @@ public class PaymentServiceImpl implements PaymentService {
             }
             ProductEntity product = productService.getFindByIdWithLock(bill.getOrder().getProduct().getId());
             product.increaseAmount();
-            billEventPubService.createCancelEvent(bill);
+            billService.createCancelEvent(bill);
             log.info("상품: {} 수량 복구 완료", product.getProductName());
 
         } catch (InterruptedException e) {
@@ -174,7 +178,8 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    private void updatePaymentInfo(PaymentEntity payment, JSONObject response, String paymentKey, String orderId) {
+    @Transactional
+    public void updatePaymentInfo(PaymentEntity payment, JSONObject response, String paymentKey, String orderId) {
         // 결제 승인 정보 추출
         String approvedAt = (String) response.get("approvedAt");
         String method = (String) response.get("method");
