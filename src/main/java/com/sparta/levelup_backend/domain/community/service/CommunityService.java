@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.community.service;
 
+import org.springframework.data.domain.Pageable;
+
 import com.sparta.levelup_backend.domain.community.dto.request.CommnunityCreateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.request.CommunityUpdateRequestDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityCommentResponseDto;
@@ -9,9 +11,9 @@ import com.sparta.levelup_backend.domain.community.dto.response.CommunityRespons
 public interface CommunityService {
 	CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto);
 
-	CommunityListResponseDto findAllByGameName(String gameName, int page, int size);
+	CommunityListResponseDto findAllByGameName(String gameName, Pageable pageable);
 
-	CommunityListResponseDto findCommunities(String gameName, String searchKeyWord, int page, int size);
+	CommunityListResponseDto findCommunities(String gameName, String searchKeyWord, Pageable pageable);
 
 	CommunityCommentResponseDto findById(Long communityId);
 

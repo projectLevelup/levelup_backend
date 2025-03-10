@@ -4,6 +4,8 @@ import static com.sparta.levelup_backend.common.ApiResMessage.*;
 import static com.sparta.levelup_backend.common.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,15 +49,15 @@ public class CommunityController {
 
 	/**
 	 *게임생활 목록 조회(game 이름 구분)
-	 * @param page 0부터 시작
-	 * @param size
+	 * @param pageable 0부터 시작
+	 * @param gameName
 	 * @return
 	 */
 	@GetMapping
-	public ApiResponse<CommunityListResponseDto> findAllCommunityByGameName(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size, @RequestParam String gameName) {
+	public ApiResponse<CommunityListResponseDto> findAllCommunityByGameName(@RequestParam String gameName,
+		@PageableDefault(size = 10) Pageable pageable) {
 
-		CommunityListResponseDto responseDtoList = communityService.findAllByGameName(gameName, page, size);
+		CommunityListResponseDto responseDtoList = communityService.findAllByGameName(gameName, pageable);
 
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
@@ -63,19 +65,17 @@ public class CommunityController {
 	/**
 	 * community 목록 검색
 	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
+	 * @param pageable page는 0부터 시작
 	 * @param gameName 검색할 게임
 	 * @param searchKeyword 제목 검색어
-	 * @param page 기본값: 0
-	 * @param size 기본값: 10
 	 * @return
 	 */
 	@GetMapping("/search")
-	public ApiResponse<CommunityListResponseDto> findCommunities(@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword,
+	public ApiResponse<CommunityListResponseDto> findCommunities(@PageableDefault(size = 10) Pageable pageable,
+		@RequestParam String searchKeyword,
 		@RequestParam String gameName) {
 
-		CommunityListResponseDto responseDtoList = communityService.findCommunities(gameName, searchKeyword, page,
-			size);
+		CommunityListResponseDto responseDtoList = communityService.findCommunities(gameName, searchKeyword, pageable);
 
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
 	}
@@ -113,8 +113,7 @@ public class CommunityController {
 	// community 생성(elasticSearch 사용)
 	@PostMapping("/es")
 	public ApiResponse<CommunityResponseDto> saveCommunityES(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestBody CommnunityCreateRequestDto dto) {
+		@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommnunityCreateRequestDto dto) {
 
 		Long userId = customUserDetails.getId();
 

@@ -7,10 +7,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +33,6 @@ import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
-import com.sparta.levelup_backend.exception.common.PageOutOfBoundsException;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -55,10 +52,6 @@ public class CommunityServiceImpl implements CommunityService {
 
 	private final CommunityESRepository communityESRepository;
 
-	private final RedisTemplate<String, Object> redisTemplate;
-	private final String COMMUNITY_CACHE_KEY = "community:";
-	private final String COMMUNITY_ZSET_KEY = "community_view";
-
 	private final ElasticsearchClient elasticsearchClient;
 	private final CommunityQueryRepository communityQueryRepository;
 
@@ -76,23 +69,15 @@ public class CommunityServiceImpl implements CommunityService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public CommunityListResponseDto findAllByGameName(String gameName, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		Page<CommunityReadResponseDto> communityPage = communityQueryRepository.findAllByGameName(gameName, pageable);
+	public CommunityListResponseDto findAllByGameName(String gameName, Pageable pageable) {
+		Slice<CommunityReadResponseDto> communityPage = communityQueryRepository.findAllByGameName(gameName, pageable);
 
-		CommunityListResponseDto responseDto = new CommunityListResponseDto(
-			communityPage.stream().toList()
-		);
-
-		if (communityPage.getTotalPages() <= page) {
-			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
-		}
-
-		if (responseDto.getCommunityList().isEmpty()) {
+		if (communityPage.isEmpty()) {
 			throw new NotFoundException(COMMUNITY_NOT_FOUND);
 		}
-
-		return responseDto;
+		return new CommunityListResponseDto(
+			communityPage.stream().toList(), communityPage.hasNext()
+		);
 	}
 
 	/**
@@ -100,29 +85,20 @@ public class CommunityServiceImpl implements CommunityService {
 	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
 	 * @param gameName 검색할 게임
 	 * @param searchKeyword 제목 검색어
-	 * @param page 기본값: 0
-	 * @param size 기본값: 10
+	 * @param pageable 0부터 시작
 	 * @return
 	 */
 	@Transactional(readOnly = true)
 	@Override
-	public CommunityListResponseDto findCommunities(String gameName, String searchKeyword, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		Page<CommunityReadResponseDto> communityReadResponseDtoPages = communityQueryRepository.findCommunities(
+	public CommunityListResponseDto findCommunities(String gameName, String searchKeyword, Pageable pageable) {
+		Slice<CommunityReadResponseDto> communityReadResponseDtoPages = communityQueryRepository.findCommunities(
 			gameName, searchKeyword, pageable);
-		CommunityListResponseDto responseDto = new CommunityListResponseDto(
-			communityReadResponseDtoPages.stream().toList()
-		);
 
-		if (communityReadResponseDtoPages.getTotalPages() <= page) {
-			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
-		}
-
-		if (responseDto.getCommunityList().isEmpty()) {
+		if (communityReadResponseDtoPages.isEmpty()) {
 			throw new NotFoundException(COMMUNITY_NOT_FOUND);
 		}
-
-		return responseDto;
+		return new CommunityListResponseDto(
+			communityReadResponseDtoPages.stream().toList(), communityReadResponseDtoPages.hasNext());
 	}
 
 	@Override
@@ -187,7 +163,7 @@ public class CommunityServiceImpl implements CommunityService {
 		SearchRequest request = SearchRequest.of(s -> s
 			.index("community")
 			.from(page * size)
-			.size(size)
+			.size(size + 1)
 			.query(q -> q.bool(b -> {
 				if (gameName != null && !gameName.isEmpty()) {
 					b.filter(f -> f.term(t -> t.field("gameName").value(gameName)));
@@ -208,15 +184,22 @@ public class CommunityServiceImpl implements CommunityService {
 			throw new RuntimeException("Elasticsearch 검색 실패", e);
 		}
 
+		// TODO: 응답값에 아무 데이터가 없을때 예외가 제대로 발생되는지 -> 아무 값도 반환하지 않음.
+		if (Objects.isNull(response.hits().total())) {
+			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+		}
+
+		boolean hasNext = false;
+		if (size == response.hits().total().value()) {
+			hasNext = true;
+			response.hits().hits().remove(size - 1);
+		}
+
 		CommunityListResponseDto responseDto = new CommunityListResponseDto(
 			response.hits().hits().stream().map(community -> {
 				assert community.source() != null;
 				return CommunityReadResponseDto.from(community.source());
-			}).toList());
-
-		if (responseDto.getCommunityList().isEmpty()) {
-			throw new NotFoundException(COMMUNITY_NOT_FOUND);
-		}
+			}).toList(), hasNext);
 
 		return responseDto;
 	}
@@ -266,10 +249,6 @@ public class CommunityServiceImpl implements CommunityService {
 		community.deleteCommunity();
 		communityDocument.updateIsDeleted(true);
 		communityESRepository.save(communityDocument);
-	}
-
-	public void incrementViews(String communityKey) {
-		redisTemplate.opsForZSet().incrementScore(COMMUNITY_ZSET_KEY, communityKey, 1);
 	}
 
 	private void checkGameIsDeleted(GameEntity game) {

@@ -9,4 +9,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommunityListResponseDto {
 	private final List<CommunityReadResponseDto> communityList;
+	private final boolean hasNext;
 }
