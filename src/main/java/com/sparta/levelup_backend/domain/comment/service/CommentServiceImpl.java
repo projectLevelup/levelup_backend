@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.comment.service;
 
+import static com.sparta.levelup_backend.enums.UserRole.*;
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
-import static com.sparta.levelup_backend.utill.UserRole.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import com.sparta.levelup_backend.domain.community.repository.CommunityRepositor
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.user.ForbiddenException;
 
 import lombok.RequiredArgsConstructor;
 
