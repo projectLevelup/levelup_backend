@@ -27,7 +27,7 @@ import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/chats")
+@RequestMapping("/chats")
 @RequiredArgsConstructor
 public class ChatroomController {
 

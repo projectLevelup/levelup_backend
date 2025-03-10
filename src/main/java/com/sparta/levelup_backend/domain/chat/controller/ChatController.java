@@ -47,7 +47,7 @@ public class ChatController {
 	/**
 	 * 메시지 기록 저장 API
 	 */
-	@GetMapping("/v1/chats/{chatroomId}/history")
+	@GetMapping("/chats/{chatroomId}/history")
 	public ApiResponse<Slice<ChatResponseDto>> findChatHistory(
 		@PathVariable String chatroomId,
 		@PageableDefault(size = 10) Pageable pageable
