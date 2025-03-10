@@ -52,31 +52,12 @@ public class ChatroomServiceImpl implements ChatroomService {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		UserEntity targetUser = userRepository.findByIdOrElseThrow(targetUserId);
 
-		// 제목을 적지 않았을 경우 참여자 닉네임으로 자동 생성
-		String chatroomTitle = StringUtils.hasText(title)
-			? title
-			: user.getNickName() + ", " + targetUser.getNickName();
-
-		// 안 읽은 메시지값 기본값 0 으로 설정
-		Map<String, Integer> unreadMessages = new HashMap<>();
-		unreadMessages.put(userId.toString(), 0);
-		unreadMessages.put(targetUserId.toString(), 0);
-
-		Participant participant = new Participant(user);
-		Participant participant1 = new Participant(targetUser);
-
-		ChatroomDocument chatroom = ChatroomDocument.builder()
-			.title(chatroomTitle)
-			.participants(Arrays.asList(participant, participant1))
-			.lastMessage("")
-			.unreadMessages(unreadMessages)
-			.build();
-
+		ChatroomDocument chatroom = buildChatroom(title, user, targetUser);
 		ChatroomDocument savedChatroom = chatroomMongoRepository.save(chatroom);
 
 		return ChatroomCreateResponseDto.builder()
 			.chatroomId(savedChatroom.getId())
-			.title(chatroomTitle)
+			.title(savedChatroom.getTitle())
 			.participants(savedChatroom.getParticipants())
 			.build();
 	}
@@ -169,6 +150,28 @@ public class ChatroomServiceImpl implements ChatroomService {
 
 		Query query = new Query(Criteria.where("_id").is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
+	}
+
+	private ChatroomDocument buildChatroom(String title, UserEntity user, UserEntity targetUser) {
+
+		// 제목을 적지 않았을 경우 참여자 닉네임으로 자동 생성
+		String chatroomTitle = StringUtils.hasText(title)
+			? title
+			: user.getNickName() + ", " + targetUser.getNickName();
+
+		// 안 읽은 메시지값 기본값 0 으로 설정
+		Map<String, Integer> unreadMessages = new HashMap<>();
+		unreadMessages.put(user.getId().toString(), 0);
+		unreadMessages.put(targetUser.getId().toString(), 0);
+
+		List<Participant> participants = Arrays.asList(new Participant(user), new Participant(targetUser));
+
+		return ChatroomDocument.builder()
+			.title(title)
+			.participants(participants)
+			.lastMessage("")
+			.unreadMessages(unreadMessages)
+			.build();
 	}
 
 }
