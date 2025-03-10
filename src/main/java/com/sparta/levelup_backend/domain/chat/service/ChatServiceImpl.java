@@ -19,6 +19,8 @@ import com.sparta.levelup_backend.domain.chat.document.ChatMessage;
 import com.sparta.levelup_backend.domain.chat.dto.request.ChatRequestDto;
 import com.sparta.levelup_backend.domain.chat.dto.response.ChatResponseDto;
 import com.sparta.levelup_backend.domain.chat.repository.ChatMongoRepository;
+import com.sparta.levelup_backend.enums.ErrorCode;
+import com.sparta.levelup_backend.exception.chat.ChatException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
-
 	private final ChatMongoRepository chatMongoRepository;
 	private final RedisPublisher redisPublisher;
 	private final RedisTemplate<String, ChatMessage> redisTemplateMessage;
@@ -38,6 +39,7 @@ public class ChatServiceImpl implements ChatService {
 	public static final String REDIS_CHATROOM_KEY = "chatroom:";
 	private static final String NOT_SAVING_MESSAGES = "Not saving any messages";
 	private static final String SUCCESS_SAVED_MESSAGES = "Successfully saved messages: {}, key: {}";
+	private static final String FAILED_REDIS_SAVE = "Redis에 채팅 메시지 기록 실패: {}";
 
 	/**
 	 * Redis에 메시지를 기록 후 Redis Pub/Sub으로 발행합니다.
@@ -45,15 +47,9 @@ public class ChatServiceImpl implements ChatService {
 	@Override
 	public ChatResponseDto handleMessage(String chatroomId, ChatRequestDto dto, Authentication authentication) {
 		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+		ChatMessage chatMessage = ChatMessage.of(chatroomId, user.getId(), user.getNickName(), dto.getMessage());
 
-		ChatMessage chatMessage = ChatMessage.builder()
-			.chatroomId(chatroomId)
-			.userId(user.getId())
-			.nickname(user.getNickName())
-			.message(dto.getMessage())
-			.build();
-
-		redisTemplateMessage.opsForList().rightPush(REDIS_CHATROOM_KEY + chatroomId, chatMessage);
+		saveMessageToRedis(chatroomId, chatMessage);
 
 		ChatResponseDto message = ChatResponseDto.from(chatMessage);
 		redisPublisher.publish(getTopic(chatroomId), message);
@@ -109,13 +105,6 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	/**
-	 * 생성한 토픽을 반환합니다.
-	 */
-	private ChannelTopic getTopic(String chatroomId) {
-		return new ChannelTopic(REDIS_CHATROOM_KEY + chatroomId);
-	}
-
-	/**
 	 * 매일 자정 Redis에 기록된 메시지를 MongoDB에 저장합니다.
 	 */
 	@Scheduled(cron = MIDNIGHT)
@@ -139,4 +128,18 @@ public class ChatServiceImpl implements ChatService {
 		}
 	}
 
+	private void saveMessageToRedis(String chatroomId, ChatMessage chatMessage) {
+		try {
+			redisTemplateMessage.opsForList().rightPush(REDIS_CHATROOM_KEY + chatroomId, chatMessage);
+		} catch (Exception e) {
+			log.error(FAILED_REDIS_SAVE, e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * 생성한 토픽을 반환합니다.
+	 */
+	private ChannelTopic getTopic(String chatroomId) {
+		return new ChannelTopic(REDIS_CHATROOM_KEY + chatroomId);
+	}
 }

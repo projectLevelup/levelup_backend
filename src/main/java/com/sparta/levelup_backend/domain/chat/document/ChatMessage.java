@@ -36,4 +36,13 @@ public class ChatMessage {
 	@JsonFormat(shape= JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm")
 	private LocalDateTime timestamp = LocalDateTime.now();
 
+	public static ChatMessage of(String chatroomId, Long userId, String nickname, String message) {
+		return ChatMessage.builder()
+			.chatroomId(chatroomId)
+			.userId(userId)
+			.nickname(nickname)
+			.message(message)
+			.build();
+	}
+
 }
