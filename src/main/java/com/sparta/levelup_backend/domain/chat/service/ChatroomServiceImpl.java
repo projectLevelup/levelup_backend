@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -92,29 +95,14 @@ public class ChatroomServiceImpl implements ChatroomService {
 	}
 
 	@Override
-	public List<ChatroomListResponseDto> findChatrooms(Long userId) {
-		List<ChatroomDocument> chatrooms = chatroomMongoRepository.findChatroomsByUserId(userId);
+	public Slice<ChatroomListResponseDto> findChatrooms(Long userId, Pageable pageable) {
+		Slice<ChatroomDocument> chatrooms = chatroomMongoRepository.findChatroomsByUserId(userId, pageable);
 
-		return chatrooms.stream().map(chatroom -> {
-			Integer unreadCount = chatroom.getUnreadMessages().getOrDefault(userId.toString(), 0);
+		List<ChatroomListResponseDto> content = chatrooms.getContent().stream()
+			.map(chatroom -> ChatroomListResponseDto.from(chatroom, userId))
+			.collect(Collectors.toList());
 
-			// 본인이 아닌 참여자 목록
-			Participant participant = chatroom.getParticipants().stream()
-				.filter(user -> !user.getUserId().equals(userId))
-				.findFirst()
-				.orElse(null);
-
-			String nickname = (participant != null) ? participant.getNickname() : "";
-			String profileImgUrl = (participant != null) ? participant.getProfileImgUrl() : "";
-
-			return ChatroomListResponseDto.builder()
-				.chatroomId(chatroom.getId())
-				.nickname(nickname)
-				.ProfileImgUrl(profileImgUrl)
-				.lastMessage(chatroom.getLastMessage())
-				.unreadMessageCount(unreadCount)
-				.build();
-		}).collect(Collectors.toList());
+		return new SliceImpl<>(content, pageable, chatrooms.hasNext());
 	}
 
 	@Override
@@ -152,6 +140,9 @@ public class ChatroomServiceImpl implements ChatroomService {
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
+	/**
+	 * 채팅방 Document 빌드 메서드
+	 */
 	private ChatroomDocument buildChatroom(String title, UserEntity user, UserEntity targetUser) {
 
 		// 제목을 적지 않았을 경우 참여자 닉네임으로 자동 생성
