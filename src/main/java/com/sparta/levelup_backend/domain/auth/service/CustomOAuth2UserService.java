@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.domain.auth.service;
 
 import static com.sparta.levelup_backend.domain.user.dto.UserMessage.*;
 
+import com.sparta.levelup_backend.enums.ProviderType;
 import java.util.Map;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -10,7 +11,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.sparta.levelup_backend.config.CustomOAuth2User;
+import com.sparta.levelup_backend.common.security.CustomOAuth2User;
 import com.sparta.levelup_backend.domain.auth.dto.response.GoogleResponseDto;
 import com.sparta.levelup_backend.domain.auth.dto.response.KakaoResponseDto;
 import com.sparta.levelup_backend.domain.auth.dto.response.NaverResponseDto;
@@ -20,7 +21,7 @@ import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.ErrorCode;
-import com.sparta.levelup_backend.utill.UserRole;
+import com.sparta.levelup_backend.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +36,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
 		OAuth2User oAuth2User = super.loadUser(userRequest);
-
+		
 		OAuth2ResponseDto oAuth2ResponseDto = null;
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		if (registrationId.equals("naver")) {
@@ -58,7 +59,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			if (user.getIsDeleted()) {
 				throw new OAuth2AuthenticationException(ErrorCode.ALREADY_DELETED_USER.toString());
 			}
-			if (!user.getProvider().startsWith(registrationId)) {
+			if (!user.getProvider().toString().startsWith(registrationId.toUpperCase())) {
 				throw new OAuth2AuthenticationException(ErrorCode.AUTH_TYPE_MISMATCH.toString());
 			}
 		} else {
@@ -66,7 +67,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 				.email(oAuth2ResponseDto.getEmail())
 				.nickName(oAuth2ResponseDto.getNickName())
 				.role(UserRole.USER)
-				.provider(registrationId + "new")
+				.provider(ProviderType.valueOf((registrationId + "new").toUpperCase()))
 				.build();
 			userRepository.save(user);
 			emailEventPublisher.publisher(

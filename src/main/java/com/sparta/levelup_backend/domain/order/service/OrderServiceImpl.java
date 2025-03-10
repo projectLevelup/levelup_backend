@@ -9,8 +9,10 @@ import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.*;
-import com.sparta.levelup_backend.utill.OrderStatus;
-import com.sparta.levelup_backend.utill.ProductStatus;
+import com.sparta.levelup_backend.enums.OrderStatus;
+import com.sparta.levelup_backend.enums.ProductStatus;
+import com.sparta.levelup_backend.exception.order.OrderException;
+import com.sparta.levelup_backend.exception.user.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;

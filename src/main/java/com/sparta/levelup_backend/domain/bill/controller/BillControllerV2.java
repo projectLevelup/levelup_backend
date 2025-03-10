@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.bill.controller;
 
-import com.sparta.levelup_backend.common.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.bill.dto.responseDto.BillResponseDto;
 import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController

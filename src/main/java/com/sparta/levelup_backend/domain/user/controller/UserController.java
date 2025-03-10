@@ -1,21 +1,15 @@
 package com.sparta.levelup_backend.domain.user.controller;
 
-import static com.sparta.levelup_backend.common.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.ApiResponse.*;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.DELETE_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.FIND_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.PASSWORD_CHANGE_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.RESET_EMAIL_SEND_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.RESET_PASSWORD_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResMessage.UPDATE_SUCCESS;
+import static com.sparta.levelup_backend.common.apiResponse.ApiResponse.success;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.sparta.levelup_backend.common.ApiResponse;
-import com.sparta.levelup_backend.config.CustomUserDetails;
+import com.sparta.levelup_backend.common.apiResponse.ApiResponse;
+import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.request.ResetPasswordConfirmDto;
@@ -24,13 +18,20 @@ import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserImgUrlReqeus
 import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.service.UserService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v2")
 public class UserController {
 
 	private final UserService userService;

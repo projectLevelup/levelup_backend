@@ -10,7 +10,7 @@ import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductCreateReq
 import com.sparta.levelup_backend.domain.product.dto.requestDto.ProductUpdateRequestDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.exception.common.ProductOutOfAmount;
-import com.sparta.levelup_backend.utill.ProductStatus;
+import com.sparta.levelup_backend.enums.ProductStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -103,5 +103,9 @@ public class ProductEntity extends BaseEntity {
 		if (this.amount != null) {
 			this.amount += 1;
 		}
+	}
+
+	public void deleteProduct() {
+		this.delete();
 	}
 }

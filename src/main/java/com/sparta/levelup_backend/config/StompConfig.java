@@ -16,7 +16,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 	 */
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/ws/chats")
+		registry.addEndpoint("/ws")
 			.setAllowedOriginPatterns("*")
 			.withSockJS();
 	}
@@ -45,6 +45,6 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
 		registry.setApplicationDestinationPrefixes("/pub");
-		registry.enableSimpleBroker("/sub");
+		registry.enableSimpleBroker("/sub/chat", "/sub/notification");
 	}
 }

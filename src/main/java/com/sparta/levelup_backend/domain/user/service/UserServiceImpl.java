@@ -1,25 +1,15 @@
 package com.sparta.levelup_backend.domain.user.service;
 
-import static com.sparta.levelup_backend.domain.alert.dto.request.AlertMessageDto.*;
-import static com.sparta.levelup_backend.domain.user.dto.UserMessage.*;
-import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
-
-import java.time.Duration;
-import java.util.UUID;
-
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_CODE_PREFIX;
+import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_PREFIX;
+import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_SUBJECT;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.AUTH_TYPE_NOT_GENERAL;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.FORBIDDEN_ACCESS;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.INVALID_NICKNAME;
+import static com.sparta.levelup_backend.exception.common.ErrorCode.INVALID_RESETCODE;
 
 import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
 import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
-import com.sparta.levelup_backend.domain.alert.entity.AlertMessageEntity;
-import com.sparta.levelup_backend.domain.alert.entity.AlertMessageLogEntity;
-import com.sparta.levelup_backend.domain.alert.event.AlertEventPublisher;
-import com.sparta.levelup_backend.domain.alert.repository.AlertMessageLogRepository;
-import com.sparta.levelup_backend.domain.alert.repository.AlertMessageRepository;
 import com.sparta.levelup_backend.domain.user.dto.request.ChangePasswordDto;
 import com.sparta.levelup_backend.domain.user.dto.request.DeleteUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.request.ResetPasswordConfirmDto;
@@ -29,22 +19,26 @@ import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.CurrentPasswordNotMatchedException;
-import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.enums.ProviderType;
+import com.sparta.levelup_backend.exception.user.CurrentPasswordNotMatchedException;
+import com.sparta.levelup_backend.exception.user.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.MismatchException;
-import com.sparta.levelup_backend.exception.common.PasswordConfirmNotMatchedException;
-
+import com.sparta.levelup_backend.exception.user.PasswordConfirmNotMatchedException;
+import java.time.Duration;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
-	private final AlertMessageRepository alertMessageRepository;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-	private final AlertEventPublisher alertEvent;
-	private final AlertMessageLogRepository alertMessageLogRepository;
 	private final EmailEventPublisher emailEventPublisher;
 	private final RedisTemplate<String, Object> redisTemplate;
 
@@ -88,12 +82,6 @@ public class UserServiceImpl implements UserService {
 		if (dto.getPhoneNumber() != null) {
 			user.updatePhoneNumber(dto.getPhoneNumber());
 		}
-		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(user.getId(),
-			new AlertMessageEntity(USER_CHANGED_MESSAGE));
-		AlertMessageLogEntity log = new AlertMessageLogEntity(user.getId(),
-			USER_CHANGED_MESSAGE);
-		AlertMessageLogEntity savedLog = alertMessageLogRepository.save(log);
-		alertEvent.publisher(user.getId(), savedLog.getId(), alertMessageEntity);
 
 		return UserResponseDto.from(user);
 	}
@@ -112,13 +100,6 @@ public class UserServiceImpl implements UserService {
 		} else {
 			throw new CurrentPasswordNotMatchedException();
 		}
-		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(
-			user.getId(),
-			new AlertMessageEntity(USER_PASSWORD_CHANGED_MESSAGE));
-		AlertMessageLogEntity log = new AlertMessageLogEntity(user.getId(),
-			USER_PASSWORD_CHANGED_MESSAGE);
-		AlertMessageLogEntity savedLog = alertMessageLogRepository.save(log);
-		alertEvent.publisher(user.getId(), savedLog.getId(), alertMessageEntity);
 	}
 
 	@Override
@@ -127,14 +108,6 @@ public class UserServiceImpl implements UserService {
 
 		UserEntity user = userRepository.findByIdOrElseThrow(id);
 		user.updateImgUrl(dto.getImgUrl());
-
-		AlertMessageEntity alertMessageEntity = alertMessageRepository.save(
-			user.getId(),
-			new AlertMessageEntity(USER_CHANGED_MESSAGE));
-		AlertMessageLogEntity log = new AlertMessageLogEntity(user.getId(),
-			USER_CHANGED_MESSAGE);
-		AlertMessageLogEntity savedLog = alertMessageLogRepository.save(log);
-		alertEvent.publisher(user.getId(), savedLog.getId(), alertMessageEntity);
 
 		return UserResponseDto.from(user);
 
@@ -161,7 +134,7 @@ public class UserServiceImpl implements UserService {
 	public void resetPassword(ResetPasswordDto dto) {
 		UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
-		if (!user.getProvider().startsWith("none")) {
+		if (!user.getProvider().equals(ProviderType.NONE)) {
 			throw new MismatchException(AUTH_TYPE_NOT_GENERAL);
 		}
 

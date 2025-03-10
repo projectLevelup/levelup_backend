@@ -1,7 +1,7 @@
 package com.sparta.levelup_backend.domain.community.service;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
-import static com.sparta.levelup_backend.utill.UserRole.*;
+import static com.sparta.levelup_backend.enums.UserRole.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.user.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.exception.common.PageOutOfBoundsException;
 

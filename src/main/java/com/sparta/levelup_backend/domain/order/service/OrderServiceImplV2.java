@@ -12,8 +12,9 @@ import com.sparta.levelup_backend.domain.product.service.ProductServiceImpl;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.common.*;
-import com.sparta.levelup_backend.utill.OrderStatus;
-import com.sparta.levelup_backend.utill.ProductStatus;
+import com.sparta.levelup_backend.enums.ProductStatus;
+import com.sparta.levelup_backend.exception.order.OrderException;
+import com.sparta.levelup_backend.exception.user.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -23,11 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static com.sparta.levelup_backend.exception.common.ErrorCode.*;
-import static com.sparta.levelup_backend.utill.OrderStatus.*;
+import static com.sparta.levelup_backend.enums.OrderStatus.*;
 
 @Slf4j
 @Service
