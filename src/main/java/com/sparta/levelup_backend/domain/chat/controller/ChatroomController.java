@@ -6,6 +6,9 @@ import static org.springframework.http.HttpStatus.*;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +27,7 @@ import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1/chats")
+@RequestMapping("/chats")
 @RequiredArgsConstructor
 public class ChatroomController {
 
@@ -57,8 +60,11 @@ public class ChatroomController {
 	 * 채팅방 목록 API
 	 */
 	@GetMapping
-	public ApiResponse<List<ChatroomListResponseDto>> findChatrooms(@AuthenticationPrincipal CustomUserDetails authUser) {
-		return success(OK, CHATROOM_FIND ,chatroomService.findChatrooms(authUser.getId()));
+	public ApiResponse<Slice<ChatroomListResponseDto>> findChatrooms(
+		@AuthenticationPrincipal CustomUserDetails authUser,
+		@PageableDefault(size = 10) Pageable pageable
+	) {
+		return success(OK, CHATROOM_FIND ,chatroomService.findChatrooms(authUser.getId(), pageable));
 	}
 
 }
