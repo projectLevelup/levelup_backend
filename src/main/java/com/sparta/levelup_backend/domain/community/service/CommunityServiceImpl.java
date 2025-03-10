@@ -6,14 +6,10 @@ import static com.sparta.levelup_backend.utill.UserRole.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +24,7 @@ import com.sparta.levelup_backend.domain.community.dto.response.CommunityListRes
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityReadResponseDto;
 import com.sparta.levelup_backend.domain.community.dto.response.CommunityResponseDto;
 import com.sparta.levelup_backend.domain.community.entity.CommunityEntity;
+import com.sparta.levelup_backend.domain.community.repository.CommunityQueryRepository;
 import com.sparta.levelup_backend.domain.community.repository.CommunityRepository;
 import com.sparta.levelup_backend.domain.community.repositoryES.CommunityESRepository;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
@@ -57,11 +54,8 @@ public class CommunityServiceImpl implements CommunityService {
 
 	private final CommunityESRepository communityESRepository;
 
-	private final RedisTemplate<String, Object> redisTemplate;
-	private final String COMMUNITY_CACHE_KEY = "community:";
-	private final String COMMUNITY_ZSET_KEY = "community_view";
-
 	private final ElasticsearchClient elasticsearchClient;
+	private final CommunityQueryRepository communityQueryRepository;
 
 	@Override
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
@@ -75,36 +69,38 @@ public class CommunityServiceImpl implements CommunityService {
 		return CommunityResponseDto.of(community, user, game);
 	}
 
+	@Transactional(readOnly = true)
+	@Override
+	public CommunityListResponseDto findAllByGameName(String gameName, Pageable pageable) {
+		Slice<CommunityReadResponseDto> communityPage = communityQueryRepository.findAllByGameName(gameName, pageable);
+
+		if (communityPage.isEmpty()) {
+			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+		}
+		return new CommunityListResponseDto(
+			communityPage.stream().toList(), communityPage.hasNext()
+		);
+	}
+
 	/**
 	 * community 목록 검색
 	 * 게임(카테고리라고 생각하변 편함)에 속한 글을 검색어를 통해 검색
 	 * @param gameName 검색할 게임
 	 * @param searchKeyword 제목 검색어
-	 * @param page 기본값: 0
-	 * @param size 기본값: 10
+	 * @param pageable 0부터 시작
 	 * @return
 	 */
 	@Transactional(readOnly = true)
 	@Override
-	public CommunityListResponseDto findCommunities(String gameName, String searchKeyword, int page, int size) {
-		Pageable pageable = PageRequest.of(page, size);
-		Page<CommunityEntity> communityPage = communityRepository.findAllByGameNameAndTitleContainingAndIsDeletedFalse(gameName, searchKeyword, pageable);
+	public CommunityListResponseDto findCommunities(String gameName, String searchKeyword, Pageable pageable) {
+		Slice<CommunityReadResponseDto> communityReadResponseDtoPages = communityQueryRepository.findCommunities(
+			gameName, searchKeyword, pageable);
 
-		CommunityListResponseDto responseDto = new CommunityListResponseDto(
-			communityPage.stream()
-				.map(community -> CommunityReadResponseDto.of(community, community.getUser(), community.getGame()))
-				.toList()
-		);
-
-		if (communityPage.getTotalPages() <= page) {
-			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
-		}
-
-		if (responseDto.getCommunityList().isEmpty()) {
+		if (communityReadResponseDtoPages.isEmpty()) {
 			throw new NotFoundException(COMMUNITY_NOT_FOUND);
 		}
-
-		return responseDto;
+		return new CommunityListResponseDto(
+			communityReadResponseDtoPages.stream().toList(), communityReadResponseDtoPages.hasNext());
 	}
 
 	@Override
@@ -166,10 +162,15 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public CommunityListResponseDto findCommunitiesES(String searchKeyword, String gameName, int page,
 		int size) {
+		// 10000개 이상의 데이터 조회 방지
+		if((page+1)*size >= 9999){
+			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
+		}
+
 		SearchRequest request = SearchRequest.of(s -> s
 			.index("community")
 			.from(page * size)
-			.size(size)
+			.size(size + 1)
 			.query(q -> q.bool(b -> {
 				if (gameName != null && !gameName.isEmpty()) {
 					b.filter(f -> f.term(t -> t.field("gameName").value(gameName)));
@@ -190,17 +191,23 @@ public class CommunityServiceImpl implements CommunityService {
 			throw new RuntimeException("Elasticsearch 검색 실패", e);
 		}
 
-		CommunityListResponseDto responseDto = new CommunityListResponseDto(
+		if (response.hits().hits().isEmpty()) {
+			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+		}
+
+		List<CommunityReadResponseDto> responseDto = new ArrayList<>(
 			response.hits().hits().stream().map(community -> {
 				assert community.source() != null;
 				return CommunityReadResponseDto.from(community.source());
 			}).toList());
 
-		if (responseDto.getCommunityList().isEmpty()) {
-			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+		boolean hasNext = false;
+		if (size < response.hits().total().value()) {
+			hasNext = true;
+			responseDto.remove(size);
 		}
 
-		return responseDto;
+		return new CommunityListResponseDto(responseDto, hasNext);
 	}
 
 	// community 단건 조회(elasticSearch 사용)
@@ -248,140 +255,6 @@ public class CommunityServiceImpl implements CommunityService {
 		community.deleteCommunity();
 		communityDocument.updateIsDeleted(true);
 		communityESRepository.save(communityDocument);
-	}
-
-	/**
-	 * community 생성(redis활용)
-	 * @param userId 사용자 Id
-	 * @param dto title, content, gameId
-	 * @return CommunityResponseDto
-	 */
-	@Override
-	public CommunityResponseDto saveCommunityRedis(Long userId, CommnunityCreateRequestDto dto) {
-		UserEntity user = userRepository.findByIdOrElseThrow(userId);
-		GameEntity game = gameRepository.findByIdOrElseThrow(dto.getGameId());
-		checkGameIsDeleted(game);
-		CommunityEntity community = communityRepository.save(
-			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
-
-		String redisKey = COMMUNITY_CACHE_KEY + community.getId();
-
-		Map<String, Object> communityMap = Map.of(
-			"communityId", community.getId(),
-			"title", community.getTitle(),
-			"userEmail", user.getEmail(),
-			"gameName", game.getName()
-		);
-		redisTemplate.opsForHash().putAll(redisKey, communityMap);
-		redisTemplate.opsForZSet().add(COMMUNITY_ZSET_KEY, redisKey, 0);
-		return CommunityResponseDto.of(community, user, game);
-	}
-
-	/**
-	 * community 검색(redis 활용)
-	 * @param searchKeyword 검색할 단어
-	 * @param page 페이지 수
-	 * @param size 한 페이지에 표시할 데이터 수
-	 * @return CommunityListResponseDto
-	 */
-	@Override
-	public CommunityListResponseDto findCommunityRedis(String searchKeyword, int page, int size) {
-		Set<String> keys = redisTemplate.keys(COMMUNITY_CACHE_KEY + "*");
-		List<String> matchedCommunities = new ArrayList<>();
-
-		if (keys == null) {
-			throw new NotFoundException(COMMUNITY_NOT_FOUND);
-		}
-
-		for (String key : keys) {
-			Map<String, Object> community = redisTemplate.<String, Object>opsForHash().entries(key);
-			String title = community.get("title").toString();
-
-			if (title.toLowerCase().contains(searchKeyword.toLowerCase())) {
-				matchedCommunities.add(key);
-			}
-		}
-
-		if (matchedCommunities.isEmpty()) {
-			throw new NotFoundException(COMMUNITY_NOT_FOUND);
-		}
-
-		if (page * size >= matchedCommunities.size()) {
-			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
-		}
-
-		matchedCommunities.sort((a, b) -> {
-			Double scoreA = redisTemplate.opsForZSet().score(COMMUNITY_ZSET_KEY, a);
-			Double scoreB = redisTemplate.opsForZSet().score(COMMUNITY_ZSET_KEY, b);
-
-			scoreA = (scoreA != null) ? scoreA : 0.0;
-			scoreB = (scoreB != null) ? scoreB : 0.0;
-
-			return Double.compare(scoreB, scoreA);
-		});
-
-		List<CommunityReadResponseDto> results = new ArrayList<>();
-		for (String key : matchedCommunities.stream().skip((long)page * size).limit(size).toList()) {
-			Map<String, Object> result = redisTemplate.<String, Object>opsForHash().entries(key);
-			results.add(new CommunityReadResponseDto(
-				String.valueOf(result.get("communityId")),
-				(String)result.get("title"),
-				(String)result.get("userEmail"),
-				(String)result.get("gameName")));
-			incrementViews(key);
-		}
-
-		return new CommunityListResponseDto(results);
-	}
-
-	/**
-	 * community 수정(redis 활용)
-	 * @param userId 사용자 Id
-	 * @param dto communityId, title, content
-	 * @return CommunityResponseDto
-	 */
-	@Override
-	public CommunityResponseDto updateCommunityRedis(Long userId, CommunityUpdateRequestDto dto) {
-		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
-
-		String key = COMMUNITY_CACHE_KEY + community.getId();
-		Map<String, Object> communityMap = redisTemplate.<String, Object>opsForHash().entries(key);
-		checkAuth(community, userId);
-		checkCommunityIsDeleted(community);
-
-		if (Objects.nonNull(dto.getTitle())) {
-			community.updateTitle(dto.getTitle());
-			communityMap.put("title", dto.getTitle());
-		}
-		if (Objects.nonNull(dto.getContent())) {
-			community.updateContent(dto.getContent());
-		}
-
-		redisTemplate.opsForHash().putAll(key, communityMap);
-		communityRepository.save(community);
-
-		return CommunityResponseDto.from(community);
-	}
-
-	/**
-	 * community 삭제(redis 활용)
-	 * @param userId 사용자 Id
-	 * @param communityId community Id
-	 */
-	@Override
-	public void deleteCommunityRedis(Long userId, Long communityId) {
-		String key = COMMUNITY_CACHE_KEY + communityId;
-		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
-		checkAuth(community, userId);
-		checkCommunityIsDeleted(community);
-
-		redisTemplate.delete(key);
-		community.deleteCommunity();
-
-	}
-
-	public void incrementViews(String communityKey) {
-		redisTemplate.opsForZSet().incrementScore(COMMUNITY_ZSET_KEY, communityKey, 1);
 	}
 
 	private void checkGameIsDeleted(GameEntity game) {
