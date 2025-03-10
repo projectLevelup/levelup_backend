@@ -45,7 +45,7 @@
             return;
         }
 
-        const socket = new SockJS('/ws/chats');
+        const socket = new SockJS('/ws');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function(frame) {
             console.log("연결됨: " + frame);
