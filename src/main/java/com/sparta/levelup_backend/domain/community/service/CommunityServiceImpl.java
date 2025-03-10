@@ -187,7 +187,7 @@ public class CommunityServiceImpl implements CommunityService {
 		SearchResponse<CommunityDocument> response;
 		try {
 			response = elasticsearchClient.search(request, CommunityDocument.class);
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new RuntimeException("Elasticsearch 검색 실패", e);
 		}
 
