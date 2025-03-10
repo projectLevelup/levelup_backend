@@ -26,8 +26,7 @@ import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomListResponseD
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.BadRequestException;
-import com.sparta.levelup_backend.exception.common.DuplicateException;
+import com.sparta.levelup_backend.exception.chat.ChatException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,12 +47,12 @@ public class ChatroomServiceImpl implements ChatroomService {
 	public ChatroomCreateResponseDto createChatroom(Long userId, Long targetUserId, String title) {
 
 		if (userId.equals(targetUserId)) {
-			throw new BadRequestException(INVALID_CHATROOM_CREATE);
+			throw new ChatException(INVALID_CHATROOM_CREATE);
 		}
 
 		// 상대와의 채팅방이 이미 존재하는 지 확인
 		if (chatroomMongoRepository.countByParticipantsUserIds(Arrays.asList(targetUserId, userId)) > 0) {
-			throw new BadRequestException(DUPLICATE_CHATROOM);
+			throw new ChatException(DUPLICATE_CHATROOM);
 		}
 
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
@@ -79,7 +78,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 			.anyMatch(user -> user.getUserId().equals(userId));
 
 		if(!isParticipant) {
-			throw new DuplicateException(PARTICIPANT_ISDELETED);
+			throw new ChatException(PARTICIPANT_ISDELETED);
 		}
 
 		// 채팅방 참여자 목록 업데이트
