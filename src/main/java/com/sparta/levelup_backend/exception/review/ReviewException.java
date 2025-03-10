@@ -7,8 +7,4 @@ public class ReviewException extends BusinessException {
 	public ReviewException(ErrorCode errorCode) {
 		super(errorCode);
 	}
-
-	public ReviewException(ErrorCode errorCode, String detail) {
-		super(errorCode, detail);
-	}
 }
