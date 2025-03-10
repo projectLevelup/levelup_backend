@@ -6,20 +6,18 @@ import com.sparta.levelup_backend.domain.order.dto.request.OrderCreateRequestDto
 import com.sparta.levelup_backend.domain.order.dto.response.OrderResponseDto;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
-import static org.springframework.http.HttpStatus.*;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.ORDER_CANCLED;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.success;
+import static org.springframework.http.HttpStatus.OK;
 
+@Slf4j
 @RestController
-@RequestMapping("/v1/orders")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
@@ -30,9 +28,9 @@ public class OrderController {
             @AuthenticationPrincipal CustomUserDetails authUser,
             @RequestBody OrderCreateRequestDto dto
     ) {
+        log.info("userId: {}", authUser.getId());
         Long userId = authUser.getId();
-        OrderResponseDto orderResponseDto = orderService.createOrder(userId, dto);
-        return success(OK, ORDER_CREATE, orderResponseDto);
+        return success(OK, ORDER_CREATE, orderService.createOrder(userId, dto));
     }
 
     // 주문 조회
@@ -42,8 +40,7 @@ public class OrderController {
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto orderById = orderService.findOrder(userId, orderId);
-        return success(OK, ORDER_FIND, orderById);
+        return success(OK, ORDER_FIND, orderService.findOrder(userId, orderId));
     }
 
     // 주문 결제 완료
@@ -53,8 +50,7 @@ public class OrderController {
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto order = orderService.updateOrder(userId, orderId);
-        return success(OK, ORDER_UPDATE, order);
+        return success(OK, ORDER_UPDATE, orderService.updateOrder(userId, orderId));
     }
 
     // 결제 완료
@@ -64,8 +60,7 @@ public class OrderController {
             @PathVariable Long orderId
     ) {
         Long userId = authUser.getId();
-        OrderResponseDto order = orderService.completeOrder(userId, orderId);
-        return success(OK, ORDER_COMPLETE, order);
+        return success(OK, ORDER_COMPLETE, orderService.completeOrder(userId, orderId));
     }
 
     // 주문 취소

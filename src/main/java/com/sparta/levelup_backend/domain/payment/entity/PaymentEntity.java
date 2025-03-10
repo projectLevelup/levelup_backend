@@ -5,6 +5,10 @@ import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static jakarta.persistence.CascadeType.*;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+
 @Entity
 @Getter
 @Builder
@@ -14,7 +18,7 @@ import lombok.*;
 public class PaymentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     @Column(name = "payment_id", nullable = false, unique = true)
     private Long paymentId;
 
@@ -31,7 +35,7 @@ public class PaymentEntity {
     @Column(nullable = false, name = "pay_name")
     private String orderName;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = LAZY, cascade = ALL)
     @JoinColumn(name = "payment_order", nullable = false)
     private OrderEntity order;
 

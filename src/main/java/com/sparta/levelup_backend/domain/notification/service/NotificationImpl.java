@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.sparta.levelup_backend.enums.NotificationStatus.*;
+
 @Service
 @RequiredArgsConstructor
 public class NotificationImpl implements NotificationService{
@@ -31,7 +33,7 @@ public class NotificationImpl implements NotificationService{
     @Override
     public void checkRead(Long notificationId) {
         notificationRepository.findById(notificationId).ifPresent(notification -> {
-            notification.setStatus(NotificationStatus.READ);
+            notification.setStatus(READ);
             notificationRepository.save(notification);
         });
     }
