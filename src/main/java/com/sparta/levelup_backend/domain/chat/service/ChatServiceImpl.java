@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -72,7 +73,8 @@ public class ChatServiceImpl implements ChatService {
 			return findMessagesToRedis(pageable, redisKey, cachedCount);
 		}
 
-		return findMessagesToMongoDB(chatroomId, pageable);
+
+		return findMessagesToMongoDB(chatroomId, pageable, cachedCount);
 
 	}
 
@@ -114,8 +116,10 @@ public class ChatServiceImpl implements ChatService {
 	/**
 	 * MongoDB로 메시지 기록 조회
 	 */
-	private SliceImpl<ChatResponseDto> findMessagesToMongoDB(String chatroomId, Pageable pageable) {
-		Slice<ChatMessage> messages = chatMongoRepository.findMessagesByChatroomIdOrderByIdDesc(chatroomId, pageable);
+	private SliceImpl<ChatResponseDto> findMessagesToMongoDB(String chatroomId, Pageable pageable, Long cachedCount) {
+		Pageable mongoPageable = getPageable(pageable, cachedCount);
+
+		Slice<ChatMessage> messages = chatMongoRepository.findMessagesByChatroomIdOrderByIdDesc(chatroomId, mongoPageable);
 		List<ChatResponseDto> result = messages.getContent().stream()
 			.map(ChatResponseDto::from)
 			.collect(Collectors.toList());
@@ -148,5 +152,11 @@ public class ChatServiceImpl implements ChatService {
 	 */
 	private ChannelTopic getTopic(String chatroomId) {
 		return new ChannelTopic(REDIS_CHATROOM_KEY + chatroomId);
+	}
+
+	private static Pageable getPageable(Pageable pageable, Long cachedCount) {
+		int mongoPage = (cachedCount == 0) ? 0 : (int)(((cachedCount - 1) / pageable.getPageSize()) + 1);
+		Pageable mongoPageable = PageRequest.of(pageable.getPageNumber() - mongoPage, pageable.getPageSize(), pageable.getSort());
+		return mongoPageable;
 	}
 }
