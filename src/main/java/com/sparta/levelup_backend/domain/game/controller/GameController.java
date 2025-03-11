@@ -36,7 +36,7 @@ public class GameController {
 		Long userId = customUserDetails.getId();
 		GameEntity game = gameService.saveGame(dto.getName(), dto.getImgUrl(), dto.getGenre(), userId);
 
-		return success(CREATED, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
+		return success(OK, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
 	}
 
 	@GetMapping("/admin/games/{gameId}")
