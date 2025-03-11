@@ -32,10 +32,10 @@ public class ApiResMessage {
     public static final String PRODUCT_DELETE = "상품이 삭제되었습니다";
 
     // 게임 관련 성공 메시지
-    public static final String GAME_SAVE_SUCCESS = "게임 등록이 성공적으로 완료되었습니다.";
-    public static final String GAME_FOUND_SUCCESS = "게임을 성공적으로 조회되었습니다.";
-    public static final String GAME_UPDATE_SUCCESS = "게임을 성공적으로 수정되었습니다.";
-    public static final String GAME_DELETE_SUCCESS = "게임이 성공적으로 삭제되었습니다.";
+    public static final String GAME_SAVE_SUCCESS = "게임이 생성되었습니다.";
+    public static final String GAME_FOUND_SUCCESS = "게임이 조회되었습니다.";
+    public static final String GAME_UPDATE_SUCCESS = "게임이 수정되었습니다.";
+    public static final String GAME_DELETE_SUCCESS = "게임이 삭제되었습니다.";
 
     // Chat
     public static final String CHATROOM_CREATE = "채팅방이 생성되었습니다";
