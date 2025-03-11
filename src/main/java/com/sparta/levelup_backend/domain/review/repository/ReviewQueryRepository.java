@@ -14,14 +14,12 @@ import com.sparta.levelup_backend.domain.review.dto.response.ReviewResponseDto;
 import com.sparta.levelup_backend.domain.review.entity.QReviewEntity;
 import com.sparta.levelup_backend.domain.user.entity.QUserEntity;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
 public class ReviewQueryRepository {
 
-	private final EntityManager em;
 	private final JPAQueryFactory queryFactory;
 
 	/**
@@ -51,7 +49,6 @@ public class ReviewQueryRepository {
 			.limit(pageable.getPageSize())
 			.fetch();
 
-		// 다음 페이지 여부 확인
 		boolean hasNext = reviews.size() > pageable.getPageSize();
 
 		return new SliceImpl<>(reviews, pageable, hasNext);

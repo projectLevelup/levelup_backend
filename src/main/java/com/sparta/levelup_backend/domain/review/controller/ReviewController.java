@@ -42,8 +42,7 @@ public class ReviewController {
         @Valid @RequestBody ReviewRequestDto dto,
         @PathVariable Long productId
     ) {
-        ReviewResponseDto result = reviewService.saveReview(dto, authUser.getId(), productId);
-        return success(OK ,REVIEW_SUCCESS, result);
+        return success(OK ,REVIEW_SUCCESS, reviewService.saveReview(dto, authUser.getId(), productId));
     }
 
     /**
@@ -63,7 +62,6 @@ public class ReviewController {
      * Review 목록 조회 API
      *
      * @param pageable 무한스크롤 구조로 size만 받음
-     * @return
      */
     @GetMapping("/products/{productId}/reviews")
     public ApiResponse<Slice<ReviewResponseDto>> findReviews(

@@ -2,6 +2,7 @@ package com.sparta.levelup_backend.domain.review.service;
 
 import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import static com.sparta.levelup_backend.enums.OrderStatus.*;
+import static com.sparta.levelup_backend.enums.UserRole.*;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -18,10 +19,7 @@ import com.sparta.levelup_backend.domain.review.repository.ReviewQueryRepository
 import com.sparta.levelup_backend.domain.review.repository.ReviewRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.user.ForbiddenException;
-import com.sparta.levelup_backend.exception.common.MismatchException;
-import com.sparta.levelup_backend.enums.UserRole;
+import com.sparta.levelup_backend.exception.review.ReviewException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,14 +37,12 @@ public class ReviewServiceImpl implements ReviewService {
 	@Transactional
 	public ReviewResponseDto saveReview(ReviewRequestDto dto, Long userId, Long productId) {
 
-		// 해당 상품을 거래 완료한 사용자인지 확인
 		if (!orderRepository.existsByUserIdAndProductIdAndStatus(userId, productId, COMPLETED)) {
-			throw new ForbiddenException(COMPLETED_ORDER_REQUIRED);
+			throw new ReviewException(COMPLETED_ORDER_REQUIRED);
 		}
 
-		// 이미 리뷰를 작성한 유저인지 확인
 		if (reviewRepository.existsByUserIdAndProductId(userId, productId)) {
-			throw new DuplicateException(DUPLICATE_REVIEW);
+			throw new ReviewException(DUPLICATE_REVIEW);
 		}
 
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
@@ -70,21 +66,18 @@ public class ReviewServiceImpl implements ReviewService {
 
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
-		// 리뷰 삭제는 관리자 권한만 실행 가능
-		if (!user.getRole().equals(UserRole.ADMIN)) {
-			throw new ForbiddenException(FORBIDDEN_ACCESS);
+		if (!user.getRole().equals(ADMIN)) {
+			throw new ReviewException(FORBIDDEN_ACCESS);
 		}
 
 		ReviewEntity review = reviewRepository.findByIdOrElseThrow(reviewId);
 
-		// 이미 삭제된 리뷰인지 확인
 		if (review.getIsDeleted()) {
-			throw new DuplicateException(REVIEW_ISDELETED);
+			throw new ReviewException(REVIEW_ISDELETED);
 		}
 
-		//리뷰가 해당 상품의 리뷰인 지 확인
 		if (!review.getProduct().getId().equals(productId)) {
-			throw new MismatchException(MISMATCH_REVIEW_PRODUCT);
+			throw new ReviewException(MISMATCH_REVIEW_PRODUCT);
 		}
 
 		review.deleteReview();
