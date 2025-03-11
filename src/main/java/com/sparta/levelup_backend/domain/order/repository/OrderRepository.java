@@ -6,11 +6,13 @@ import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.order.OrderException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
+
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
 
     boolean existsByUserIdAndProductIdAndStatus(Long userId, Long productId, OrderStatus status);
 
     default OrderEntity findByIdOrElseThrow(Long orderId) {
-        return findById(orderId).orElseThrow(() -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
+        return findById(orderId).orElseThrow(() -> new OrderException(ORDER_NOT_FOUND));
     }
 }
