@@ -14,8 +14,7 @@ import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.user.ForbiddenException;
+import com.sparta.levelup_backend.exception.game.GameException;
 import com.sparta.levelup_backend.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;
@@ -98,13 +97,13 @@ public class GameServiceImpl implements GameService {
 
 	private void checkAdminAuth(UserEntity user) {
 		if (!user.getRole().equals(UserRole.ADMIN)) {
-			throw new ForbiddenException(FORBIDDEN_ACCESS);
+			throw new GameException(FORBIDDEN_ACCESS);
 		}
 	}
 
 	private void checkIsDeleted(GameEntity game) {
 		if (game.getIsDeleted()) {
-			throw new DuplicateException(GAME_ISDELETED);
+			throw new GameException(GAME_ISDELETED);
 		}
 	}
 }
