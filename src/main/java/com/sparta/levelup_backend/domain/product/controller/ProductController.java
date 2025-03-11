@@ -101,7 +101,7 @@ public class ProductController {
 
 	/**
 	 * 상품명으로 상품 부분 검색 (ES)
-	 * GET /v1/products/productName?productName=...
+	 * GET /products/productName?productName=...
 	 */
 	@GetMapping("/productName")
 	public ApiResponse<List<ProductDocument>> findProductsByName(@RequestParam String productName) {
@@ -110,7 +110,7 @@ public class ProductController {
 
 	/**
 	 * 특정 게임에 속한 상품 조회 (ES)
-	 * GET /v1/products/game/{gameId}
+	 * GET /products/game/{gameId}
 	 */
 	@GetMapping("/game/{gameId}")
 	public ApiResponse<List<ProductDocument>> findProductsByGameId(@PathVariable Long gameId) {
@@ -119,7 +119,7 @@ public class ProductController {
 
 	/**
 	 * 특정 상태의 상품 조회 (ES)
-	 * GET /v1/products/status/{productStatus}
+	 * GET /products/status/{productStatus}
 	 */
 	@GetMapping("/status/{productStatus}")
 	public ApiResponse<List<ProductDocument>> findProductsByStatus(@PathVariable String productStatus) {
@@ -128,7 +128,7 @@ public class ProductController {
 
 	/**
 	 * 특정 사용자가 등록한 상품 조회 (ES)
-	 * GET /v1/products/user/{userId}
+	 * GET /products/user/{userId}
 	 */
 	@GetMapping("/user/{userId}")
 	public ApiResponse<List<ProductDocument>> findProductsByUserId(@PathVariable Long userId) {
@@ -137,7 +137,7 @@ public class ProductController {
 
 	/**
 	 * 카테고리별 상품 개수 집계 (ES)
-	 * GET /v1/products/aggregations/category
+	 * GET /products/aggregations/category
 	 */
 	@GetMapping("/aggregations/category")
 	public ApiResponse<Map<String, Long>> findCategoryAggregations() {
@@ -146,7 +146,7 @@ public class ProductController {
 
 	/**
 	 * 감성 분석 결과 상위 3개 상품 조회 (ES)
-	 * GET /v1/products/sentimentanalysis/top3
+	 * GET /products/sentimentanalysis/top3
 	 */
 	@GetMapping("/sentimentanalysis/top3")
 	public ApiResponse<List<ProductRequestAllDto>> findTop3Products() {
@@ -155,7 +155,7 @@ public class ProductController {
 
 	/**
 	 * 인기 상품 Top 10 조회 (ES)
-	 * GET /v1/products/aggregations/popular
+	 * GET /products/aggregations/popular
 	 */
 	@GetMapping("/aggregations/popular")
 	public ApiResponse<List<ProductDocument>> findTop10PopularProducts() {
