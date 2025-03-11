@@ -7,6 +7,7 @@ import static org.springframework.http.HttpStatus.*;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +30,7 @@ import com.sparta.levelup_backend.domain.product.dto.response.ProductDeleteRespo
 import com.sparta.levelup_backend.domain.product.dto.response.ProductResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.response.ProductUpdateResponseDto;
 import com.sparta.levelup_backend.domain.product.service.ProductService;
-
+import com.sparta.levelup_backend.domain.product.service.ProductmakedataService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -39,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductController {
 
 	private final ProductService productService;
+	private final ProductmakedataService productmakedataService;
 
 	@PostMapping
 	public ApiResponse<ProductCreateResponseDto> saveProduct(
@@ -53,6 +55,34 @@ public class ProductController {
 	@GetMapping
 	public ApiResponse<List<ProductResponseDto>> findAllProducts() {
 		return success(OK, PRODUCT_READ, productService.getAllProducts());
+	}
+
+	// 유저 데이터 생성 (테스트용)
+	@PostMapping("/users/{count}")
+	public ResponseEntity<String> generateUsers(@PathVariable int count) {
+		productmakedataService.generateUsers(count);
+		return ResponseEntity.ok(count + "명의 유저 데이터가 생성되었습니다.");
+	}
+
+	// 게임 데이터 생성 (테스트용)
+	@PostMapping("/games/{count}")
+	public ResponseEntity<String> generateGames(@PathVariable int count) {
+		productmakedataService.generateGames(count);
+		return ResponseEntity.ok(count + "개의 게임 데이터가 생성되었습니다.");
+	}
+
+	// 상품 데이터 생성 (테스트용)
+	@PostMapping("/products/{count}")
+	public ResponseEntity<String> generateProducts(@PathVariable int count) {
+		productmakedataService.generateProducts(count);
+		return ResponseEntity.ok(count + "개의 상품 데이터가 생성되었습니다.");
+	}
+
+	// 상품 데이터 생성 (테스트용)
+	@PostMapping("/reviews/{count}")
+	public ResponseEntity<String> generateReviews(@PathVariable int count) {
+		productmakedataService.generateReviews(count);
+		return ResponseEntity.ok(count + "개의 리뷰 데이터가 생성되었습니다.");
 	}
 
 	// 상품 ID로 상품 조회 → findProductById
