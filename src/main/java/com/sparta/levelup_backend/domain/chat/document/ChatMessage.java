@@ -13,16 +13,14 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "chat_messages")
+@Document(collection = "message")
 public class ChatMessage {
 
 	@Id
@@ -44,11 +42,13 @@ public class ChatMessage {
 		@JsonProperty("chatroomId") String chatroomId,
 		@JsonProperty("userId") Long userId,
 		@JsonProperty("nickname") String nickname,
+		@JsonProperty("message") String message, // 추가된 부분
 		@JsonProperty("timestamp") LocalDateTime timestamp) {
 		this.id = id;
 		this.chatroomId = chatroomId;
 		this.userId = userId;
 		this.nickname = nickname;
+		this.message = message;
 		this.timestamp = timestamp;
 	}
 

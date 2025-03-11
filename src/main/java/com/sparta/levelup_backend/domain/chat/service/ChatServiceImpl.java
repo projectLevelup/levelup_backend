@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ public class ChatServiceImpl implements ChatService {
 	private final RedisTemplate<String, ChatMessage> redisTemplateMessage;
 
 	private static final String MIDNIGHT = "0 0 0 * * ?";
+	private static final String EVERY_HOUR = "0 0 * * * ?";
 	public static final String REDIS_CHATROOM_KEY = "chatroom:";
 	private static final String NOT_SAVING_MESSAGES = "Not saving any messages";
 	private static final String SUCCESS_SAVED_MESSAGES = "Successfully saved messages: {}, key: {}";
@@ -57,55 +59,53 @@ public class ChatServiceImpl implements ChatService {
 
 	/**
 	 * 채팅 메시지 기록을 조회합니다.
-	 * Redis 채팅 데이터 10개이상일 시 Redis 로 반환 / 그 외 MongoDB 조회
+	 * Redis 데이터가 충분하다면 Redis로 조회
+	 * Redis 데이터가 없을때 MongoDB로 조회
 	 */
 	@Override
 	public Slice<ChatResponseDto> findChatHistory(String chatroomId, Pageable pageable) {
 		String redisKey = REDIS_CHATROOM_KEY + chatroomId;
 		Long cachedCount = redisTemplateMessage.opsForList().size(redisKey);
+		int requiredCount = pageable.getPageSize() * (pageable.getPageNumber());
 
-		if (cachedCount != null && cachedCount >= 10) {
-			return findChatHistoryByRedis(pageable, cachedCount, redisKey);
+		if (cachedCount != null && cachedCount > 0 && cachedCount >= requiredCount) {
+			return getMessagesToRedis(pageable, redisKey, cachedCount);
 		}
 
-		return findChatHistoryByDB(chatroomId, pageable);
+		return getMessagesToMongoDB(chatroomId, pageable);
+
 	}
 
-	/**
-	 * Redis 채팅 기록 조회 메서드
-	 */
-	private Slice<ChatResponseDto> findChatHistoryByRedis(Pageable pageable, Long cachedCount, String redisKey) {
-		int start = (int) pageable.getOffset();
-		int end = start + pageable.getPageSize() - 1;
+	private SliceImpl<ChatResponseDto> getMessagesToMongoDB(String chatroomId, Pageable pageable) {
+		Slice<ChatMessage> messages = chatMongoRepository.findMessagesByChatroomIdOrderByIdDesc(chatroomId, pageable);
+		List<ChatResponseDto> result = messages.getContent().stream()
+			.map(ChatResponseDto::from)
+			.collect(Collectors.toList());
+		return new SliceImpl<>(result, pageable, messages.hasNext());
+	}
 
-		List<ChatMessage> cachedMessages = redisTemplateMessage.opsForList().range(redisKey, start, end);
+	private SliceImpl<ChatResponseDto> getMessagesToRedis(Pageable pageable, String redisKey, Long cachedCount) {
+		int total = cachedCount.intValue();
+		int pageSize = pageable.getPageSize();
+		int pageNumber = pageable.getPageNumber();
 
+		int end = total - (pageNumber * pageSize) - 1;
+		int start = Math.max(end - pageSize + 1, 0);
+		List<ChatMessage> messages = redisTemplateMessage.opsForList().range(redisKey, start, end);
+
+		Collections.reverse(messages);
+
+		List<ChatResponseDto> result = messages.stream()
+			.map(ChatResponseDto::from)
+			.collect(Collectors.toList());
 		boolean hasNext = (cachedCount > end + 1);
-
-		List<ChatResponseDto> chatResponseDto = cachedMessages.stream()
-			.map(ChatResponseDto::from)
-			.collect(Collectors.toList());
-
-		return new SliceImpl<>(chatResponseDto, pageable, hasNext);
+		return new SliceImpl<>(result, pageable, hasNext);
 	}
 
 	/**
-	 * MongoDB 채팅 기록 조회 메서드
+	 * 매일 한시간마다 Redis에 기록된 메시지를 MongoDB에 저장합니다.
 	 */
-	private Slice<ChatResponseDto> findChatHistoryByDB(String chatroomId, Pageable pageable) {
-		Slice<ChatMessage> messages = chatMongoRepository.findByChatroomIdOrderByTimestampAsc(chatroomId, pageable);
-
-		List<ChatResponseDto> chatResponseDto = messages.getContent().stream()
-			.map(ChatResponseDto::from)
-			.collect(Collectors.toList());
-
-		return new SliceImpl<>(chatResponseDto, pageable, messages.hasNext());
-	}
-
-	/**
-	 * 매일 자정 Redis에 기록된 메시지를 MongoDB에 저장합니다.
-	 */
-	@Scheduled(cron = MIDNIGHT)
+	@Scheduled(cron = EVERY_HOUR)
 	private void SaveMessage() {
 		Set<String> keys = redisTemplateMessage.keys(REDIS_CHATROOM_KEY + "*");
 
