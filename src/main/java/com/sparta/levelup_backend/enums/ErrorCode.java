@@ -74,9 +74,9 @@ public enum ErrorCode {
 	PAYMENT_PENDING(HttpStatus.CONFLICT,"ERR417", "아직 결제되지 않은 상품입니다."),
 	INVALID_REQUEST_MANY(HttpStatus.CONFLICT, "ERR418", "취소 요청이 너무 많습니다. 잠시 후 다시 시도해주세요." ),
 	COMMENT_ISDELETED(HttpStatus.CONFLICT,"ERR419", "이미 삭제된 댓글입니다."),
-	Product_Aggriagtion_ERROR(HttpStatus.CONFLICT, "ERR420", "집계가 실패했습니다. 엘라스틱 서치의 로그를 확인해 주세요." ),
-	Product_Aggriagtion_NULL(HttpStatus.CONFLICT, "ERR421", "집계가 결과가 Null입니다." ),
-	Product_Aggriagtion_TYPE_ERROR(HttpStatus.CONFLICT, "ERR422", "집계 타입 요청 오류입니다." ),
+	PRODUCT_AGGRIGATION_ERROR(HttpStatus.CONFLICT, "ERR420", "집계가 실패했습니다. 엘라스틱 서치의 로그를 확인해 주세요." ),
+	PRODUCT_AGGRIGATION_NULL(HttpStatus.CONFLICT, "ERR421", "집계가 결과가 Null입니다." ),
+	PRODUCT_AGGRIGATION_TYPE_ERROR(HttpStatus.CONFLICT, "ERR422", "집계 타입 요청 오류입니다." ),
 
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다."),
