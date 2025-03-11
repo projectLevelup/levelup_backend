@@ -42,7 +42,7 @@ public class ChatMessage {
 		@JsonProperty("chatroomId") String chatroomId,
 		@JsonProperty("userId") Long userId,
 		@JsonProperty("nickname") String nickname,
-		@JsonProperty("message") String message, // 추가된 부분
+		@JsonProperty("message") String message,
 		@JsonProperty("timestamp") LocalDateTime timestamp) {
 		this.id = id;
 		this.chatroomId = chatroomId;
