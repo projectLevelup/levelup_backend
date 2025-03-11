@@ -156,7 +156,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 		List<Participant> participants = asList(new Participant(user), new Participant(targetUser));
 
 		return ChatroomDocument.builder()
-			.title(title)
+			.title(chatroomTitle)
 			.participants(participants)
 			.lastMessage("")
 			.unreadMessages(unreadMessages)
