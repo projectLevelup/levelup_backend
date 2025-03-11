@@ -43,8 +43,6 @@ public class AuthController {
 	public ResponseEntity<ApiResponse<Void>> signInUser(@Valid @RequestBody SignInUserRequestDto dto) {
 		HttpHeaders headers = authService.authenticate(dto);
 
-		ApiResponse<Void> responseBody = ApiResponse.success(HttpStatus.OK, LOGIN_SUCCESS);
-
-		return ResponseEntity.ok().headers(headers).body(responseBody);
+		return ResponseEntity.ok().headers(headers).body(success(HttpStatus.OK, LOGIN_SUCCESS));
 	}
 }
