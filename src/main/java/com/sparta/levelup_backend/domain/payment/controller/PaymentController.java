@@ -1,7 +1,4 @@
 package com.sparta.levelup_backend.domain.payment.controller;
-
-import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
-import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.service.PaymentServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
-import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.ResponseEntity.*;
 
 @Slf4j
