@@ -1,8 +1,10 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
 import static com.sparta.levelup_backend.enums.ErrorCode.*;
+import static java.util.Arrays.*;
+import static org.springframework.data.mongodb.core.query.Criteria.*;
+import static org.springframework.util.StringUtils.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import com.sparta.levelup_backend.domain.chat.document.ChatroomDocument;
 import com.sparta.levelup_backend.domain.chat.document.Participant;
@@ -51,7 +51,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 		}
 
 		// 상대와의 채팅방이 이미 존재하는 지 확인
-		if (chatroomMongoRepository.countByParticipantsUserIds(Arrays.asList(targetUserId, userId)) > 0) {
+		if (chatroomMongoRepository.countByParticipantsUserIds(asList(targetUserId, userId)) > 0) {
 			throw new ChatException(DUPLICATE_CHATROOM);
 		}
 
@@ -90,7 +90,6 @@ public class ChatroomServiceImpl implements ChatroomService {
 		}
 
 		chatroomMongoRepository.save(chatroom);
-
 	}
 
 	@Override
@@ -119,7 +118,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 			}
 		}
 
-		Query query = new Query(Criteria.where(DB_ID).is(chatroomId));
+		Query query = new Query(where(DB_ID).is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
@@ -135,7 +134,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 			}
 		}
 
-		Query query = new Query(Criteria.where(DB_ID).is(chatroomId));
+		Query query = new Query(where(DB_ID).is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
@@ -145,7 +144,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 	private ChatroomDocument buildChatroom(String title, UserEntity user, UserEntity targetUser) {
 
 		// 제목을 적지 않았을 경우 참여자 닉네임으로 자동 생성
-		String chatroomTitle = StringUtils.hasText(title)
+		String chatroomTitle = hasText(title)
 			? title
 			: user.getNickName() + ", " + targetUser.getNickName();
 
@@ -154,7 +153,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 		unreadMessages.put(user.getId().toString(), 0);
 		unreadMessages.put(targetUser.getId().toString(), 0);
 
-		List<Participant> participants = Arrays.asList(new Participant(user), new Participant(targetUser));
+		List<Participant> participants = asList(new Participant(user), new Participant(targetUser));
 
 		return ChatroomDocument.builder()
 			.title(title)

@@ -34,7 +34,6 @@ public class ChatroomController {
 	/**
 	 * 채팅방 생생 API
 	 * @param targetUserId 참가대상 유저 ID
-	 * @return
 	 */
 	@PostMapping
 	public ApiResponse<ChatroomCreateResponseDto> createChatroom(
