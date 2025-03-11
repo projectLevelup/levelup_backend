@@ -61,11 +61,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 		ChatroomDocument chatroom = buildChatroom(title, user, targetUser);
 		ChatroomDocument savedChatroom = chatroomMongoRepository.save(chatroom);
 
-		return ChatroomCreateResponseDto.builder()
-			.chatroomId(savedChatroom.getId())
-			.title(savedChatroom.getTitle())
-			.participants(savedChatroom.getParticipants())
-			.build();
+		return ChatroomCreateResponseDto.from(savedChatroom);
 	}
 
 	@Override
