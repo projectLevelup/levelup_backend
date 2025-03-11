@@ -1,7 +1,6 @@
-package com.sparta.levelup_backend.exception.user;
+package com.sparta.levelup_backend.exception.common;
 
 
-import com.sparta.levelup_backend.exception.common.BusinessException;
 import com.sparta.levelup_backend.enums.ErrorCode;
 
 public class ForbiddenException extends BusinessException {

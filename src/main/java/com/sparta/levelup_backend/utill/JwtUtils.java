@@ -1,19 +1,17 @@
 package com.sparta.levelup_backend.utill;
 
-import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
+import static com.sparta.levelup_backend.enums.ErrorCode.TOKEN_NOT_FOUND;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import com.sparta.levelup_backend.enums.ErrorCode;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
-
+import com.sparta.levelup_backend.exception.user.UserException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Base64;
+import java.util.Date;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JwtUtils {
@@ -74,7 +72,7 @@ public class JwtUtils {
 		if (token.startsWith(BEARER_PREFIX)) {
 			return token.substring(7);
 		}
-		throw new NotFoundException(ErrorCode.TOKEN_NOT_FOUND);
+		throw new UserException(TOKEN_NOT_FOUND);
 	}
 
 	public Claims extractClaims(String token) {
@@ -96,9 +94,9 @@ public class JwtUtils {
 
 		if (type.equals("ACCESS")) {
 			return createRefreshToken(email, id, nickName, role);
-		} else {
-			return createAccessToken(email, id, nickName, role);
 		}
+
+		return createAccessToken(email, id, nickName, role);
 
 	}
 

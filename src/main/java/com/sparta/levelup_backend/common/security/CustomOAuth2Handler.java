@@ -1,26 +1,23 @@
 package com.sparta.levelup_backend.common.security;
 
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
-
 import com.sparta.levelup_backend.enums.ErrorCode;
+import com.sparta.levelup_backend.exception.auth.AuthException;
 import com.sparta.levelup_backend.utill.JwtUtils;
-
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
@@ -72,7 +69,7 @@ public class CustomOAuth2Handler implements AuthenticationSuccessHandler,
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
         AuthenticationException exception) throws IOException, ServletException {
-        OAuth2AuthenticationException superException = (OAuth2AuthenticationException) exception;
+        AuthException superException = (AuthException) exception;
         ErrorCode error = ErrorCode.valueOf(superException.getError().getErrorCode());
 
         filterResponse.responseErrorMsg(response, error.getStatus().value(), error.getCode(),
