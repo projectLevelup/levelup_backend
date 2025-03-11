@@ -7,7 +7,6 @@ import static org.springframework.http.HttpStatus.*;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,7 +93,7 @@ public class ProductController {
 	}
 
 	// Elasticsearch를 활용한 상품 ID로 상품 조회 (ES)
-	@GetMapping("/{id}")
+	@GetMapping("es/{id}")
 	public ApiResponse<ProductDocument> findProductByIdES(@PathVariable Long id) {
 		return success(OK, PRODUCT_READ, productService.getProductByIdES(id));
 	}
