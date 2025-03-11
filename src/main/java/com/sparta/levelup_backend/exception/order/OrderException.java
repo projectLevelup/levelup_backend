@@ -7,4 +7,8 @@ public class OrderException extends BusinessException {
     public OrderException(ErrorCode errorCode) {
         super(errorCode);
     }
+
+    public OrderException(ErrorCode errorCode, String detail) {
+        super(errorCode, detail);
+    }
 }

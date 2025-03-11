@@ -27,7 +27,6 @@ public class BillRepositoryImpl implements BillRepositoryCustom {
 
     // 결제내역 조회 (tutor 전용)
     @Override
-
     public Page<BillEntity> findTutorBills(Long tutorId, Pageable pageable) {
         List<BillEntity> results = queryFactory
                 .selectFrom(billEntity)
