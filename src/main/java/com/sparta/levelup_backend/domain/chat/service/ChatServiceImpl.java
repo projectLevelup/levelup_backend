@@ -69,37 +69,11 @@ public class ChatServiceImpl implements ChatService {
 		int requiredCount = pageable.getPageSize() * (pageable.getPageNumber());
 
 		if (cachedCount != null && cachedCount > 0 && cachedCount >= requiredCount) {
-			return getMessagesToRedis(pageable, redisKey, cachedCount);
+			return findMessagesToRedis(pageable, redisKey, cachedCount);
 		}
 
-		return getMessagesToMongoDB(chatroomId, pageable);
+		return findMessagesToMongoDB(chatroomId, pageable);
 
-	}
-
-	private SliceImpl<ChatResponseDto> getMessagesToMongoDB(String chatroomId, Pageable pageable) {
-		Slice<ChatMessage> messages = chatMongoRepository.findMessagesByChatroomIdOrderByIdDesc(chatroomId, pageable);
-		List<ChatResponseDto> result = messages.getContent().stream()
-			.map(ChatResponseDto::from)
-			.collect(Collectors.toList());
-		return new SliceImpl<>(result, pageable, messages.hasNext());
-	}
-
-	private SliceImpl<ChatResponseDto> getMessagesToRedis(Pageable pageable, String redisKey, Long cachedCount) {
-		int total = cachedCount.intValue();
-		int pageSize = pageable.getPageSize();
-		int pageNumber = pageable.getPageNumber();
-
-		int end = total - (pageNumber * pageSize) - 1;
-		int start = Math.max(end - pageSize + 1, 0);
-		List<ChatMessage> messages = redisTemplateMessage.opsForList().range(redisKey, start, end);
-
-		Collections.reverse(messages);
-
-		List<ChatResponseDto> result = messages.stream()
-			.map(ChatResponseDto::from)
-			.collect(Collectors.toList());
-		boolean hasNext = (cachedCount > end + 1);
-		return new SliceImpl<>(result, pageable, hasNext);
 	}
 
 	/**
@@ -126,12 +100,47 @@ public class ChatServiceImpl implements ChatService {
 		}
 	}
 
+	/**
+	 * 메시지 발행시 Redis에 기록합니다.
+	 */
 	private void saveMessageToRedis(String chatroomId, ChatMessage chatMessage) {
 		try {
 			redisTemplateMessage.opsForList().rightPush(REDIS_CHATROOM_KEY + chatroomId, chatMessage);
 		} catch (Exception e) {
 			log.error(FAILED_REDIS_SAVE, e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * MongoDB로 메시지 기록 조회
+	 */
+	private SliceImpl<ChatResponseDto> findMessagesToMongoDB(String chatroomId, Pageable pageable) {
+		Slice<ChatMessage> messages = chatMongoRepository.findMessagesByChatroomIdOrderByIdDesc(chatroomId, pageable);
+		List<ChatResponseDto> result = messages.getContent().stream()
+			.map(ChatResponseDto::from)
+			.collect(Collectors.toList());
+		return new SliceImpl<>(result, pageable, messages.hasNext());
+	}
+
+	/**
+	 * Redis로 메시지 기록 조회
+	 */
+	private SliceImpl<ChatResponseDto> findMessagesToRedis(Pageable pageable, String redisKey, Long cachedCount) {
+		int total = cachedCount.intValue();
+		int pageSize = pageable.getPageSize();
+		int pageNumber = pageable.getPageNumber();
+
+		int end = total - (pageNumber * pageSize) - 1;
+		int start = Math.max(end - pageSize + 1, 0);
+		List<ChatMessage> messages = redisTemplateMessage.opsForList().range(redisKey, start, end);
+
+		Collections.reverse(messages);
+
+		List<ChatResponseDto> result = messages.stream()
+			.map(ChatResponseDto::from)
+			.collect(Collectors.toList());
+		boolean hasNext = (cachedCount > end + 1);
+		return new SliceImpl<>(result, pageable, hasNext);
 	}
 
 	/**
