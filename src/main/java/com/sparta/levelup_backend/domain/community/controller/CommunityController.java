@@ -56,7 +56,7 @@ public class CommunityController {
 	 */
 	@GetMapping
 	public ApiResponse<CommunityListResponseDto> findAllCommunityByGameName(@RequestParam String gameName,
-		@PageableDefault(size = 10) Pageable pageable) {
+		@PageableDefault Pageable pageable) {
 
 		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, communityService.findAllByGameName(gameName, pageable));
 	}
