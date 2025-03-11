@@ -1,7 +1,4 @@
 package com.sparta.levelup_backend.domain.payment.controller;
-
-import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
-import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.service.PaymentServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
-import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.ResponseEntity.*;
 
 @Slf4j
@@ -40,15 +34,5 @@ public class PaymentController {
         return status(status).body(response);
     }
 
-    /**
-     * 결제 취소 승인 요청
-     * @param dto 프론트에서 결제취소정보 API 호출
-     * @return 취소 완료
-     * @throws Exception
-     */
-    @RequestMapping("/cancel/payment")
-    public ApiResponse<JSONObject> cancelPayment(@RequestBody CancelPaymentRequestDto dto) throws Exception {
-        JSONObject response = paymentServiceImpl.cancelPayment(dto);
-        return success(OK, OK_CANCEL, response);
-    }
+
 }
