@@ -73,9 +73,7 @@ public class ChatServiceImpl implements ChatService {
 			return findMessagesToRedis(pageable, redisKey, cachedCount);
 		}
 
-
 		return findMessagesToMongoDB(chatroomId, pageable, cachedCount);
-
 	}
 
 	/**
@@ -115,6 +113,7 @@ public class ChatServiceImpl implements ChatService {
 
 	/**
 	 * MongoDB로 메시지 기록 조회
+	 * Redis로 조회한 페이지만큼 재조정하고 조회합니다.
 	 */
 	private SliceImpl<ChatResponseDto> findMessagesToMongoDB(String chatroomId, Pageable pageable, Long cachedCount) {
 		Pageable mongoPageable = getPageable(pageable, cachedCount);
