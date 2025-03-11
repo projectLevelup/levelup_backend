@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.chat.repository;
 
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -9,8 +11,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import com.sparta.levelup_backend.domain.chat.document.ChatroomDocument;
-import com.sparta.levelup_backend.enums.ErrorCode;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
+import com.sparta.levelup_backend.exception.chat.ChatException;
 
 public interface ChatroomMongoRepository extends MongoRepository<ChatroomDocument, String> {
 
@@ -18,8 +19,7 @@ public interface ChatroomMongoRepository extends MongoRepository<ChatroomDocumen
 	Long countByParticipantsUserIds(List<Long> userIds);
 
 	default ChatroomDocument findByIdOrThrow(String id) {
-		return findById(id)
-			.orElseThrow(() -> new NotFoundException(ErrorCode.CHATROOM_NOT_FOUND));
+		return findById(id).orElseThrow(() -> new ChatException(CHATROOM_NOT_FOUND));
 	}
 
 	@Query("{ 'participants.userId' : ?0 }")

@@ -31,8 +31,6 @@ public class ChatController {
 	/**
 	 * WebSocket 메시지 처리
 	 * 메시지 수신 후 -> 구독자에게 전달
-	 * @param chatroomId 채팅방 ID
-	 * @param dto 메시지 전송 객체 (닉네임, 메시지 포함)
 	 */
 	@MessageMapping("/chats/{chatroomId}") // 메시지 전송 endpoint
 	public ChatResponseDto handleMessage(
@@ -44,13 +42,13 @@ public class ChatController {
 	}
 
 	/**
-	 * 메시지 기록 저장 API
+	 * 메시지 기록 조회 API
 	 */
 	@GetMapping("/chats/{chatroomId}/history")
 	public ApiResponse<Slice<ChatResponseDto>> findChatHistory(
 		@PathVariable String chatroomId,
-		@PageableDefault(size = 10) Pageable pageable
+		@PageableDefault Pageable pageable
 	) {
-		return success(CREATED, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId, pageable));
+		return success(OK, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId, pageable));
 	}
 }
