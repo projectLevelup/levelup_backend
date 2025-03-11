@@ -34,7 +34,6 @@ public class ChatroomController {
 	/**
 	 * 채팅방 생생 API
 	 * @param targetUserId 참가대상 유저 ID
-	 * @return
 	 */
 	@PostMapping
 	public ApiResponse<ChatroomCreateResponseDto> createChatroom(
@@ -60,7 +59,7 @@ public class ChatroomController {
 	@GetMapping
 	public ApiResponse<Slice<ChatroomListResponseDto>> findChatrooms(
 		@AuthenticationPrincipal CustomUserDetails authUser,
-		@PageableDefault(size = 10) Pageable pageable
+		@PageableDefault Pageable pageable
 	) {
 		return success(OK, CHATROOM_FIND ,chatroomService.findChatrooms(authUser.getId(), pageable));
 	}

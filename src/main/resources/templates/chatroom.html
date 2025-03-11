@@ -142,7 +142,8 @@
             .then(response => response.json())
             .then(result => {
                 if (result && result.data && Array.isArray(result.data.content)) {
-                    result.data.content.forEach(message => {
+                    const messages = result.data.content.reverse();
+                    messages.forEach(message => {
                         showMessage(message);
                     });
                 } else {
@@ -153,6 +154,7 @@
                 console.error('채팅 기록 불러오기 실패', error);
             });
     }
+
 
 
 
