@@ -1,5 +1,12 @@
 package com.sparta.levelup_backend.domain.bill.service;
 
+import static com.sparta.levelup_backend.enums.BillStatus.PAID;
+import static com.sparta.levelup_backend.enums.BillStatus.PAYCANCELED;
+import static com.sparta.levelup_backend.enums.BillStatus.PAYREQUEST;
+import static com.sparta.levelup_backend.enums.ErrorCode.BILL_NOT_FOUND;
+import static com.sparta.levelup_backend.enums.ErrorCode.DUPLICATE_DELETED_BILL;
+import static com.sparta.levelup_backend.enums.ErrorCode.FORBIDDEN_ACCESS;
+
 import com.sparta.levelup_backend.domain.bill.dto.response.BillResponseDto;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
@@ -8,17 +15,11 @@ import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.bill.BillException;
-import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.user.ForbiddenException;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.sparta.levelup_backend.enums.BillStatus.*;
-import static com.sparta.levelup_backend.enums.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor

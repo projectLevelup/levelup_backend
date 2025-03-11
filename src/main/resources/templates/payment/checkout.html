@@ -40,13 +40,13 @@
     }
 
     async function getClientKey() {
-        const response = await fetch("http://localhost:8080/v2/bills/client-key")
+        const response = await fetch("http://localhost:8080/bills/client-key")
         return await response.text();
     }
 
     // ------------결제하기 버튼 누르면 결제창 띄우기 -------------
     async function requestPayment(orderId) {
-        const response = await fetch(`http://localhost:8080/v3/request/${orderId}`, {
+        const response = await fetch(`http://localhost:8080/request/${orderId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -124,7 +124,7 @@
     }
 
     async function getCustomerKey() {
-        const response = await fetch("http://localhost:8080/v1/payments/customer-key")
+        const response = await fetch("http://localhost:8080/payments/customer-key")
         return await response.text();
     }
 </script>
