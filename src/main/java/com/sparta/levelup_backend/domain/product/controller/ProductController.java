@@ -93,7 +93,7 @@ public class ProductController {
 	}
 
 	// Elasticsearch를 활용한 상품 ID로 상품 조회 (ES)
-	@GetMapping("es/{id}")
+	@GetMapping("/es/{id}")
 	public ApiResponse<ProductDocument> findProductByIdES(@PathVariable Long id) {
 		return success(OK, PRODUCT_READ, productService.getProductByIdES(id));
 	}
