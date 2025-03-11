@@ -39,22 +39,21 @@ public class UserController {
 	@GetMapping("/admin/users/{userId}")
 	public ApiResponse<UserResponseDto> findUserById(
 			@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long userId) {
+
 		String role = customUserDetails.
 				getAuthorities().
 				iterator().next().
 				getAuthority();
-		UserResponseDto responseDto = userService.findUserById(role, userId);
 
-		return success(HttpStatus.OK, FIND_SUCCESS, responseDto);
+		return success(HttpStatus.OK, FIND_SUCCESS, userService.findUserById(role, userId));
 	}
 
 	@GetMapping("/users")
 	public ApiResponse<UserResponseDto> findUser(
 			@AuthenticationPrincipal CustomUserDetails customUserDetails
 	) {
-		UserResponseDto responseDto = userService.findUser(customUserDetails.getId());
 
-		return success(HttpStatus.OK, FIND_SUCCESS, responseDto);
+		return success(HttpStatus.OK, FIND_SUCCESS, userService.findUser(customUserDetails.getId()));
 	}
 
 	@PatchMapping("/users")
@@ -63,9 +62,9 @@ public class UserController {
 			@Valid @RequestBody UpdateUserRequestDto dto
 	) {
 
-		UserResponseDto responseDto = userService.updateUser(customUserDetails.getId(), dto);
 
-		return success(HttpStatus.OK, UPDATE_SUCCESS, responseDto);
+
+		return success(HttpStatus.OK, UPDATE_SUCCESS, userService.updateUser(customUserDetails.getId(), dto));
 	}
 
 	@PatchMapping("/users/changingPassword")
@@ -82,9 +81,7 @@ public class UserController {
 			@AuthenticationPrincipal CustomUserDetails customUserDetails,
 			@Valid @RequestBody UpdateUserImgUrlReqeustDto dto
 	) {
-		UserResponseDto responseDto = userService.updateImgUrl(customUserDetails.getId(), dto);
-
-		return success(HttpStatus.OK, UPDATE_SUCCESS, responseDto);
+		return success(HttpStatus.OK, UPDATE_SUCCESS, userService.updateImgUrl(customUserDetails.getId(), dto));
 	}
 
 	@DeleteMapping("/users")

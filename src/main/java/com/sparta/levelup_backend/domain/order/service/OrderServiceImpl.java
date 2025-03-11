@@ -13,7 +13,7 @@ import com.sparta.levelup_backend.exception.common.*;
 import com.sparta.levelup_backend.enums.OrderStatus;
 import com.sparta.levelup_backend.enums.ProductStatus;
 import com.sparta.levelup_backend.exception.order.OrderException;
-import com.sparta.levelup_backend.exception.user.ForbiddenException;
+import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
