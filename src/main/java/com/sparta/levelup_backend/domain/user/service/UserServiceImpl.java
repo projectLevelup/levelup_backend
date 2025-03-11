@@ -9,6 +9,7 @@ import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_CURRENT_PASSWOR
 import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_NICKNAME;
 import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_PASSWORD_CONFIRM;
 import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_RESETCODE;
+import static com.sparta.levelup_backend.enums.ProviderType.NONE;
 
 import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
 import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
@@ -21,7 +22,6 @@ import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.enums.ProviderType;
 import com.sparta.levelup_backend.exception.user.UserException;
 import java.time.Duration;
 import java.util.UUID;
@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
     public void resetPassword(ResetPasswordDto dto) {
         UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
-        if (!user.getProvider().equals(ProviderType.NONE)) {
+        if (!user.getProvider().equals(NONE)) {
             throw new UserException(AUTH_TYPE_NOT_GENERAL);
         }
 

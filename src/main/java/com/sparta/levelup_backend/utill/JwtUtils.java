@@ -2,7 +2,7 @@ package com.sparta.levelup_backend.utill;
 
 import static com.sparta.levelup_backend.enums.ErrorCode.TOKEN_NOT_FOUND;
 
-import com.sparta.levelup_backend.exception.common.NotFoundException;
+import com.sparta.levelup_backend.exception.user.UserException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -72,7 +72,7 @@ public class JwtUtils {
 		if (token.startsWith(BEARER_PREFIX)) {
 			return token.substring(7);
 		}
-		throw new NotFoundException(TOKEN_NOT_FOUND);
+		throw new UserException(TOKEN_NOT_FOUND);
 	}
 
 	public Claims extractClaims(String token) {

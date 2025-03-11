@@ -16,11 +16,12 @@ import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.enums.ProviderType;
+import com.sparta.levelup_backend.exception.auth.AuthException;
+import com.sparta.levelup_backend.exception.user.UserException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final EmailEventPublisher emailEventPublisher;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws AuthException {
 
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
@@ -53,16 +54,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             UserEntity user = userRepository.findByEmailOrElseThrow(oAuth2ResponseDto.getEmail());
 
             if (user.getIsDeleted()) {
-                throw new OAuth2AuthenticationException(ALREADY_DELETED_USER.toString());
+                throw new AuthException(ALREADY_DELETED_USER);
             }
 
             if (!user.getProvider().toString().startsWith(registrationId.toUpperCase())) {
-                throw new OAuth2AuthenticationException(AUTH_TYPE_MISMATCH.toString());
+                throw new AuthException(AUTH_TYPE_MISMATCH);
             }
 
             return new CustomOAuth2User(user);
 
-        } catch (Exception e) {
+        } catch (UserException e) {
 
             UserEntity user = UserEntity.builder()
                 .email(oAuth2ResponseDto.getEmail())
