@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.product.repository;
 
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +15,7 @@ import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import com.sparta.levelup_backend.enums.ProductStatus;
+import com.sparta.levelup_backend.exception.product.ProductException;
 
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
@@ -23,7 +26,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 	List<ProductEntity> findAllByIsDeletedFalseAndStatus(ProductStatus status);
 
 	default ProductEntity findByIdOrElseThrow(Long id) {
-		return findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
+		return findById(id).orElseThrow(() -> new ProductException(PRODUCT_NOT_FOUND));
 	}
 
 	// 비관적 락 쿼리
@@ -32,5 +35,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 	@Query("SELECT p FROM ProductEntity p WHERE p.id = :productId")
 	Optional<ProductEntity> findByIdWithLock(Long productId);
 
-	Optional<ProductEntity> findByProductName(String productName);
+	default ProductEntity findByIdWithLockOrElseThrow(Long productId) {
+		return findByIdWithLock(productId)
+			.orElseThrow(() -> new ProductException(PRODUCT_NOT_FOUND));
+	}
+
 }
