@@ -1,7 +1,14 @@
 package com.sparta.levelup_backend.domain.user.service;
 
-import static com.sparta.levelup_backend.domain.user.dto.UserMessage.*;
-import static com.sparta.levelup_backend.enums.ErrorCode.*;
+import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_CODE_PREFIX;
+import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_PREFIX;
+import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_SUBJECT;
+import static com.sparta.levelup_backend.enums.ErrorCode.AUTH_TYPE_NOT_GENERAL;
+import static com.sparta.levelup_backend.enums.ErrorCode.FORBIDDEN_ACCESS;
+import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_CURRENT_PASSWORD;
+import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_NICKNAME;
+import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_PASSWORD_CONFIRM;
+import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_RESETCODE;
 
 import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
 import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
@@ -15,7 +22,6 @@ import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.enums.ProviderType;
-import com.sparta.levelup_backend.exception.common.*;
 import com.sparta.levelup_backend.exception.user.UserException;
 import java.time.Duration;
 import java.util.UUID;
@@ -42,7 +48,7 @@ public class UserServiceImpl implements UserService {
             UserEntity user = userRepository.findByIdOrElseThrow(id);
             return UserResponseDto.from(user);
         }
-        throw new ForbiddenException(FORBIDDEN_ACCESS);
+        throw new UserException(FORBIDDEN_ACCESS);
     }
 
     @Override
@@ -111,11 +117,11 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
         if (!user.getProvider().equals(ProviderType.NONE)) {
-            throw new MismatchException(AUTH_TYPE_NOT_GENERAL);
+            throw new UserException(AUTH_TYPE_NOT_GENERAL);
         }
 
         if (!user.getNickName().equals(dto.getNickName())) {
-            throw new MismatchException(INVALID_NICKNAME);
+            throw new UserException(INVALID_NICKNAME);
         }
 
         String passwordResetCode = UUID.randomUUID().toString();
@@ -142,7 +148,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (!dto.getResetCode().equals(passwordResetCode)) {
-            throw new MismatchException(INVALID_RESETCODE);
+            throw new  UserException(INVALID_RESETCODE);
         }
 
         user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
