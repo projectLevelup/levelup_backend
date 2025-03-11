@@ -155,7 +155,7 @@ public class ProductServiceImpl implements ProductService {
 			boolean available = lock.tryLock(1, 10, TimeUnit.SECONDS);
 
 			if (!available) {
-				throw new LockException(CONFLICT_LOCK_GET);
+				throw new ProductException(CONFLICT_LOCK_GET);
 			}
 
 			ProductEntity product = getFindByIdWithLock(id);
@@ -170,7 +170,7 @@ public class ProductServiceImpl implements ProductService {
 			productESRepository.save(updatedDocument);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			throw new LockException(CONFLICT_LOCK_ERROR);
+			throw new ProductException(CONFLICT_LOCK_ERROR);
 		} finally {
 			if (lock.isHeldByCurrentThread()) {
 				lock.unlock();

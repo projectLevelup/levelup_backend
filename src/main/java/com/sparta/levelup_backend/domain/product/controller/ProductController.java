@@ -104,8 +104,8 @@ public class ProductController {
 	 * GET /v1/products/productName?productName=...
 	 */
 	@GetMapping("/productName")
-	public ResponseEntity<List<ProductDocument>> findProductsByName(@RequestParam String productName) {
-		return ResponseEntity.ok(productService.searchByProductNameES(productName));
+	public ApiResponse<List<ProductDocument>> findProductsByName(@RequestParam String productName) {
+		return success(OK, PRODUCT_READ,productService.searchByProductNameES(productName));
 	}
 
 	/**
