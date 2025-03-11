@@ -3,7 +3,7 @@ package com.sparta.levelup_backend.domain.bill.controller;
 import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.bill.dto.response.BillResponseDto;
-import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
+import com.sparta.levelup_backend.domain.bill.service.BillServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -17,11 +17,11 @@ import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
-@RequestMapping("/v2/bills")
+@RequestMapping("/bills")
 @RequiredArgsConstructor
-public class BillControllerV2 {
+public class BillController {
 
-    private final BillServiceImplV2 billService;
+    private final BillServiceImpl billService;
 
     @Value("${toss.client.key}")
     private String tossClientKey;
@@ -33,8 +33,7 @@ public class BillControllerV2 {
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Long userId = authUser.getId();
-        Page<BillResponseDto> billById = billService.findBillsByTutor(userId, pageable);
-        return success(OK, BILL_FIND, billById);
+        return success(OK, BILL_FIND, billService.findBillsByTutor(userId, pageable));
     }
 
     // 결제내역 페이징 조회(student 전용)
@@ -44,8 +43,7 @@ public class BillControllerV2 {
             @PageableDefault(size = 10) Pageable pageable
     ) {
         Long userId = authUser.getId();
-        Page<BillResponseDto> billById = billService.findBillsByStudent(userId, pageable);
-        return success(OK, BILL_FIND, billById);
+        return success(OK, BILL_FIND, billService.findBillsByStudent(userId, pageable));
     }
 
     // 결제내역 단건 조회(tutor 전용)
@@ -55,8 +53,7 @@ public class BillControllerV2 {
             @PathVariable Long billId
     ) {
         Long userId = authUser.getId();
-        BillResponseDto bill = billService.findBillByTutor(userId, billId);
-        return success(OK, BILL_FIND, bill);
+        return success(OK, BILL_FIND, billService.findBillByTutor(userId, billId));
     }
 
     // 결제내역 단건 조회(student 전용)
@@ -66,8 +63,7 @@ public class BillControllerV2 {
             @PathVariable Long billId
     ) {
         Long userId = authUser.getId();
-        BillResponseDto bill = billService.findBillByStudent(userId, billId);
-        return success(OK, BILL_FIND, bill);
+        return success(OK, BILL_FIND, billService.findBillByStudent(userId, billId));
     }
 
     // 결제내역 삭제(tutor)

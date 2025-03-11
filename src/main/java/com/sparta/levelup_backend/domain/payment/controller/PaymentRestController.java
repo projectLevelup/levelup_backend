@@ -23,21 +23,19 @@ public class PaymentRestController {
 
     private final PaymentRestService paymentRestService;
 
-    @PostMapping("/v3/request/{orderId}")
+    @PostMapping("/request/{orderId}")
     public ApiResponse<PaymentResponseDto> createPayment(
             @AuthenticationPrincipal CustomUserDetails auth,
             @PathVariable Long orderId
     ) {
-        PaymentResponseDto response = paymentRestService.createPayment(auth, orderId);
-        return success(OK, OK_REQUEST, response);
+        return success(OK, OK_REQUEST, paymentRestService.createPayment(auth, orderId));
     }
 
-    @PostMapping("v3/request/cancel")
+    @PostMapping("/request/cancel")
     public ApiResponse<CancelResponseDto> requestCancel(
             @AuthenticationPrincipal CustomUserDetails auth,
             @RequestBody CancelPaymentRequestDto dto
     ) {
-        CancelResponseDto response = paymentRestService.requestCancel(auth, dto);
-        return success(OK, OK_REQUEST_CANCEL, response);
+        return success(OK, OK_REQUEST_CANCEL, paymentRestService.requestCancel(auth, dto));
     }
 }

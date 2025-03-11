@@ -4,7 +4,7 @@ import com.sparta.levelup_backend.domain.bill.dto.response.BillResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface BillServiceV2 {
+public interface BillService {
     Page<BillResponseDto> findBillsByTutor(Long userId, Pageable pageable);
 
     Page<BillResponseDto> findBillsByStudent(Long userId, Pageable pageable);
