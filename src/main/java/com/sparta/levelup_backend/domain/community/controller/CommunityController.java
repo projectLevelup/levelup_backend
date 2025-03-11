@@ -32,9 +32,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/community")
+@RequestMapping("/communities")
 @RequiredArgsConstructor
 public class CommunityController {
+
 	private final CommunityService communityService;
 
 	// community 생성
@@ -44,43 +45,38 @@ public class CommunityController {
 
 		Long userId = customUserDetails.getId();
 
-		CommunityResponseDto responseDto = communityService.saveCommunity(userId, dto);
-		return success(OK, COMMUNITY_SAVE_SUCCESS, responseDto);
+		return success(OK, COMMUNITY_SAVE_SUCCESS, communityService.saveCommunity(userId, dto));
 	}
 
 	/**
-	 *게임생활 목록 조회
+	 *community 목록 조회
 	 * @param pageable 0부터 시작
-	 * @param gameName 어떤 게임의 게임생활을 조회할건지
+	 * @param gameName 어떤 게임의 community 조회할건지
 	 * @return
 	 */
 	@GetMapping
 	public ApiResponse<CommunityListResponseDto> findAllCommunityByGameName(@RequestParam String gameName,
 		@PageableDefault(size = 10) Pageable pageable) {
 
-		CommunityListResponseDto responseDtoList = communityService.findAllByGameName(gameName, pageable);
-
-		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
+		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, communityService.findAllByGameName(gameName, pageable));
 	}
 
-	// 게임생활 목록 검색
+	// community 목록 검색
 	@GetMapping("/search")
 	public ApiResponse<CommunityListResponseDto> findCommunitiesBySearchKeyword(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size, @RequestParam String searchKeyword,
 		@RequestParam String gameName) {
 
-		CommunityListResponseDto responseDtoList = communityService.findCommunities(searchKeyword, gameName, page,
-			size);
-		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, responseDtoList);
+		return success(OK, COMMUNITY_LIST_FOUND_SUCCESS, communityService.findCommunities(searchKeyword, gameName, page,
+			size));
 	}
 
-	// 게임생활 단건 조회(+ 댓글 조회)
+	// community 단건 조회(+ 댓글 조회)
 	@GetMapping("/{communityId}")
 	public ApiResponse<CommunityCommentResponseDto> findCommunity(@PathVariable Long communityId) {
-		CommunityCommentResponseDto responseDto = communityService.findById(communityId);
 
-		return success(OK, COMMUNITY_FOUND_SUCCESS, responseDto);
+		return success(OK, COMMUNITY_FOUND_SUCCESS, communityService.findById(communityId));
 	}
 
 	// community 수정
@@ -91,8 +87,7 @@ public class CommunityController {
 
 		Long userId = customUserDetails.getId();
 
-		CommunityResponseDto responseDto = communityService.updateCommunity(userId, dto);
-		return success(OK, COMMUNITY_UPDATE_SUCCESS, responseDto);
+		return success(OK, COMMUNITY_UPDATE_SUCCESS, communityService.updateCommunity(userId, dto));
 	}
 
 	// community 삭제

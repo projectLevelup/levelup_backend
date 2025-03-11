@@ -1,5 +1,8 @@
 package com.sparta.levelup_backend.domain.community.entity;
 
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+
 import com.sparta.levelup_backend.common.entity.BaseEntity;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -18,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "community")
 public class CommunityEntity extends BaseEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = IDENTITY)
 	private Long id;
 
 	@Column(nullable = false)
@@ -27,11 +30,11 @@ public class CommunityEntity extends BaseEntity {
 	@Column(nullable = false)
 	private String content;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "user_id")
 	private UserEntity user;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = LAZY)
 	@JoinColumn(name = "game_id")
 	private GameEntity game;
 
