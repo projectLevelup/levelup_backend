@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.sparta.levelup_backend.domain.product.repositoryes.ProductESRepository;
 import org.openkoreantext.processor.OpenKoreanTextProcessorJava;
 import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
 import org.redisson.api.RLock;
@@ -33,7 +34,6 @@ import com.sparta.levelup_backend.domain.product.dto.response.ProductResponseDto
 import com.sparta.levelup_backend.domain.product.dto.response.ProductUpdateResponseDto;
 import com.sparta.levelup_backend.domain.product.entity.ProductEntity;
 import com.sparta.levelup_backend.domain.product.repository.ProductRepository;
-import com.sparta.levelup_backend.domain.product.repositoryes.ProductESRepository;
 import com.sparta.levelup_backend.domain.review.document.ReviewDocument;
 import com.sparta.levelup_backend.domain.review.repositoryES.ReviewESRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;

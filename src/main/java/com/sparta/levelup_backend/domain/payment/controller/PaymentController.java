@@ -40,15 +40,5 @@ public class PaymentController {
         return status(status).body(response);
     }
 
-    /**
-     * 결제 취소 승인 요청
-     * @param dto 프론트에서 결제취소정보 API 호출
-     * @return 취소 완료
-     * @throws Exception
-     */
-    @RequestMapping("/cancel/payment")
-    public ApiResponse<JSONObject> cancelPayment(@RequestBody CancelPaymentRequestDto dto) throws Exception {
-        JSONObject response = paymentServiceImpl.cancelPayment(dto);
-        return success(OK, OK_CANCEL, response);
-    }
+
 }
