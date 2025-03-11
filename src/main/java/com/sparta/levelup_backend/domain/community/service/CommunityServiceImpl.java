@@ -129,7 +129,7 @@ public class CommunityServiceImpl implements CommunityService {
 		try {
 			response = elasticsearchClient.search(request, CommunityDocument.class);
 		} catch (IOException e) {
-			throw new RuntimeException("Elasticsearch 검색 실패", e);
+			throw new CommunityException(ELASTIC_CONNECTION_ERROR);
 		}
 
 		if (response.hits().hits().isEmpty()) {

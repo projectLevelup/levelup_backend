@@ -77,6 +77,7 @@ public enum ErrorCode {
 
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다."),
+	ELASTIC_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR502","엘라스틱 서치 오류가 발생했습니다."),
 
 	// 424 FAIL
 	PAYMENT_FAILED_RETRY(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 반복적으로 실패했습니다."),
