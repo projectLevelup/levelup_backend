@@ -394,7 +394,7 @@ public class ProductServiceImpl implements ProductService {
 				SignificantStringTermsAggregate significantTermsAggResult = aggregate.sigsterms();
 
 				if (significantTermsAggResult == null) {
-					throw new ProductException(Product_Aggriagtion_Null);
+					throw new ProductException(Product_Aggriagtion_NULL);
 				}
 
 				Map<String, Double> keywordMap = new LinkedHashMap<>();
@@ -408,7 +408,7 @@ public class ProductServiceImpl implements ProductService {
 				log.info("검색결과: {}", keywordMap);
 				return keywordMap;
 			} else {
-				throw new ProductException(Product_Aggriagtion_Type_Error);
+				throw new ProductException(Product_Aggriagtion_TYPE_ERROR);
 			}
 		} catch (IOException e) {
 			throw new ProductException(ELASTIC_CONNECTION_ERROR);
