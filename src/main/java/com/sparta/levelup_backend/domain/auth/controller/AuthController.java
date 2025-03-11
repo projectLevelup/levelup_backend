@@ -4,6 +4,8 @@ import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.LOGIN_
 import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.SIGNUP_SUCCESS;
 import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.success;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.ResponseEntity.ok;
 
 import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
@@ -13,7 +15,6 @@ import com.sparta.levelup_backend.domain.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +44,6 @@ public class AuthController {
 	public ResponseEntity<ApiResponse<Void>> signInUser(@Valid @RequestBody SignInUserRequestDto dto) {
 		HttpHeaders headers = authService.authenticate(dto);
 
-		return ResponseEntity.ok().headers(headers).body(success(HttpStatus.OK, LOGIN_SUCCESS));
+		return ok().headers(headers).body(success(OK, LOGIN_SUCCESS));
 	}
 }

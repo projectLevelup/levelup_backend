@@ -4,9 +4,12 @@ import static com.sparta.levelup_backend.domain.user.dto.UserMessage.CONGRATULAT
 import static com.sparta.levelup_backend.enums.ErrorCode.PASSWORD_INCORRECT;
 import static com.sparta.levelup_backend.enums.ProviderType.NONE;
 import static com.sparta.levelup_backend.enums.UserRole.USER;
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
 
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
-import com.sparta.levelup_backend.domain.auth.dto.request.*;
+import com.sparta.levelup_backend.domain.auth.dto.request.OAuthUserRequestDto;
+import com.sparta.levelup_backend.domain.auth.dto.request.SignInUserRequestDto;
+import com.sparta.levelup_backend.domain.auth.dto.request.SignUpUserRequestDto;
 import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
 import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
@@ -16,7 +19,6 @@ import com.sparta.levelup_backend.exception.user.UserException;
 import com.sparta.levelup_backend.utill.JwtUtils;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +26,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -50,7 +51,6 @@ public class AuthServiceImpl implements AuthService {
             .phoneNumber(dto.getPhoneNumber())
             .customerKey(UUID.randomUUID().toString())
             .provider(NONE)
-            .customerKey(UUID.randomUUID().toString())
             .build();
 
         userRepository.save(user);
@@ -95,8 +95,8 @@ public class AuthServiceImpl implements AuthService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", accessToken);
-        headers.add(HttpHeaders.SET_COOKIE, accessCookie.toString());
-        headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        headers.add(SET_COOKIE, accessCookie.toString());
+        headers.add(SET_COOKIE, refreshCookie.toString());
 
         return headers;
     }
