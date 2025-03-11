@@ -15,8 +15,7 @@ import com.sparta.levelup_backend.domain.community.entity.CommunityEntity;
 import com.sparta.levelup_backend.domain.community.repository.CommunityRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.user.ForbiddenException;
+import com.sparta.levelup_backend.exception.comment.CommentException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -63,13 +62,13 @@ public class CommentServiceImpl implements CommentService {
 	private void checkAuth(CommentEntity comment, Long userId) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		if (!comment.getUser().getId().equals(userId) && !user.getRole().equals(ADMIN)) {
-			throw new ForbiddenException(FORBIDDEN_ACCESS);
+			throw new CommentException(FORBIDDEN_ACCESS);
 		}
 	}
 
 	private void checkCommentIsDeleted(CommentEntity comment) {
 		if (comment.getIsDeleted()) {
-			throw new DuplicateException(COMMENT_ISDELETED);
+			throw new CommentException(COMMENT_ISDELETED);
 		}
 	}
 }
