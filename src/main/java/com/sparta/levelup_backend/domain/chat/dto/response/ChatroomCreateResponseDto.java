@@ -5,9 +5,11 @@ import java.util.List;
 import com.sparta.levelup_backend.domain.chat.document.ChatroomDocument;
 import com.sparta.levelup_backend.domain.chat.document.Participant;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Builder
 @Getter
 @RequiredArgsConstructor
 public class ChatroomCreateResponseDto {
