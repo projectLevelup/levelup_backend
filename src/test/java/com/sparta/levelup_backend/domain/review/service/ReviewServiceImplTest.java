@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.review.service;
 
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -95,7 +96,7 @@ class ReviewServiceImplTest {
         assertThatThrownBy(() -> {
                 reviewService.deleteReview(userId, productId, reviewId);
             }).isInstanceOf(ReviewException.class)
-            .hasMessageContaining(ErrorCode.FORBIDDEN_ACCESS.getMessage());
+            .hasMessageContaining(FORBIDDEN_ACCESS.getMessage());
 
     }
 
@@ -124,7 +125,7 @@ class ReviewServiceImplTest {
         assertThatThrownBy(() -> {
             reviewService.deleteReview(userId, productId, reviewId);
         }).isInstanceOf(ReviewException.class)
-            .hasMessageContaining(ErrorCode.MISMATCH_REVIEW_PRODUCT.getMessage());
+            .hasMessageContaining(MISMATCH_REVIEW_PRODUCT.getMessage());
     }
 
     @Test
@@ -157,7 +158,7 @@ class ReviewServiceImplTest {
         assertThatThrownBy(() -> {
             reviewService.saveReview(new ReviewRequestDto("리뷰 테스트", 5), userId, productId);
         }).isInstanceOf(ReviewException.class)
-            .hasMessageContaining(ErrorCode.COMPLETED_ORDER_REQUIRED.getMessage());
+            .hasMessageContaining(COMPLETED_ORDER_REQUIRED.getMessage());
     }
 
     @Test
@@ -170,7 +171,7 @@ class ReviewServiceImplTest {
         assertThatThrownBy(() -> {
             reviewService.saveReview(new ReviewRequestDto("리뷰 테스트", 5), userId, productId);
         }).isInstanceOf(ReviewException.class)
-            .hasMessageContaining(ErrorCode.DUPLICATE_REVIEW.getMessage());
+            .hasMessageContaining(DUPLICATE_REVIEW.getMessage());
 
     }
 
@@ -195,7 +196,7 @@ class ReviewServiceImplTest {
         assertThatThrownBy(() -> {
             reviewService.deleteReview(userId, productId, reviewId);
         }).isInstanceOf(ReviewException.class)
-            .hasMessageContaining(ErrorCode.REVIEW_ISDELETED.getMessage());
+            .hasMessageContaining(REVIEW_ISDELETED.getMessage());
     }
 
 }
