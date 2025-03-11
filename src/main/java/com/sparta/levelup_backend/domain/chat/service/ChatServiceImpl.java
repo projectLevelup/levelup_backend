@@ -37,7 +37,7 @@ public class ChatServiceImpl implements ChatService {
 	public static final String REDIS_CHATROOM_KEY = "chatroom:";
 	private static final String NOT_SAVING_MESSAGES = "Not saving any messages";
 	private static final String SUCCESS_SAVED_MESSAGES = "Successfully saved messages: {}, key: {}";
-	private static final String FAILED_REDIS_SAVE = "Redis에 채팅 메시지 기록 실패: {}";
+	private static final String FAILED_REDIS_SAVE = "Failed redis saved: {}";
 
 	/**
 	 * Redis에 메시지를 기록 후 Redis Pub/Sub으로 발행합니다.
