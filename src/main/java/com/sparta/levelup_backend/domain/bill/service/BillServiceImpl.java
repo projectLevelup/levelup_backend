@@ -7,9 +7,9 @@ import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.domain.order.repository.OrderRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
+import com.sparta.levelup_backend.exception.bill.BillException;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.enums.ErrorCode;
-import com.sparta.levelup_backend.exception.common.ForbiddenException;
+import com.sparta.levelup_backend.exception.user.ForbiddenException;
 import com.sparta.levelup_backend.exception.common.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,10 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.sparta.levelup_backend.enums.BillStatus.*;
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
-public class BillServiceImplV2 implements BillServiceV2 {
+public class BillServiceImpl implements BillService {
 
     private final BillRepository billRepository;
     private final OrderRepository orderRepository;
@@ -60,10 +61,7 @@ public class BillServiceImplV2 implements BillServiceV2 {
      */
     @Override
     public Page<BillResponseDto> findBillsByTutor(Long userId, Pageable pageable) {
-
-        Page<BillEntity> tutorBills = billRepository.findTutorBills(userId, pageable);
-
-        return tutorBills.map(BillResponseDto::new);
+        return billRepository.findTutorBills(userId, pageable).map(BillResponseDto::new);
     }
 
     /**
@@ -74,10 +72,7 @@ public class BillServiceImplV2 implements BillServiceV2 {
      */
     @Override
     public Page<BillResponseDto> findBillsByStudent(Long userId, Pageable pageable) {
-
-        Page<BillEntity> studentBills = billRepository.findStudentBills(userId, pageable);
-
-        return studentBills.map(BillResponseDto::new);
+        return billRepository.findStudentBills(userId, pageable).map(BillResponseDto::new);
     }
 
     /**
@@ -90,14 +85,14 @@ public class BillServiceImplV2 implements BillServiceV2 {
     public BillResponseDto findBillByTutor(Long userId, Long billId) {
 
         BillEntity bill = billRepository.findByIdWithTutorAndStudent(billId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+                .orElseThrow(() -> new BillException(BILL_NOT_FOUND));
 
         if (!bill.getTutor().getId().equals(userId)) {
-            throw new NotFoundException(ErrorCode.BILL_NOT_FOUND);
+            throw new BillException(BILL_NOT_FOUND);
         }
 
         if (bill.getTutorIsDeleted().equals(true)) {
-            throw new DuplicateException(ErrorCode.DUPLICATE_DELETED_BILL);
+            throw new BillException(DUPLICATE_DELETED_BILL);
         }
 
         return new BillResponseDto(bill);
@@ -113,14 +108,14 @@ public class BillServiceImplV2 implements BillServiceV2 {
     public BillResponseDto findBillByStudent(Long userId, Long billId) {
 
         BillEntity bill = billRepository.findByIdWithTutorAndStudent(billId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+                .orElseThrow(() -> new BillException(BILL_NOT_FOUND));
 
         if (!bill.getStudent().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new BillException(FORBIDDEN_ACCESS);
         }
 
         if (bill.getStudentIsDeleted().equals(true)) {
-            throw new DuplicateException(ErrorCode.DUPLICATE_DELETED_BILL);
+            throw new BillException(DUPLICATE_DELETED_BILL);
         }
 
         return new BillResponseDto(bill);
@@ -132,21 +127,21 @@ public class BillServiceImplV2 implements BillServiceV2 {
      * @param billId 거래내역Id
      */
     @Override
+    @Transactional
     public void deleteBillByTutor(Long userId, Long billId) {
 
         BillEntity bill = billRepository.findByIdWithTutorAndStudent(billId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+                .orElseThrow(() -> new BillException(BILL_NOT_FOUND));
 
         if (!bill.getTutor().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new BillException(FORBIDDEN_ACCESS);
         }
 
         if (bill.getTutorIsDeleted().equals(true)) {
-            throw new DuplicateException(ErrorCode.DUPLICATE_DELETED_BILL);
+            throw new BillException(DUPLICATE_DELETED_BILL);
         }
 
         bill.billTutorDelete();
-        billRepository.save(bill);
     }
 
     /**
@@ -155,21 +150,21 @@ public class BillServiceImplV2 implements BillServiceV2 {
      * @param billId 거래내역Id
      */
     @Override
+    @Transactional
     public void deleteBillByStudent(Long userId, Long billId) {
 
         BillEntity bill = billRepository.findByIdWithTutorAndStudent(billId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.BILL_NOT_FOUND));
+                .orElseThrow(() -> new BillException(BILL_NOT_FOUND));
 
         if (!bill.getStudent().getId().equals(userId)) {
-            throw new ForbiddenException(ErrorCode.FORBIDDEN_ACCESS);
+            throw new BillException(FORBIDDEN_ACCESS);
         }
 
         if (bill.getStudentIsDeleted().equals(true)) {
-            throw new DuplicateException(ErrorCode.DUPLICATE_DELETED_BILL);
+            throw new BillException(DUPLICATE_DELETED_BILL);
         }
 
         bill.billStudentDelete();
-        billRepository.save(bill);
     }
 
     @Transactional
@@ -184,7 +179,6 @@ public class BillServiceImplV2 implements BillServiceV2 {
     public BillEntity createCancelEvent(BillEntity bill) {
         bill.setStatus(PAYCANCELED);
         BillEntity saveBill = billRepository.save(bill);
-
         billEventPublisher.publishBillStatusChange(bill);
         return saveBill;
     }

@@ -38,7 +38,6 @@ import com.sparta.levelup_backend.domain.review.document.ReviewDocument;
 import com.sparta.levelup_backend.domain.review.repositoryES.ReviewESRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.LockException;
 import com.sparta.levelup_backend.enums.UserRole;
 import com.sparta.levelup_backend.exception.product.ProductException;
 

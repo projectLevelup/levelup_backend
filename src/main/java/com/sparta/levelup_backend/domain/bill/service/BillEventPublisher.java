@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
+import static com.sparta.levelup_backend.enums.BillStatus.*;
+
 
 @Slf4j
 @Service
@@ -32,10 +34,10 @@ public class BillEventPublisher {
 
     // 상태에 따른 라우팅 키 설정
     private String getRoutingKey(BillStatus status) {
-        if (status == BillStatus.PAID) {
+        if (status == PAID) {
             return "bill.paid";
         }
-        if (status == BillStatus.PAYCANCELED) {
+        if (status == PAYCANCELED) {
             return "bill.paycanceled";
         }
         return null;

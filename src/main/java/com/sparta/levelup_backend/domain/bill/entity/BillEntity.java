@@ -7,6 +7,10 @@ import com.sparta.levelup_backend.enums.BillStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static com.sparta.levelup_backend.enums.BillStatus.*;
+import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.GenerationType.*;
+
 @Entity
 @Getter
 @Builder
@@ -16,18 +20,18 @@ import lombok.*;
 public class BillEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "tutor_id", nullable = false)
     private UserEntity tutor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "student_id", nullable = false)
     private UserEntity student;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private OrderEntity order;
 
@@ -61,6 +65,6 @@ public class BillEntity extends BaseEntity {
     }
 
     public void cancelBill() {
-        this.status = BillStatus.PAYCANCELED;
+        this.status = PAYCANCELED;
     }
 }

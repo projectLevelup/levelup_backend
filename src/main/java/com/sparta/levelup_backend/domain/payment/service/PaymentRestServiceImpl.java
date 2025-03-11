@@ -11,7 +11,6 @@ import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
 import com.sparta.levelup_backend.exception.common.*;
 import com.sparta.levelup_backend.enums.OrderStatus;
-import com.sparta.levelup_backend.exception.order.OrderException;
 import com.sparta.levelup_backend.exception.payment.PaymentException;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import lombok.AllArgsConstructor;
@@ -40,13 +39,13 @@ public class PaymentRestServiceImpl implements PaymentRestService {
         OrderEntity order = orderRepository.findByIdOrElseThrow(orderId);
 
         if (!order.getUser().getId().equals(userId)) {
-            throw new ForbiddenException(FORBIDDEN_ACCESS);
+            throw new PaymentException(FORBIDDEN_ACCESS);
         }
 
         log.info("주문상태: {}", order.getStatus());
         // 결제 대기 상태에서 결제요청 불가
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new OrderException(INVALID_ORDER_STATUS);
+            throw new PaymentException(INVALID_ORDER_STATUS);
         }
 
 
@@ -83,6 +82,7 @@ public class PaymentRestServiceImpl implements PaymentRestService {
     }
 
     @Override
+    @Transactional
     public CancelResponseDto requestCancel(CustomUserDetails auth, CancelPaymentRequestDto dto) {
 
         PaymentEntity payment = paymentRepository.findByPaymentKey(dto.getKey())
@@ -90,7 +90,7 @@ public class PaymentRestServiceImpl implements PaymentRestService {
 
         // 판매자 검증
         if (!payment.getOrder().getProduct().getUser().getId().equals(auth.getId())) {
-            throw new ForbiddenException(FORBIDDEN_ACCESS);
+            throw new PaymentException(FORBIDDEN_ACCESS);
         }
 
         // 취소 완료 되었는지 검증
@@ -104,7 +104,7 @@ public class PaymentRestServiceImpl implements PaymentRestService {
         }
 
         if (!rateLimitService.isRequest(auth.getId())) {
-            throw new BusinessException(INVALID_REQUEST_MANY);
+            throw new PaymentException(INVALID_REQUEST_MANY);
         }
 
         log.info("취소 이유: {}, paymentKey: {}", dto.getReason(), dto.getKey());

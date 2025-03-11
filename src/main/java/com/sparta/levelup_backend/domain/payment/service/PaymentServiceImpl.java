@@ -3,7 +3,7 @@ package com.sparta.levelup_backend.domain.payment.service;
 import com.sparta.levelup_backend.config.tosspayment.PaymentHttpClient;
 import com.sparta.levelup_backend.domain.bill.entity.BillEntity;
 import com.sparta.levelup_backend.domain.bill.repository.BillRepository;
-import com.sparta.levelup_backend.domain.bill.service.BillServiceImplV2;
+import com.sparta.levelup_backend.domain.bill.service.BillServiceImpl;
 import com.sparta.levelup_backend.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.levelup_backend.domain.payment.entity.PaymentEntity;
 import com.sparta.levelup_backend.domain.payment.repository.PaymentRepository;
@@ -35,7 +35,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final PaymentRepository paymentRepository;
-    private final BillServiceImplV2 billService;
+    private final BillServiceImpl billService;
     private final BillRepository billRepository;
     private final RedissonClient redissonClient;
     private final ProductServiceImpl productService;
@@ -133,7 +133,7 @@ public class PaymentServiceImpl implements PaymentService {
     public void handleCancelPayment(PaymentEntity payment) {
 
         BillEntity bill = billRepository.findByOrder(payment.getOrder())
-                .orElseThrow(() -> new NotFoundException(BILL_NOT_FOUND));
+                .orElseThrow(() -> new PaymentException(BILL_NOT_FOUND));
 
         RLock lock = redissonClient.getLock("stock_lock_" + payment.getOrder().getProduct().getId());
 
@@ -158,7 +158,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private PaymentEntity validatePayment(String orderId, String price) {
         PaymentEntity payment = paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new NotFoundException(PAYMENT_NOT_FOUND));
+                .orElseThrow(() -> new PaymentException(PAYMENT_NOT_FOUND));
 
         if (Long.parseLong(price) != payment.getAmount()) {
             throw new PaymentException(CONFLICT_PRICE_EQUALS);

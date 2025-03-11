@@ -7,6 +7,11 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import static com.sparta.levelup_backend.enums.NotificationStatus.*;
+import static jakarta.persistence.EnumType.*;
+import static jakarta.persistence.GenerationType.*;
+import static java.time.LocalDateTime.*;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -15,18 +20,18 @@ import java.time.LocalDateTime;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     private Long userId;
 
     private String message;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(STRING)
     private NotificationType type;
 
     @Setter
-    @Enumerated(EnumType.STRING)
+    @Enumerated(STRING)
     private NotificationStatus status;
 
     private LocalDateTime createdAt;
@@ -36,8 +41,8 @@ public class Notification {
                 .userId(userId)
                 .message(message)
                 .type(type)
-                .status(NotificationStatus.UNREAD)
-                .createdAt(LocalDateTime.now())
+                .status(UNREAD)
+                .createdAt(now())
                 .build();
     }
 }

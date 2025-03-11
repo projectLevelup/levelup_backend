@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
 import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.ResponseEntity.*;
 
 @Slf4j
 @Controller
@@ -36,7 +37,7 @@ public class PaymentController {
     public ResponseEntity<JSONObject> confirmPayment(HttpServletRequest request, @RequestBody String jasonBody) throws Exception {
         JSONObject response = paymentServiceImpl.confirmPayment(jasonBody);
         int status = response.containsKey("error") ? 400 : 200;
-        return ResponseEntity.status(status).body(response);
+        return status(status).body(response);
     }
 
     /**
