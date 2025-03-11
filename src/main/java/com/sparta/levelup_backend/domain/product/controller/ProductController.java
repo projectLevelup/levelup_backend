@@ -47,15 +47,13 @@ public class ProductController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		Long userId = userDetails.getId();
-		ProductCreateResponseDto responseDto = productService.saveProduct(userId, dto);
-		return success(OK, PRODUCT_CREATE, responseDto);
+		return success(OK, PRODUCT_CREATE, productService.saveProduct(userId, dto));
 	}
 
 	// 전체 상품 조회 → findAllProducts
 	@GetMapping
 	public ApiResponse<List<ProductResponseDto>> findAllProducts() {
-		List<ProductResponseDto> productList = productService.getAllProducts();
-		return success(OK, PRODUCT_READ, productList);
+		return success(OK, PRODUCT_READ, productService.getAllProducts());
 	}
 
 	// 상품 ID로 상품 조회 → findProductById
@@ -65,8 +63,7 @@ public class ProductController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		Long userId = userDetails.getId();
-		ProductResponseDto responseDto = productService.getProductById(id, userId);
-		return success(OK, PRODUCT_READ, responseDto);
+		return success(OK, PRODUCT_READ, productService.getProductById(id, userId));
 	}
 
 	// 상품 수정
@@ -77,8 +74,7 @@ public class ProductController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		Long userId = userDetails.getId();
-		ProductUpdateResponseDto responseDto = productService.updateProduct(id, userId, requestDto);
-		return success(OK, PRODUCT_UPDATE, responseDto);
+		return success(OK, PRODUCT_UPDATE, productService.updateProduct(id, userId, requestDto));
 	}
 
 	// 상품 삭제
@@ -88,91 +84,81 @@ public class ProductController {
 		@AuthenticationPrincipal CustomUserDetails userDetails
 	) {
 		Long userId = userDetails.getId();
-		ProductDeleteResponseDto responseDto = productService.deleteProduct(id, userId);
-		return success(OK, PRODUCT_DELETE, responseDto);
+		return success(OK, PRODUCT_DELETE, productService.deleteProduct(id, userId));
 	}
 
 	// Elasticsearch를 활용한 전체 상품 검색 (ES)
-	@GetMapping("/es")
+	@GetMapping("/all")
 	public ApiResponse<List<ProductDocument>> findAllProductsES() {
-		List<ProductDocument> productList = productService.getAllProductsES();
-		return ApiResponse.success(OK, PRODUCT_READ, productList);
+		return success(OK, PRODUCT_READ, productService.getAllProductsES());
 	}
 
 	// Elasticsearch를 활용한 상품 ID로 상품 조회 (ES)
-	@GetMapping("/es/{id}")
+	@GetMapping("/{id}")
 	public ApiResponse<ProductDocument> findProductByIdES(@PathVariable Long id) {
-		ProductDocument product = productService.getProductByIdES(id);
-		return success(OK, PRODUCT_READ, product);
+		return success(OK, PRODUCT_READ, productService.getProductByIdES(id));
 	}
 
 	/**
 	 * 상품명으로 상품 부분 검색 (ES)
-	 * GET /v1/products/es/productName?productName=...
+	 * GET /products/productName?productName=...
 	 */
-	@GetMapping("/es/productName")
-	public ResponseEntity<List<ProductDocument>> findProductsByName(@RequestParam String productName) {
-		List<ProductDocument> products = productService.searchByProductNameES(productName);
-		return ResponseEntity.ok(products);
+	@GetMapping("/productName")
+	public ApiResponse<List<ProductDocument>> findProductsByName(@RequestParam String productName) {
+		return success(OK, PRODUCT_READ,productService.searchByProductNameES(productName));
 	}
 
 	/**
 	 * 특정 게임에 속한 상품 조회 (ES)
-	 * GET /v1/products/es/game/{gameId}
+	 * GET /products/game/{gameId}
 	 */
-	@GetMapping("/es/game/{gameId}")
+	@GetMapping("/game/{gameId}")
 	public ApiResponse<List<ProductDocument>> findProductsByGameId(@PathVariable Long gameId) {
-		List<ProductDocument> products = productService.searchByGameIdES(gameId);
-		return ApiResponse.success(OK, PRODUCT_READ, products);
+		return success(OK, PRODUCT_READ, productService.searchByGameIdES(gameId));
 	}
 
 	/**
 	 * 특정 상태의 상품 조회 (ES)
-	 * GET /v1/products/es/status/{productStatus}
+	 * GET /products/status/{productStatus}
 	 */
-	@GetMapping("/es/status/{productStatus}")
+	@GetMapping("/status/{productStatus}")
 	public ApiResponse<List<ProductDocument>> findProductsByStatus(@PathVariable String productStatus) {
-		List<ProductDocument> products = productService.searchByStatusES(productStatus);
-		return ApiResponse.success(OK, PRODUCT_READ, products);
+		return success(OK, PRODUCT_READ, productService.searchByStatusES(productStatus));
 	}
 
 	/**
 	 * 특정 사용자가 등록한 상품 조회 (ES)
-	 * GET /v1/products/es/user/{userId}
+	 * GET /products/user/{userId}
 	 */
-	@GetMapping("/es/user/{userId}")
+	@GetMapping("/user/{userId}")
 	public ApiResponse<List<ProductDocument>> findProductsByUserId(@PathVariable Long userId) {
-		List<ProductDocument> products = productService.searchByUserIdES(userId);
-		return ApiResponse.success(OK, PRODUCT_READ, products);
+		return success(OK, PRODUCT_READ, productService.searchByUserIdES(userId));
 	}
 
 	/**
 	 * 카테고리별 상품 개수 집계 (ES)
-	 * GET /v1/products/es/aggregations/category
+	 * GET /products/aggregations/category
 	 */
-	@GetMapping("/es/aggregations/category")
+	@GetMapping("/aggregations/category")
 	public ApiResponse<Map<String, Long>> findCategoryAggregations() {
-		Map<String, Long> categoryCounts = productService.getGenreAggregationsES();
-		return ApiResponse.success(OK, PRODUCT_READ, categoryCounts);
+		return success(OK, PRODUCT_READ, productService.getGenreAggregationsES());
 	}
 
 	/**
 	 * 감성 분석 결과 상위 3개 상품 조회 (ES)
-	 * GET /v1/products/es/sentimentanalysis/top3
+	 * GET /products/sentimentanalysis/top3
 	 */
-	@GetMapping("/es/sentimentanalysis/top3")
+	@GetMapping("/sentimentanalysis/top3")
 	public ApiResponse<List<ProductRequestAllDto>> findTop3Products() {
-		List<ProductRequestAllDto> top3Products = productService.getTop3Products();
-		return ApiResponse.success(OK, PRODUCT_READ, top3Products);
+		return success(OK, PRODUCT_READ, productService.getTop3Products());
 	}
 
 	/**
 	 * 인기 상품 Top 10 조회 (ES)
-	 * GET /v1/products/es/aggregations/popular
+	 * GET /products/aggregations/popular
 	 */
-	@GetMapping("/es/aggregations/popular")
+	@GetMapping("/aggregations/popular")
 	public ApiResponse<List<ProductDocument>> findTop10PopularProducts() {
-		List<ProductDocument> top10Products = productService.getTop10PopularProductsES();
-		return ApiResponse.success(OK, PRODUCT_READ, top10Products);
+		return success(OK, PRODUCT_READ, productService.getTop10PopularProductsES());
 	}
 }
