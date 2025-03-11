@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.product.service;
 
 import static com.sparta.levelup_backend.enums.ErrorCode.*;
+import static com.sparta.levelup_backend.enums.ProductStatus.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,11 +38,7 @@ import com.sparta.levelup_backend.domain.review.document.ReviewDocument;
 import com.sparta.levelup_backend.domain.review.repositoryES.ReviewESRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.common.LockException;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
-import com.sparta.levelup_backend.enums.ProductStatus;
 import com.sparta.levelup_backend.enums.UserRole;
 import com.sparta.levelup_backend.exception.product.ProductException;
 
@@ -89,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Override
 	public List<ProductResponseDto> getAllProducts() {
-		return productRepository.findAllByIsDeletedFalseAndStatus(ProductStatus.ACTIVE)
+		return productRepository.findAllByIsDeletedFalseAndStatus(ACTIVE)
 			.stream()
 			.map(ProductResponseDto::new)
 			.collect(Collectors.toList());
@@ -107,15 +104,15 @@ public class ProductServiceImpl implements ProductService {
 		ProductEntity product = productRepository.findByIdOrElseThrow(id);
 
 		if (product.getIsDeleted()) {
-			throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+			throw new ProductException(PRODUCT_NOT_FOUND);
 		}
 
 		if (isOwner(product, userId) || isAdmin(userId)) {
 			return new ProductResponseDto(product);
 		}
 
-		if (product.getStatus() != ProductStatus.ACTIVE) {
-			throw new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND);
+		if (product.getStatus() != ACTIVE) {
+			throw new ProductException(PRODUCT_NOT_FOUND);
 		}
 
 		return new ProductResponseDto(product);
@@ -164,7 +161,7 @@ public class ProductServiceImpl implements ProductService {
 			ProductEntity product = getFindByIdWithLock(id);
 
 			if (!isOwner(product, userId) && !isAdmin(userId)) {
-				throw new DuplicateException(FORBIDDEN_ACCESS);
+				throw new ProductException(FORBIDDEN_ACCESS);
 			}
 
 			product.update(requestDto);
@@ -196,11 +193,11 @@ public class ProductServiceImpl implements ProductService {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 
 		if (product.getIsDeleted()) {
-			throw new DuplicateException(PRODUCT_ISDELETED);
+			throw new ProductException(PRODUCT_ISDELETED);
 		}
 
 		if (!product.getUser().getId().equals(user.getId()) && !user.getRole().equals(UserRole.ADMIN)) {
-			throw new DuplicateException(FORBIDDEN_ACCESS);
+			throw new ProductException(FORBIDDEN_ACCESS);
 		}
 
 		ProductDocument document = ProductDocument.fromEntity(product);
@@ -220,7 +217,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Cacheable(value = "product", key = "#productId")
 	public ProductDocument getProductByIdES(Long id) {
-		return productESRepository.findByProductIdAndIsDeletedFalseAndStatus(id, ProductStatus.ACTIVE);
+		return productESRepository.findByProductIdAndIsDeletedFalseAndStatus(id, ACTIVE);
 	}
 
 	/**
@@ -230,7 +227,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Cacheable(value = "product")
 	public List<ProductDocument> getAllProductsES() {
-		return productESRepository.findByIsDeletedFalseAndStatus(ProductStatus.ACTIVE);
+		return productESRepository.findByIsDeletedFalseAndStatus(ACTIVE);
 	}
 
 	/**
@@ -253,7 +250,7 @@ public class ProductServiceImpl implements ProductService {
 		try {
 			response = elasticsearchClient.search(request, ProductDocument.class);
 		} catch (IOException e) {
-			throw new ProductException(PRODUCT_NOT_FOUND);
+			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}
 
 		return response.hits().hits().stream()
@@ -269,7 +266,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Cacheable(value = "product", key = "#gameId")
 	public List<ProductDocument> searchByGameIdES(Long gameId) {
-		return productESRepository.findByGameIdAndIsDeletedFalseAndStatus(gameId, ProductStatus.ACTIVE);
+		return productESRepository.findByGameIdAndIsDeletedFalseAndStatus(gameId,ACTIVE);
 	}
 
 	/**
@@ -280,7 +277,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Cacheable(value = "product", key = "#status")
 	public List<ProductDocument> searchByStatusES(String status) {
-		return productESRepository.findByStatusAndIsDeletedFalse(status, ProductStatus.ACTIVE);
+		return productESRepository.findByStatusAndIsDeletedFalse(status,ACTIVE);
 	}
 
 	/**
@@ -291,7 +288,7 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Cacheable(value = "product", key = "#userId")
 	public List<ProductDocument> searchByUserIdES(Long userId) {
-		return productESRepository.findByUserIdAndIsDeletedFalseAndStatus(userId, ProductStatus.ACTIVE);
+		return productESRepository.findByUserIdAndIsDeletedFalseAndStatus(userId,ACTIVE);
 	}
 
 	/**
@@ -323,7 +320,7 @@ public class ProductServiceImpl implements ProductService {
 					MultiBucketBase::docCount
 				));
 		} catch (IOException e) {
-			throw new ProductException(Product_Aggriagtion_Error);
+			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}
 	}
 
@@ -361,7 +358,7 @@ public class ProductServiceImpl implements ProductService {
 				.map(Hit::source)
 				.collect(Collectors.toList());
 		} catch (IOException e) {
-			throw new ProductException(PRODUCT_NOT_FOUND);
+			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}
 	}
 
@@ -382,7 +379,7 @@ public class ProductServiceImpl implements ProductService {
 			.index("product")
 			.query(q -> q.bool(b -> b
 				.must(m -> m.matchAll(ma -> ma))
-				.filter(f -> f.term(t -> t.field("status").value(ProductStatus.ACTIVE.name())))
+				.filter(f -> f.term(t -> t.field("status").value(ACTIVE.name())))
 				.filter(f -> f.term(t -> t.field("isDeleted").value(false)))
 			))
 			.aggregations("important_keywords", significantTermsAgg)
@@ -397,7 +394,7 @@ public class ProductServiceImpl implements ProductService {
 				SignificantStringTermsAggregate significantTermsAggResult = aggregate.sigsterms();
 
 				if (significantTermsAggResult == null) {
-					throw new IllegalStateException("Significant terms aggregation result is null");
+					throw new ProductException(Product_Aggriagtion_Null);
 				}
 
 				Map<String, Double> keywordMap = new LinkedHashMap<>();
@@ -411,10 +408,10 @@ public class ProductServiceImpl implements ProductService {
 				log.info("검색결과: {}", keywordMap);
 				return keywordMap;
 			} else {
-				throw new ProductException(Product_Aggriagtion_Error);
+				throw new ProductException(Product_Aggriagtion_Type_Error);
 			}
 		} catch (IOException e) {
-			throw new ProductException(Product_Aggriagtion_Error);
+			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}
 	}
 
@@ -422,7 +419,7 @@ public class ProductServiceImpl implements ProductService {
 	 * Product의 평균 감성 점수 계산 후 Elasticsearch에 업데이트
 	 */
 	public void updateProductSentimentScores() {
-		List<ProductDocument> products = productESRepository.findAllByIsDeletedFalseAndStatus(ProductStatus.ACTIVE);
+		List<ProductDocument> products = productESRepository.findAllByIsDeletedFalseAndStatus(ACTIVE);
 
 		for (ProductDocument product : products) {
 			List<ReviewDocument> reviews = reviewESRepository.findByProductId(product.getProductId());
@@ -444,10 +441,6 @@ public class ProductServiceImpl implements ProductService {
 					.id(String.valueOf(product.getProductId()))
 					.doc(ProductDocument.builder().sentimentScore(averageScore).build())
 				), ProductDocument.class);
-				if (response.result().name().equalsIgnoreCase("not_found")) {
-					System.err.println("ProductDocument not found in Elasticsearch: " + product.getProductId());
-				}
-
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -468,7 +461,7 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductRequestAllDto> getTop3Products() {
 		updateProductSentimentScores();
 
-		List<ProductDocument> productList = productESRepository.findAllByIsDeletedFalseAndStatus(ProductStatus.ACTIVE);
+		List<ProductDocument> productList = productESRepository.findAllByIsDeletedFalseAndStatus(ACTIVE);
 
 		return productList.stream()
 			.sorted(Comparator.comparingDouble(ProductDocument::getSentimentScore).reversed())
@@ -516,8 +509,7 @@ public class ProductServiceImpl implements ProductService {
 
 	@Transactional
 	public ProductEntity getFindByIdWithLock(Long productId) {
-		return productRepository.findByIdWithLock(productId)
-			.orElseThrow(() -> new NotFoundException(PRODUCT_NOT_FOUND));
+		return productRepository.findByIdWithLockOrElseThrow(productId);
 	}
 
 	public ProductEntity findById(Long productId) {

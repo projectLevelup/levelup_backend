@@ -75,9 +75,12 @@ public enum ErrorCode {
 	INVALID_REQUEST_MANY(HttpStatus.CONFLICT, "ERR418", "취소 요청이 너무 많습니다. 잠시 후 다시 시도해주세요." ),
 	COMMENT_ISDELETED(HttpStatus.CONFLICT,"ERR419", "이미 삭제된 댓글입니다."),
 	Product_Aggriagtion_Error(HttpStatus.CONFLICT, "ERR420", "집계가 실패했습니다. 엘라스틱 서치의 로그를 확인해 주세요." ),
+	Product_Aggriagtion_Null(HttpStatus.CONFLICT, "ERR421", "집계가 결과가 Null입니다." ),
+	Product_Aggriagtion_Type_Error(HttpStatus.CONFLICT, "ERR422", "집계 타입 요청 오류입니다." ),
 
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다."),
+	ELASTIC_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR502","엘라스틱 서치 오류가 발생했습니다."),
 
 	// 424 FAIL
 	PAYMENT_FAILED_RETRY(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 반복적으로 실패했습니다."),

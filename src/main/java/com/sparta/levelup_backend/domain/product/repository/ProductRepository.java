@@ -32,5 +32,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 	@Query("SELECT p FROM ProductEntity p WHERE p.id = :productId")
 	Optional<ProductEntity> findByIdWithLock(Long productId);
 
-	Optional<ProductEntity> findByProductName(String productName);
+	default ProductEntity findByIdWithLockOrElseThrow(Long productId) {
+		return findByIdWithLock(productId)
+			.orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND));
+	}
+
 }
