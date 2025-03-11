@@ -44,13 +44,13 @@ public class ChatController {
 	}
 
 	/**
-	 * 메시지 기록 저장 API
+	 * 메시지 기록 조회 API
 	 */
 	@GetMapping("/chats/{chatroomId}/history")
 	public ApiResponse<Slice<ChatResponseDto>> findChatHistory(
 		@PathVariable String chatroomId,
 		@PageableDefault Pageable pageable
 	) {
-		return success(CREATED, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId, pageable));
+		return success(OK, MESSAGE_SAVE_SUCCESS, chatService.findChatHistory(chatroomId, pageable));
 	}
 }
