@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
@@ -26,7 +25,6 @@ import com.sparta.levelup_backend.domain.game.service.GameService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v1")
 @RequiredArgsConstructor
 public class GameController {
 
@@ -70,9 +68,8 @@ public class GameController {
 
 	@GetMapping("/games")
 	public ApiResponse<GameListResponseDto> findGames(){
-		GameListResponseDto listDto = gameService.findGames();
 
-		return success(OK, GAME_FOUND_SUCCESS, listDto);
+		return success(OK, GAME_FOUND_SUCCESS, gameService.findGames());
 	}
 }
 

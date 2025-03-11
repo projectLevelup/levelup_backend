@@ -20,14 +20,15 @@ import com.sparta.levelup_backend.exception.user.ForbiddenException;
 
 import lombok.RequiredArgsConstructor;
 
-@Transactional
 @RequiredArgsConstructor
 @Service
 public class CommentServiceImpl implements CommentService {
+
 	private final UserRepository userRepository;
 	private final CommunityRepository communityRepository;
 	private final CommentRepository commentRepository;
 
+	@Transactional
 	@Override
 	public CommentResponseDto saveComment(Long userId, CommentCreateRequestDto dto) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
@@ -37,6 +38,7 @@ public class CommentServiceImpl implements CommentService {
 		return CommentResponseDto.from(comment);
 	}
 
+	@Transactional
 	@Override
 	public CommentResponseDto updateComment(Long userId, CommentUpdateRequestDto dto) {
 		CommentEntity comment = commentRepository.findByIdOrElseThrow(dto.getCommentId());
@@ -48,6 +50,7 @@ public class CommentServiceImpl implements CommentService {
 		return CommentResponseDto.from(comment);
 	}
 
+	@Transactional
 	@Override
 	public void deleteComment(Long userId, Long commentId) {
 		CommentEntity comment = commentRepository.findByIdOrElseThrow(commentId);

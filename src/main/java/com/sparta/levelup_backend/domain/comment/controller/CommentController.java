@@ -24,36 +24,37 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/v2/comment")
+@RequestMapping("/comment")
 @RequiredArgsConstructor
 public class CommentController {
 
 	private final CommentService commentService;
 
+	// 댓글 생성
 	@PostMapping
 	public ApiResponse<CommentResponseDto> saveComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@Valid @RequestBody CommentCreateRequestDto dto) {
 		Long userId = customUserDetails.getId();
 
-		CommentResponseDto responseDto = commentService.saveComment(userId, dto);
-		return success(OK, COMMENT_SAVE_SUCCESS, responseDto);
+		return success(OK, COMMENT_SAVE_SUCCESS, commentService.saveComment(userId, dto));
 	}
 
+	// 댓글 수정
 	@PatchMapping()
 	public ApiResponse<CommentResponseDto> updateComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@Valid @RequestBody CommentUpdateRequestDto dto) {
 		Long userId = customUserDetails.getId();
 
-		CommentResponseDto responseDto = commentService.updateComment(userId, dto);
-		return success(OK, COMMENT_UPDATE_SUCCESS, responseDto);
+		return success(OK, COMMENT_UPDATE_SUCCESS, commentService.updateComment(userId, dto));
 	}
 
+	// 댓글 삭제
 	@DeleteMapping("/{commentId}")
 	public ApiResponse<Void> deleteComment(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Long commentId) {
 		Long userId = customUserDetails.getId();
-
 		commentService.deleteComment(userId, commentId);
+
 		return success(OK, COMMENT_DELETE_SUCCESS);
 	}
 }

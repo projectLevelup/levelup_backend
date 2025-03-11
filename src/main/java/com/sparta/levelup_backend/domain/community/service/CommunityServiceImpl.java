@@ -31,10 +31,7 @@ import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.DuplicateException;
-import com.sparta.levelup_backend.exception.user.ForbiddenException;
-import com.sparta.levelup_backend.exception.common.NotFoundException;
-import com.sparta.levelup_backend.exception.common.PageOutOfBoundsException;
+import com.sparta.levelup_backend.exception.community.CommunityException;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -43,10 +40,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 @Service
 public class CommunityServiceImpl implements CommunityService {
+
 	private final UserRepository userRepository;
 	private final CommunityRepository communityRepository;
 	private final GameRepository gameRepository;
@@ -58,6 +55,7 @@ public class CommunityServiceImpl implements CommunityService {
 	private final CommunityQueryRepository communityQueryRepository;
 
 	// community 생성
+	@Transactional
 	@Override
 	public CommunityResponseDto saveCommunity(Long userId, CommnunityCreateRequestDto dto) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
@@ -66,15 +64,15 @@ public class CommunityServiceImpl implements CommunityService {
 
 		CommunityEntity community = communityRepository.save(
 			new CommunityEntity(dto.getTitle(), dto.getContent(), user, game));
-		CommunityDocument communityDocument = communityESRepository.save(CommunityDocument.from(community));
+		communityESRepository.save(CommunityDocument.from(community));
 
 		return CommunityResponseDto.from(community);
 	}
 
 	/**
-	 *게임생활 목록 조회
+	 *community 목록 조회
 	 * @param pageable 0부터 시작
-	 * @param gameName 어떤 게임의 게임생활을 조회할건지
+	 * @param gameName 어떤 게임의 community를 조회할건지
 	 * @return
 	 */
 	@Transactional(readOnly = true)
@@ -83,8 +81,9 @@ public class CommunityServiceImpl implements CommunityService {
 		Slice<CommunityReadResponseDto> communityPage = communityQueryRepository.findAllByGameName(gameName, pageable);
 
 		if (communityPage.isEmpty()) {
-			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+			throw new CommunityException(COMMUNITY_NOT_FOUND);
 		}
+
 		return new CommunityListResponseDto(
 			communityPage.stream().toList(), communityPage.hasNext()
 		);
@@ -99,12 +98,14 @@ public class CommunityServiceImpl implements CommunityService {
 	 * @param size 기본값: 10
 	 * @return
 	 */
+	@Transactional(readOnly = true)
 	@Override
 	public CommunityListResponseDto findCommunities(String searchKeyword, String gameName, int page,
 		int size) {
+
 		// 10000개 이상의 데이터 조회 방지
 		if ((page + 1) * size >= 9999) {
-			throw new PageOutOfBoundsException(PAGE_OUT_OF_BOUNDS);
+			throw new CommunityException(PAGE_OUT_OF_BOUNDS);
 		}
 
 		SearchRequest request = SearchRequest.of(s -> s
@@ -132,7 +133,7 @@ public class CommunityServiceImpl implements CommunityService {
 		}
 
 		if (response.hits().hits().isEmpty()) {
-			throw new NotFoundException(COMMUNITY_NOT_FOUND);
+			throw new CommunityException(COMMUNITY_NOT_FOUND);
 		}
 
 		List<CommunityReadResponseDto> responseDto = new ArrayList<>(
@@ -150,6 +151,7 @@ public class CommunityServiceImpl implements CommunityService {
 		return new CommunityListResponseDto(responseDto, hasNext);
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public CommunityCommentResponseDto findById(Long communityId) {
 		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
@@ -160,17 +162,19 @@ public class CommunityServiceImpl implements CommunityService {
 		return CommunityCommentResponseDto.of(community, comments.stream().map(CommentResponseDto::from).toList());
 	}
 
-	// community 수정(elasticSearch 사용)
+	// community 수정
+	@Transactional
 	@Override
 	public CommunityResponseDto updateCommunity(Long userId, CommunityUpdateRequestDto dto) {
 		CommunityEntity community = communityRepository.findByIdOrElseThrow(dto.getCommunityId());
 		CommunityDocument communityDocument = communityESRepository.findByIdOrElseThrow(
 			String.valueOf(dto.getCommunityId()));
+
 		checkAuth(community, userId);
 		checkCommunityIsDeleted(community);
 
 		if (communityDocument.getIsDeleted()) {
-			throw new DuplicateException(COMMUNITY_ISDELETED);
+			throw new CommunityException(COMMUNITY_ISDELETED);
 		}
 
 		if (Objects.nonNull(dto.getTitle())) {
@@ -186,7 +190,8 @@ public class CommunityServiceImpl implements CommunityService {
 		return CommunityResponseDto.from(community);
 	}
 
-	// community 삭제(elasticSearch 사용)
+	// community 삭제
+	@Transactional
 	@Override
 	public void deleteCommunity(Long userId, Long communityId) {
 		CommunityEntity community = communityRepository.findByIdOrElseThrow(communityId);
@@ -201,20 +206,20 @@ public class CommunityServiceImpl implements CommunityService {
 
 	private void checkGameIsDeleted(GameEntity game) {
 		if (game.getIsDeleted()) {
-			throw new DuplicateException(GAME_ISDELETED);
+			throw new CommunityException(GAME_ISDELETED);
 		}
 	}
 
 	private void checkCommunityIsDeleted(CommunityEntity community) {
 		if (community.getIsDeleted()) {
-			throw new DuplicateException(COMMUNITY_ISDELETED);
+			throw new CommunityException(COMMUNITY_ISDELETED);
 		}
 	}
 
 	private void checkAuth(CommunityEntity community, Long userId) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		if (!community.getUser().getId().equals(userId) && !user.getRole().equals(ADMIN)) {
-			throw new ForbiddenException(FORBIDDEN_ACCESS);
+			throw new CommunityException(FORBIDDEN_ACCESS);
 		}
 	}
 }

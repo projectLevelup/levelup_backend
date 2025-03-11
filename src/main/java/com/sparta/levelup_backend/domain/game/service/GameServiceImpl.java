@@ -20,13 +20,14 @@ import com.sparta.levelup_backend.enums.UserRole;
 
 import lombok.RequiredArgsConstructor;
 
-@Transactional
 @Service
 @RequiredArgsConstructor
 public class GameServiceImpl implements GameService {
+
 	private final GameRepository gameRepository;
 	private final UserRepository userRepository;
 
+	@Transactional
 	@Override
 	public GameEntity saveGame(String name, String imgUrl, String genre, Long userId) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
@@ -53,6 +54,7 @@ public class GameServiceImpl implements GameService {
 		return game;
 	}
 
+	@Transactional
 	@Override
 	public GameEntity updateGame(Long userId, Long gameId, UpdateGameRequestDto dto) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
@@ -71,6 +73,7 @@ public class GameServiceImpl implements GameService {
 		return game;
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public GameListResponseDto findGames() {
 		return new GameListResponseDto(gameRepository.findAll()
@@ -81,6 +84,7 @@ public class GameServiceImpl implements GameService {
 			.toList());
 	}
 
+	@Transactional
 	@Override
 	public void deleteGame(Long userId, Long gameId) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
