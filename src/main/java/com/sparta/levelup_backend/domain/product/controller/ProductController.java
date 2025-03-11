@@ -1,23 +1,11 @@
 package com.sparta.levelup_backend.domain.product.controller;
 
-import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
-import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
-import static org.springframework.http.HttpStatus.*;
-
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.PRODUCT_CREATE;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.PRODUCT_DELETE;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.PRODUCT_READ;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.PRODUCT_UPDATE;
+import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.success;
+import static org.springframework.http.HttpStatus.OK;
 
 import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
@@ -30,9 +18,20 @@ import com.sparta.levelup_backend.domain.product.dto.response.ProductDeleteRespo
 import com.sparta.levelup_backend.domain.product.dto.response.ProductResponseDto;
 import com.sparta.levelup_backend.domain.product.dto.response.ProductUpdateResponseDto;
 import com.sparta.levelup_backend.domain.product.service.ProductService;
-
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/products")
@@ -94,7 +93,7 @@ public class ProductController {
 	}
 
 	// Elasticsearch를 활용한 상품 ID로 상품 조회 (ES)
-	@GetMapping("/{id}")
+	@GetMapping("/es/{id}")
 	public ApiResponse<ProductDocument> findProductByIdES(@PathVariable Long id) {
 		return success(OK, PRODUCT_READ, productService.getProductByIdES(id));
 	}
