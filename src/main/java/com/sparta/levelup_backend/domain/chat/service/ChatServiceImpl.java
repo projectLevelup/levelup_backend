@@ -153,6 +153,9 @@ public class ChatServiceImpl implements ChatService {
 		return new ChannelTopic(REDIS_CHATROOM_KEY + chatroomId);
 	}
 
+	/**
+	 * Redis에 캐시된 페이지수를 바탕으로 MongoDB용 Pageable을 생성합니다.
+	 */
 	private static Pageable getPageable(Pageable pageable, Long cachedCount) {
 		int mongoPage = (cachedCount == 0) ? 0 : (int)(((cachedCount - 1) / pageable.getPageSize()) + 1);
 		Pageable mongoPageable = PageRequest.of(pageable.getPageNumber() - mongoPage, pageable.getPageSize(), pageable.getSort());
