@@ -74,8 +74,4 @@ public class UserEntity extends BaseEntity {
 	public void updateProvider(ProviderType provider) {
 		this.provider = provider;
 	}
-
-    public String generateCustomerKey() {
-        return "UUID-" + this.id + "-" + UUID.randomUUID().toString();
-    }
 }

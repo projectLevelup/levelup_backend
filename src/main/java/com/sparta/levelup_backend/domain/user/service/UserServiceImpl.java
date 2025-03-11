@@ -5,8 +5,11 @@ import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RE
 import static com.sparta.levelup_backend.domain.user.dto.UserMessage.PASSWORD_RESET_SUBJECT;
 import static com.sparta.levelup_backend.enums.ErrorCode.AUTH_TYPE_NOT_GENERAL;
 import static com.sparta.levelup_backend.enums.ErrorCode.FORBIDDEN_ACCESS;
+import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_CURRENT_PASSWORD;
 import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_NICKNAME;
+import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_PASSWORD_CONFIRM;
 import static com.sparta.levelup_backend.enums.ErrorCode.INVALID_RESETCODE;
+import static com.sparta.levelup_backend.enums.ProviderType.NONE;
 
 import com.sparta.levelup_backend.domain.email.dto.request.SendEmailDto;
 import com.sparta.levelup_backend.domain.email.event.EmailEventPublisher;
@@ -19,11 +22,7 @@ import com.sparta.levelup_backend.domain.user.dto.request.UpdateUserRequestDto;
 import com.sparta.levelup_backend.domain.user.dto.response.UserResponseDto;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.enums.ProviderType;
-import com.sparta.levelup_backend.exception.user.CurrentPasswordNotMatchedException;
-import com.sparta.levelup_backend.exception.user.ForbiddenException;
-import com.sparta.levelup_backend.exception.common.MismatchException;
-import com.sparta.levelup_backend.exception.user.PasswordConfirmNotMatchedException;
+import com.sparta.levelup_backend.exception.user.UserException;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -37,138 +36,145 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-	private final UserRepository userRepository;
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-	private final EmailEventPublisher emailEventPublisher;
-	private final RedisTemplate<String, Object> redisTemplate;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final EmailEventPublisher emailEventPublisher;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-	@Override
-	public UserResponseDto findUserById(String role, Long id) {
+    @Override
+    public UserResponseDto findUserById(String role, Long id) {
 
-		if (role.equals("ROLE_ADMIN")) {
-			UserEntity user = userRepository.findByIdOrElseThrow(id);
+        if (role.equals("ROLE_ADMIN")) {
+            UserEntity user = userRepository.findByIdOrElseThrow(id);
+            return UserResponseDto.from(user);
+        }
+        throw new UserException(FORBIDDEN_ACCESS);
+    }
 
-			return UserResponseDto.from(user);
-		}
-		throw new ForbiddenException(FORBIDDEN_ACCESS);
-	}
+    @Override
+    public UserResponseDto findUser(Long id) {
 
-	@Override
-	public UserResponseDto findUser(Long id) {
-		UserEntity user = userRepository.findByIdOrElseThrow(id);
+        UserEntity user = userRepository.findByIdOrElseThrow(id);
 
-		return UserResponseDto.from(user);
-	}
+        return UserResponseDto.from(user);
+    }
 
-	@Override
-	@Transactional
-	public UserResponseDto updateUser(Long id, UpdateUserRequestDto dto) {
+    @Override
+    @Transactional
+    public UserResponseDto updateUser(Long id, UpdateUserRequestDto dto) {
 
-		UserEntity user = userRepository.findByIdOrElseThrow(id);
+        UserEntity user = userRepository.findByIdOrElseThrow(id);
+        updateUserdata(user, dto);
 
-		if (dto.getEmail() != null) {
-			userRepository.existsByEmailOrElseThrow(dto.getEmail());
-			user.updateEmail(dto.getEmail());
-		}
+        return UserResponseDto.from(user);
+    }
 
-		if (dto.getNickName() != null) {
-			user.updateNickName(dto.getNickName());
-		}
+    @Override
+    @Transactional
+    public void changePassword(Long id, ChangePasswordDto dto) {
+        UserEntity user = userRepository.findByIdOrElseThrow(id);
 
-		if (dto.getImgUrl() != null) {
-			user.updateImgUrl(dto.getImgUrl());
-		}
+        if (!bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new UserException(INVALID_CURRENT_PASSWORD);
+        }
 
-		if (dto.getPhoneNumber() != null) {
-			user.updatePhoneNumber(dto.getPhoneNumber());
-		}
+        if (!dto.getNewPassword().equals(dto.getPasswordConfirm())) {
+            throw new UserException(INVALID_PASSWORD_CONFIRM);
+        }
+        user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
 
-		return UserResponseDto.from(user);
-	}
+    }
 
-	@Override
-	@Transactional
-	public void changePassword(Long id, ChangePasswordDto dto) {
-		UserEntity user = userRepository.findByIdOrElseThrow(id);
+    @Override
+    @Transactional
+    public UserResponseDto updateImgUrl(Long id, UpdateUserImgUrlReqeustDto dto) {
 
-		if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
-			if (dto.getNewPassword().equals(dto.getPasswordConfirm())) {
-				user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
-			} else {
-				throw new PasswordConfirmNotMatchedException();
-			}
-		} else {
-			throw new CurrentPasswordNotMatchedException();
-		}
-	}
+        UserEntity user = userRepository.findByIdOrElseThrow(id);
+        user.updateImgUrl(dto.getImgUrl());
 
-	@Override
-	@Transactional
-	public UserResponseDto updateImgUrl(Long id, UpdateUserImgUrlReqeustDto dto) {
+        return UserResponseDto.from(user);
 
-		UserEntity user = userRepository.findByIdOrElseThrow(id);
-		user.updateImgUrl(dto.getImgUrl());
+    }
 
-		return UserResponseDto.from(user);
+    @Override
+    @Transactional
+    public void deleteUser(Long id, DeleteUserRequestDto dto) {
 
-	}
+        UserEntity user = userRepository.findByIdOrElseThrow(id);
 
-	@Override
-	@Transactional
-	public void deleteUser(Long id, DeleteUserRequestDto dto) {
+        if (user.getPassword() != null || !bCryptPasswordEncoder.matches(dto.getCurrentPassword(),
+            user.getPassword())) {
+            throw new UserException(INVALID_CURRENT_PASSWORD);
+        }
 
-		UserEntity user = userRepository.findByIdOrElseThrow(id);
+        user.delete();
 
-		if (user.getPassword() == null) {
-			user.delete();
-		} else if (bCryptPasswordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
-			user.delete();
-		} else {
-			throw new CurrentPasswordNotMatchedException();
-		}
+    }
 
-	}
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordDto dto) {
+        UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
-	@Override
-	@Transactional
-	public void resetPassword(ResetPasswordDto dto) {
-		UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
+        if (!user.getProvider().equals(NONE)) {
+            throw new UserException(AUTH_TYPE_NOT_GENERAL);
+        }
 
-		if (!user.getProvider().equals(ProviderType.NONE)) {
-			throw new MismatchException(AUTH_TYPE_NOT_GENERAL);
-		}
+        if (!user.getNickName().equals(dto.getNickName())) {
+            throw new UserException(INVALID_NICKNAME);
+        }
 
-		if (user.getNickName().equals(dto.getNickName())) {
-			String passwordResetCode = UUID.randomUUID().toString();
-			ValueOperations<String, Object> passwordResetCodes = redisTemplate.opsForValue();
-			passwordResetCodes.set(PASSWORD_RESET_CODE_PREFIX + dto.getEmail(), passwordResetCode,
-				Duration.ofSeconds(300));
-			emailEventPublisher.publisher(
-				new SendEmailDto(dto.getEmail(), PASSWORD_RESET_SUBJECT, PASSWORD_RESET_PREFIX + passwordResetCode));
-		} else {
-			throw new MismatchException(INVALID_NICKNAME);
-		}
-	}
+        String passwordResetCode = UUID.randomUUID().toString();
+        ValueOperations<String, Object> passwordResetCodes = redisTemplate.opsForValue();
+        passwordResetCodes.set(PASSWORD_RESET_CODE_PREFIX + dto.getEmail(), passwordResetCode,
+            Duration.ofSeconds(300));
+        emailEventPublisher.publisher(
+            new SendEmailDto(dto.getEmail(), PASSWORD_RESET_SUBJECT,
+                PASSWORD_RESET_PREFIX + passwordResetCode));
 
-	@Override
-	@Transactional
-	public void resetPasswordConfirm(ResetPasswordConfirmDto dto) {
+    }
 
-		ValueOperations<String, Object> passwordResetCodes = redisTemplate.opsForValue();
-		String passwordResetCode = (String)passwordResetCodes.get(PASSWORD_RESET_CODE_PREFIX + dto.getEmail());
-		UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
+    @Override
+    @Transactional
+    public void resetPasswordConfirm(ResetPasswordConfirmDto dto) {
 
-		if (dto.getResetCode().equals(passwordResetCode)) {
-			if (dto.getNewPassword().equals(dto.getPasswordConfirm())) {
-				user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
-				passwordResetCodes.set(PASSWORD_RESET_CODE_PREFIX + dto.getEmail(), passwordResetCode,
-					Duration.ofSeconds(1));
-			} else {
-				throw new PasswordConfirmNotMatchedException();
-			}
-		} else {
-			throw new MismatchException(INVALID_RESETCODE);
-		}
+        ValueOperations<String, Object> passwordResetCodes = redisTemplate.opsForValue();
+        String passwordResetCode = (String) passwordResetCodes.get(
+            PASSWORD_RESET_CODE_PREFIX + dto.getEmail());
+        UserEntity user = userRepository.findByEmailOrElseThrow(dto.getEmail());
 
-	}
+        if (!dto.getNewPassword().equals(dto.getPasswordConfirm())) {
+            throw new UserException(INVALID_PASSWORD_CONFIRM);
+        }
+
+        if (!dto.getResetCode().equals(passwordResetCode)) {
+            throw new  UserException(INVALID_RESETCODE);
+        }
+
+        user.changePassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
+        passwordResetCodes.set(PASSWORD_RESET_CODE_PREFIX + dto.getEmail(),
+            passwordResetCode,
+            Duration.ofSeconds(1));
+    }
+
+    private void updateUserdata(UserEntity user, UpdateUserRequestDto dto) {
+
+        if (dto.getEmail() != null) {
+            userRepository.existsByEmailOrElseThrow(dto.getEmail());
+            user.updateEmail(dto.getEmail());
+        }
+
+        if (dto.getNickName() != null) {
+            user.updateNickName(dto.getNickName());
+        }
+
+        if (dto.getImgUrl() != null) {
+            user.updateImgUrl(dto.getImgUrl());
+        }
+
+        if (dto.getPhoneNumber() != null) {
+            user.updatePhoneNumber(dto.getPhoneNumber());
+        }
+
+    }
 }
