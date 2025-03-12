@@ -1,8 +1,10 @@
 package com.sparta.levelup_backend.domain.chat.service;
 
 import static com.sparta.levelup_backend.enums.ErrorCode.*;
+import static java.util.Arrays.*;
+import static org.springframework.data.mongodb.core.query.Criteria.*;
+import static org.springframework.util.StringUtils.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import com.sparta.levelup_backend.domain.chat.document.ChatroomDocument;
 import com.sparta.levelup_backend.domain.chat.document.Participant;
@@ -26,8 +26,7 @@ import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomListResponseD
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.exception.common.BadRequestException;
-import com.sparta.levelup_backend.exception.common.DuplicateException;
+import com.sparta.levelup_backend.exception.chat.ChatException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,21 +38,21 @@ public class ChatroomServiceImpl implements ChatroomService {
 	private final ChatroomMongoRepository chatroomMongoRepository;
 	private final UserRepository userRepository;
 
-	public static final String UNREAD_MESSAGES = "unreadMessages.";
-	public static final String LAST_MESSAGE = "lastMessage";
-	public static final String DB_ID = "_id";
+	private static final String UNREAD_MESSAGES = "unreadMessages.";
+	private static final String LAST_MESSAGE = "lastMessage";
+	private static final String DB_ID = "_id";
 
 	@Override
+	@Transactional
 	public ChatroomCreateResponseDto createChatroom(Long userId, Long targetUserId, String title) {
 
-		// 채팅방 생성자과 상대가 같은지 확인
 		if (userId.equals(targetUserId)) {
-			throw new BadRequestException(INVALID_CHATROOM_CREATE);
+			throw new ChatException(INVALID_CHATROOM_CREATE);
 		}
 
 		// 상대와의 채팅방이 이미 존재하는 지 확인
-		if (chatroomMongoRepository.countByParticipantsUserIds(Arrays.asList(targetUserId, userId)) > 0) {
-			throw new BadRequestException(DUPLICATE_CHATROOM);
+		if (chatroomMongoRepository.countByParticipantsUserIds(asList(targetUserId, userId)) > 0) {
+			throw new ChatException(DUPLICATE_CHATROOM);
 		}
 
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
@@ -62,15 +61,11 @@ public class ChatroomServiceImpl implements ChatroomService {
 		ChatroomDocument chatroom = buildChatroom(title, user, targetUser);
 		ChatroomDocument savedChatroom = chatroomMongoRepository.save(chatroom);
 
-		return ChatroomCreateResponseDto.builder()
-			.chatroomId(savedChatroom.getId())
-			.title(savedChatroom.getTitle())
-			.participants(savedChatroom.getParticipants())
-			.build();
+		return ChatroomCreateResponseDto.from(savedChatroom);
 	}
 
-	@Transactional
 	@Override
+	@Transactional
 	public void leaveChatroom(Long userId, String chatroomId) {
 		ChatroomDocument chatroom = chatroomMongoRepository.findByIdOrThrow(chatroomId);
 
@@ -79,7 +74,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 			.anyMatch(user -> user.getUserId().equals(userId));
 
 		if(!isParticipant) {
-			throw new DuplicateException(PARTICIPANT_ISDELETED);
+			throw new ChatException(PARTICIPANT_ISDELETED);
 		}
 
 		// 채팅방 참여자 목록 업데이트
@@ -95,7 +90,6 @@ public class ChatroomServiceImpl implements ChatroomService {
 		}
 
 		chatroomMongoRepository.save(chatroom);
-
 	}
 
 	@Override
@@ -124,7 +118,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 			}
 		}
 
-		Query query = new Query(Criteria.where(DB_ID).is(chatroomId));
+		Query query = new Query(where(DB_ID).is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
@@ -140,7 +134,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 			}
 		}
 
-		Query query = new Query(Criteria.where(DB_ID).is(chatroomId));
+		Query query = new Query(where(DB_ID).is(chatroomId));
 		mongoTemplate.updateFirst(query, update, ChatroomDocument.class);
 	}
 
@@ -150,7 +144,7 @@ public class ChatroomServiceImpl implements ChatroomService {
 	private ChatroomDocument buildChatroom(String title, UserEntity user, UserEntity targetUser) {
 
 		// 제목을 적지 않았을 경우 참여자 닉네임으로 자동 생성
-		String chatroomTitle = StringUtils.hasText(title)
+		String chatroomTitle = hasText(title)
 			? title
 			: user.getNickName() + ", " + targetUser.getNickName();
 
@@ -159,10 +153,10 @@ public class ChatroomServiceImpl implements ChatroomService {
 		unreadMessages.put(user.getId().toString(), 0);
 		unreadMessages.put(targetUser.getId().toString(), 0);
 
-		List<Participant> participants = Arrays.asList(new Participant(user), new Participant(targetUser));
+		List<Participant> participants = asList(new Participant(user), new Participant(targetUser));
 
 		return ChatroomDocument.builder()
-			.title(title)
+			.title(chatroomTitle)
 			.participants(participants)
 			.lastMessage("")
 			.unreadMessages(unreadMessages)

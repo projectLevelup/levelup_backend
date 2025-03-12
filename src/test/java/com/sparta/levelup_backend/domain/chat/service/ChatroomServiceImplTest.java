@@ -19,6 +19,7 @@ import com.sparta.levelup_backend.domain.chat.dto.response.ChatroomCreateRespons
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
+import com.sparta.levelup_backend.exception.chat.ChatException;
 import com.sparta.levelup_backend.exception.common.BadRequestException;
 import com.sparta.levelup_backend.exception.common.DuplicateException;
 
@@ -94,7 +95,7 @@ class ChatroomServiceImplTest {
 		//when & then
 		assertThatThrownBy(() -> {
 			chatroomService.createChatroom(userId, targetUserId, title);
-		}).isInstanceOf(BadRequestException.class)
+		}).isInstanceOf(ChatException.class)
 			.hasMessageContaining(INVALID_CHATROOM_CREATE.getMessage());
 	}
 
@@ -108,6 +109,7 @@ class ChatroomServiceImplTest {
 
 		ChatroomDocument chatroomDocument = ChatroomDocument.builder()
 			.id("test")
+			.title(nicknameTitle)
 			.participants(Arrays.asList(participant1, participant2))
 			.lastMessage("")
 			.unreadMessages(new HashMap<>())
@@ -148,7 +150,7 @@ class ChatroomServiceImplTest {
 		//then
 		assertThatThrownBy(() -> {
 			chatroomService.createChatroom(userId, targetUserId, title);
-		}).isInstanceOf(BadRequestException.class)
+		}).isInstanceOf(ChatException.class)
 			.hasMessageContaining(DUPLICATE_CHATROOM.getMessage());
 	}
 
@@ -208,7 +210,7 @@ class ChatroomServiceImplTest {
 		//when & then
 		assertThatThrownBy(() -> {
 			chatroomService.leaveChatroom(leaveUserId, chatroomId);
-		}).isInstanceOf(DuplicateException.class)
+		}).isInstanceOf(ChatException.class)
 			.hasMessageContaining(PARTICIPANT_ISDELETED.getMessage());
 
 	}

@@ -238,9 +238,19 @@ public class ProductServiceImpl implements ProductService {
 		SearchRequest request = SearchRequest.of(s -> s
 			.index("product")
 			.query(q -> q
-				.matchPhrasePrefix(m -> m
-					.field("productName")
-					.query(productName)
+				.bool(b -> b
+					.must(m -> m
+						.matchPhrasePrefix(mp -> mp
+							.field("productName")
+							.query(productName)
+						)
+					)
+					.filter(f -> f
+						.term(t -> t
+							.field("isDeleted")
+							.value(false)
+						)
+					)
 				)
 			)
 		);
@@ -256,6 +266,7 @@ public class ProductServiceImpl implements ProductService {
 			.map(Hit::source)
 			.collect(Collectors.toList());
 	}
+
 
 	/**
 	 * Elasticsearch에서 특정 게임 ID에 해당하는 활성화된 상품을 조회합니다.
@@ -302,8 +313,21 @@ public class ProductServiceImpl implements ProductService {
 				.index("product")
 				.size(0)
 				.requestCache(true)
+				.query(q -> q
+					.bool(b -> b
+						.filter(f -> f
+							.term(t -> t
+								.field("isDeleted")
+								.value(false)
+							)
+						)
+					)
+				)
 				.aggregations("genre_counts", a -> a
-					.terms(t -> t.field("gameGenre").size(10))
+					.terms(t -> t
+						.field("gameGenre")
+						.size(10)
+					)
 				)
 			);
 
@@ -323,6 +347,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
+
 	/**
 	 * 특정 키워드를 기반으로 인기 상품 Top 10을 Elasticsearch에서 조회합니다.
 	 * 의미 있는 키워드를 추출해 검색 가중치로 사용합니다.
@@ -332,6 +357,7 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductDocument> getTop10PopularProductsES() {
 		Map<String, Double> keywords = extractImportantKeywords(10);
 		BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
+
 		for (Map.Entry<String, Double> entry : keywords.entrySet()) {
 			String keyword = entry.getKey();
 			float boost = entry.getValue().floatValue();
@@ -343,13 +369,24 @@ public class ProductServiceImpl implements ProductService {
 				)
 			);
 		}
+
+		// isDeleted 필터 추가
+		boolQueryBuilder.filter(f -> f
+			.term(t -> t
+				.field("isDeleted")
+				.value(false)
+			)
+		);
+
 		SearchRequest searchRequest = new SearchRequest.Builder()
 			.index("product")
 			.query(q -> q.bool(boolQueryBuilder.build()))
 			.from(0)
 			.size(10)
 			.build();
+
 		log.info("검색결과: {}", searchRequest);
+
 		try {
 			SearchResponse<ProductDocument> searchResponse =
 				elasticsearchClient.search(searchRequest, ProductDocument.class);
@@ -360,6 +397,7 @@ public class ProductServiceImpl implements ProductService {
 			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}
 	}
+
 
 	/**
 	 * Elasticsearch를 이용해 중요 키워드를 추출합니다.
