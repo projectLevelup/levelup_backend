@@ -39,7 +39,7 @@ public class CommunityQueryRepository {
 			.from(community)
 			.leftJoin(community.user, user)
 			.leftJoin(community.game, game)
-			.where(community.game.name.eq(gameName))
+			.where(gameName != null && !gameName.isEmpty() ? community.game.name.eq(gameName) : null)
 			.where(community.isDeleted.eq(false))
 			.orderBy(community.createdAt.desc())
 			.offset(pageable.getOffset())

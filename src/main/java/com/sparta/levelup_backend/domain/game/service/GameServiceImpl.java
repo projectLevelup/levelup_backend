@@ -78,7 +78,7 @@ public class GameServiceImpl implements GameService {
 		return new GameListResponseDto(gameRepository.findAll()
 			.stream()
 			.filter(game -> !game.getIsDeleted())
-			.map(game -> new GameResponseDto(game.getName(), game.getImgUrl(),
+			.map(game -> new GameResponseDto(game.getId(), game.getName(), game.getImgUrl(),
 				game.getGenre()))
 			.toList());
 	}
