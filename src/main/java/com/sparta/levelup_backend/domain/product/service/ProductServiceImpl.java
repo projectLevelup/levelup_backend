@@ -551,7 +551,6 @@ public class ProductServiceImpl implements ProductService {
 			.map(ProductRequestAllDto::fromDocument)
 			.collect(Collectors.toList());
 
-		// `Pageable` 적용하여 페이징 처리
 		int start = (int) pageable.getOffset();
 		int end = Math.min(start + pageable.getPageSize(), sortedList.size());
 		List<ProductRequestAllDto> pagedList = sortedList.subList(start, end);
