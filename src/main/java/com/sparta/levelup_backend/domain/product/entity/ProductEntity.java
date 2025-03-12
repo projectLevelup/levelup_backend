@@ -72,7 +72,7 @@ public class ProductEntity extends BaseEntity {
 	@Column(nullable = true)
 	private String imgUrl;
 
-	public ProductEntity(ProductCreateRequestDto dto, UserEntity user, GameEntity game) {
+	public ProductEntity(ProductCreateRequestDto dto, UserEntity user, GameEntity game, String imgUrl) {
 		this.user = user;
 		this.game = game;
 		this.productName = dto.getProductName();
@@ -80,16 +80,16 @@ public class ProductEntity extends BaseEntity {
 		this.price = dto.getPrice();
 		this.amount = dto.getAmount();
 		this.status = dto.getStatus();
-		this.imgUrl = dto.getImgUrl();
+		this.imgUrl = imgUrl;
 	}
 
-	public void update(ProductUpdateRequestDto dto) {
+	public void update(ProductUpdateRequestDto dto, String imgUrl) {
 		this.productName = dto.getProductName();
 		this.contents = dto.getContents();
 		this.price = dto.getPrice();
 		this.amount = dto.getAmount();
 		this.status = ProductStatus.valueOf(dto.getStatus());
-		this.imgUrl = dto.getImgUrl();
+		this.imgUrl = imgUrl;
 	}
 
 	public void decreaseAmount() {

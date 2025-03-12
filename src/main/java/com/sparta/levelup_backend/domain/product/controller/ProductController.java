@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
@@ -36,11 +37,12 @@ public class ProductController {
 
 	@PostMapping
 	public ApiResponse<ProductCreateResponseDto> saveProduct(
-		@Valid @RequestBody ProductCreateRequestDto dto,
-		@AuthenticationPrincipal CustomUserDetails userDetails
+		@Valid @RequestPart ProductCreateRequestDto dto,
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestPart("image") MultipartFile image
 	) {
 		Long userId = userDetails.getId();
-		return success(OK, PRODUCT_CREATE, productService.saveProduct(userId, dto));
+		return success(OK, PRODUCT_CREATE, productService.saveProduct(userId, dto, image));
 	}
 
 	// 전체 상품 조회 (페이징)

@@ -43,6 +43,8 @@ import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.sparta.levelup_backend.enums.UserRole;
 import com.sparta.levelup_backend.exception.product.ProductException;
 
@@ -139,10 +141,13 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Transactional
 	@Override
-	public ProductCreateResponseDto saveProduct(Long userId, ProductCreateRequestDto dto) {
+	public ProductCreateResponseDto saveProduct(Long userId, ProductCreateRequestDto dto, MultipartFile image) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		GameEntity game = gameRepository.findByIdOrElseThrow(dto.getGameId());
-		ProductEntity product = new ProductEntity(dto, user, game);
+
+		String imgUrl = s3Service.upload(image);
+
+		ProductEntity product = new ProductEntity(dto, user, game, imgUrl);
 		ProductEntity savedProduct = productRepository.save(product);
 		ProductDocument document = ProductDocument.fromEntity(savedProduct);
 		productESRepository.save(document);
@@ -163,6 +168,8 @@ public class ProductServiceImpl implements ProductService {
 		RLock lock = redissonClient.getLock("stock_lock_" + id);
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		ProductEntity saveProduct = null;
+		deleteImageFromS3(String imageAddress)
+		uploadeImageFromS3(saveProduct.getImgUrl())
 		ProductDocument updatedDocument = null;
 		try {
 			boolean available = lock.tryLock(1, 10, TimeUnit.SECONDS);
