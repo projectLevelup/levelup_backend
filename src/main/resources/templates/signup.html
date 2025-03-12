@@ -3,39 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>회원가입</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
   <style>
-    /* 전체 배경 및 폰트 설정 */
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
-      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .logo {
-      display: block;
-      margin: 0 auto 1.5rem;
-      width: 90%;
-      margin-top: 100px;
-      margin-bottom: 30px;
-    }
-
-    /* 회원가입 컨테이너 스타일 */
-    .signup-container {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 90%;
-      max-width: 400px;
-      padding: 2rem;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
 
     h2 {
       text-align: center;
@@ -43,27 +12,22 @@
       margin-bottom: 1.5rem;
       color: #333;
     }
-
     form {
       display: flex;
       flex-direction: column;
     }
-
     .form-group {
       margin-bottom: 1rem;
     }
-
     label {
       font-size: 0.9rem;
       margin-bottom: 0.5rem;
       color: #555;
     }
-
     input[type="text"],
     input[type="email"],
     input[type="password"],
-    input[type="tel"],
-    input[type="url"] {
+    input[type="tel"] {
       padding: 12px;
       border: 1px solid #ccc;
       border-radius: 8px;
@@ -72,12 +36,10 @@
       box-sizing: border-box;
       transition: border-color 0.3s ease;
     }
-
     input:focus {
       border-color: #007aff;
       outline: none;
     }
-
     button {
       padding: 12px;
       border: none;
@@ -90,79 +52,78 @@
       transition: background-color 0.3s ease;
       width: 100%;
     }
-
     button:hover {
       background-color: #005bb5;
-    }
-
-    .sns-box {
-      text-align: center;
-    }
-
-    .logo-box-title {
-      color: rgb(117, 117, 117);
-      font-size: 12px;
-      margin-bottom: 15px;
-    }
-
-    .sns-login-logo {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      padding:15px;
-    }
-
-    .login-util-box {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-bottom: 30px;
-    }
-
-    .login-util-box a {
-      text-decoration: none;
-      color: #000;
     }
   </style>
 </head>
 <body>
-<div class="signup-container">
-
-  <div class="py-4 text-center">
-    <h2>회원가입</h2>
+<div class="container">
+  <div class="inner-con">
+    <div class="py-4 text-center">
+      <h2>회원가입</h2>
+    </div>
+    <form id="signupForm">
+      <div class="form-group">
+        <input type="text" id="email" placeholder="이메일 입력" name="email" required>
+      </div>
+      <div class="form-group">
+        <input type="text" id="nickName" placeholder="닉네임 입력" name="nickName" required>
+      </div>
+      <div class="form-group">
+        <input type="password" id="password" placeholder="비밀번호 입력" name="password" required>
+      </div>
+      <div class="form-group">
+        <input type="text" id="phoneNumber" placeholder="전화번호 입력" name="phoneNumber" required>
+      </div>
+      <div class="form-group">
+        <button type="submit">회원가입</button>
+      </div>
+    </form>
   </div>
-
-  <form th:action="@{/signup}" method="post">
-    <div class="form-group">
-      <input type="text" id="email" placeholder="이메일 입력" name="email" th:value="${email}" required>
-    </div>
-    <div class="form-group">
-      <input type="text" id="nickName" placeholder="닉네임 입력" name="nickName" th:value="${nickName}" required>
-    </div>
-    <div class="form-group">
-      <input type="password" id="password" placeholder="비밀번호 입력"  name="password" th:value="${password}" required>
-    </div>
-    <div class="form-group">
-      <input type="text" id="phoneNumber" placeholder="전화번호 입력" name="phoneNumber" th:value="${phoneNumber}" required>
-    </div>
-    <div class="form-group">
-      <button type="submit">회원가입</button>
-    </div>
-  </form>
-
 </div>
-</body>
 <script>
+  // 전화번호 입력 시 하이픈 자동 추가
   document.getElementById("phoneNumber").oninput = function() {
-    let phoneregex = /^(010)[-]?\d{3,4}[-]?\d{4}$/;
-    let number =  /^-?\d+$/;
+    let number = /^-?\d+$/;
     let phone = document.getElementById("phoneNumber");
-    if(number.test(phone.value.toString())){
-      if(phone.value.toString().length==11){
-        phone.value = phone.value.substring(0,3)+"-"+phone.value.substring(3,7)+"-"+phone.value.substring(7,11);
+    if (number.test(phone.value.toString())) {
+      if (phone.value.toString().length == 11) {
+        phone.value = phone.value.substring(0, 3) + "-" + phone.value.substring(3, 7) + "-" + phone.value.substring(7, 11);
       }
     }
-  }
+  };
 
+  // 폼 제출 이벤트를 인터셉트하여 AJAX 요청으로 회원가입 처리
+  document.getElementById("signupForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const nickName = document.getElementById("nickName").value;
+    const password = document.getElementById("password").value;
+    const phoneNumber = document.getElementById("phoneNumber").value;
+
+    const payload = { email, nickName, password, phoneNumber };
+
+    fetch("/signup", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+            .then(response => response.json())
+            .then(result => {
+              if (result.status === "CREATED") {
+                alert("회원가입이 성공적으로 완료되었습니다.");
+                window.location.href = "/signin";
+              } else {
+                alert("회원가입 실패: " + (result.errorMessage || result.detail || result.message));
+              }
+            })
+            .catch(error => {
+              console.error("회원가입 중 오류:", error);
+              alert("회원가입 중 오류가 발생했습니다.");
+            });
+  });
 </script>
+</body>
 </html>

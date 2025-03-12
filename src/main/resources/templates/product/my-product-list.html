@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>메인 페이지</title>
+    <style>
+        /* 간단한 스타일 예시 */
+        body {
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        .logo {
+            width: 120px;
+        }
+
+        header {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #categoryContainer {
+            margin-top: 15px;
+            margin-bottom: 30px;
+        }
+
+        .category-item {
+            display: inline-block;
+            margin-right: 25px;
+            vertical-align: top;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .category-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            display: block;
+        }
+
+
+        .product-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product-item {
+            display: flex;
+            padding-bottom: 20px;
+            padding-top: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+        }
+
+        .product-left {
+            margin-right: 30px;
+            border-radius: 10px;
+        }
+
+        .product-right strong {
+            font-size: 18px;
+        }
+
+        .create-product-btn {
+            position: fixed;
+            bottom: 75px; /* 네비게이션 바(50px) 위에 10px 여유 */
+            right: calc((100% - 400px) / 2 + 25px); /* 중앙 컨테이너의 오른쪽 끝에서 10px 안쪽 */
+            padding: 10px 20px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1100; /* 네비게이션보다 위에 표시 */
+        }
+
+        /* 필터 버튼 영역 */
+        #filterContainer {
+            margin-bottom: 20px;
+        }
+        #filterContainer button {
+            padding: 8px 16px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        #filterContainer button:hover {
+            background-color: #357ae8;
+        }
+
+    </style>
+</head>
+<body>
+<!-- 상단 검색창 -->
+
+
+<div class="container">
+    <div class="inner-con">
+        <img th:src="@{/img/levelup-logo.png}" alt="Levelup 로고" class="logo">
+        <header>
+            <input type="text" id="searchInput" placeholder="검색어를 입력하세요" />
+            <button class="btn search-icon" onclick="searchProducts()">
+                <i class="material-icons">search</i>
+            </button>
+
+        </header>
+
+        <!-- 상품 목록 영역 -->
+        <div id="productContainer">
+            <!-- /v1/products API로 받아온 상품 목록을 표시할 예정 -->
+        </div>
+
+
+
+
+    </div>
+
+
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
+</div>
+
+<button class="create-product-btn" onclick="location.href='/products/add'">강의개설</button>
+<script>
+    // URL의 query parameter에서 검색어를 가져오는 함수
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // 검색 결과 페이지 로드시 검색어에 해당하는 상품을 불러옴
+    window.onload = function() {
+        const keyword = getQueryParam('productName');
+        if (keyword) {
+            document.getElementById('searchInput').value = keyword;
+            fetch(`/products/productName?productName=${encodeURIComponent(keyword)}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result && result.data) {
+                        displayProducts(result.data);
+                    } else {
+                        document.getElementById('productContainer').innerHTML = '<p>검색 결과가 없습니다.</p>';
+                    }
+                })
+                .catch(error => console.error('검색 API 호출 에러:', error));
+        } else {
+            document.getElementById('productContainer').innerHTML = '<p>검색어가 없습니다.</p>';
+        }
+    };
+
+    // 검색 결과를 화면에 렌더링하는 함수
+    function displayProducts(productList) {
+        const container = document.getElementById('productContainer');
+        container.innerHTML = ''; // 기존 내용 초기화
+        productList.forEach(product => {
+            const item = document.createElement('div');
+            item.className = 'product-item';
+            // 클릭 시 상품 상세 페이지로 이동
+            item.onclick = () => {
+                window.location.href = `/product-detail?productId=${product.productId}`;
+            };
+            item.innerHTML = `
+                    <div class="product-left">
+                        <img src="${product.imgUrl || '/img/default-img.png'}" alt="${product.productName}" />
+                    </div>
+                    <div class="product-right">
+                        <div><strong>${product.productName}</strong></div>
+                        <div class="price">${product.price}원</div>
+                    </div>
+                `;
+            container.appendChild(item);
+        });
+    }
+
+    // 검색 버튼 클릭 시, 현재 입력된 검색어로 페이지를 다시 로드
+    function searchProducts() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        if (!keyword) {
+            alert("검색어를 입력하세요.");
+            return;
+        }
+        window.location.href = `/search?productName=${encodeURIComponent(keyword)}`;
+    }
+
+</script>
+</body>
+</html>

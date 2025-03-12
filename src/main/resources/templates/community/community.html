@@ -20,7 +20,7 @@
             align-items: center;
         }
         #categoryContainer {
-            margin-top: 15px;
+            margin-top: 20px;
             margin-bottom: 30px;
         }
         .category-item {
@@ -135,6 +135,7 @@
     <!-- 하단 공통 메뉴 -->
     <div th:replace="fragments :: main-nav"></div>
 </div>
+<button class="create-product-btn" onclick="location.href='/community/add'">글 쓰기</button>
 <script>
     // 페이지 로드시 게임 목록과 커뮤니티 목록을 불러옵니다.
     window.onload = function() {
@@ -196,6 +197,12 @@
     function displayCommunities(communityList) {
         let container = document.getElementById("communityContainer");
         container.innerHTML = "";
+
+        if (communityList.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">아직 글이 없습니다.</div>';
+            return;
+        }
+
         communityList.forEach(community => {
             const item = document.createElement("div");
             item.className = "community-item";

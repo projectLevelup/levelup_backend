@@ -78,6 +78,10 @@
                 <input type="text" id="productName" required maxlength="255" />
             </label>
             <label>
+                <p>썸네일</p>
+                <input type="file" id="imageFile" class="file-input" accept="image/*" required />
+            </label>
+            <label>
                 <p>가격</p>
                 <input type="text" id="price" required />
             </label>
@@ -96,10 +100,7 @@
                     <option value="INACTIVE">INACTIVE</option>
                 </select>
             </label>
-            <label>
-                <p>이미지</p>
-                <input type="text" id="imgUrl" />
-            </label>
+
 
             <button type="button" class="btn" onclick="createProduct()">상품 등록</button>
             <button type="button" class="btn cancel-btn" onclick="cancel()">취소</button>
@@ -169,7 +170,6 @@
      * 상품 생성 요청 (POST /v1/products)
      */
     function createProduct() {
-        // 선택된 게임 ID 확인
         if (!selectedGameId) {
             alert("게임을 선택해주세요.");
             return;
@@ -179,29 +179,37 @@
         const price = document.getElementById('price').value;
         const amount = document.getElementById('amount').value;
         const status = document.getElementById('status').value;
-        const imgUrl = document.getElementById('imgUrl').value;
+        const imageFile = document.getElementById('imageFile').files[0];
 
-        // 간단한 유효성 검사
         if (!productName || !contents || !price || !amount || !status) {
             alert("필수 항목을 모두 입력해주세요.");
             return;
         }
+        if (!imageFile) {
+            alert("이미지 파일을 선택해주세요.");
+            return;
+        }
 
-        const requestData = {
+        // FormData 생성
+        const formData = new FormData();
+        // JSON 형태의 DTO를 Blob으로 생성하여 formData에 추가 (키: dto)
+        const dto = {
             gameId: Number(selectedGameId),
             productName: productName,
             contents: contents,
             price: Number(price),
             amount: Number(amount),
             status: status,
-            imgUrl: imgUrl
+            imgUrl: "" // 이미지 파일이 따로 전송되므로 비워둡니다.
         };
+        formData.append("dto", new Blob([JSON.stringify(dto)], { type: "application/json" }));
+        // 이미지 파일 추가 (키: image)
+        formData.append("image", imageFile);
 
         fetch('/products', {
             method: 'POST',
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestData)
+            body: formData
         })
             .then(response => response.json())
             .then(result => {

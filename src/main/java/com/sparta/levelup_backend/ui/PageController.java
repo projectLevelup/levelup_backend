@@ -192,4 +192,9 @@ public class PageController {
 		return "community/community";
 	}
 
+	@GetMapping("/community/add")
+	public String addCommunityPage() {
+		return "community/write";
+	}
+
 }
