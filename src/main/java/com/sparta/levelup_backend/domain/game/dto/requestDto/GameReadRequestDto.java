@@ -5,6 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class FindGameRequestDto {
+public class GameReadRequestDto {
 	private final Long gameId;
 }

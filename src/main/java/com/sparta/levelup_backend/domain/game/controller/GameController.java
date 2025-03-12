@@ -11,15 +11,14 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
-import com.sparta.levelup_backend.domain.game.dto.requestDto.CreateGameRequestDto;
-import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
+import com.sparta.levelup_backend.domain.game.dto.requestDto.GameCreateRequestDto;
+import com.sparta.levelup_backend.domain.game.dto.requestDto.GameUpdateRequestDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
@@ -40,7 +39,7 @@ public class GameController {
 	// 게임 생성
 	@PostMapping("/admin/games")
 	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestBody CreateGameRequestDto dto) {
+		@RequestBody GameCreateRequestDto dto) {
 		Long userId = customUserDetails.getId();
 		GameEntity game = gameService.saveGame(dto.getName(), dto.getImgUrl(), dto.getGenre(), userId);
 
@@ -50,7 +49,7 @@ public class GameController {
 	//게임 이미지 업로드 테스트
 	@PostMapping("/admin/games/image")
 	public ApiResponse<GameResponseDto> saveGameWithImage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestPart("image")MultipartFile image,@RequestPart CreateGameRequestDto dto) {
+		@RequestPart("image")MultipartFile image,@RequestPart GameCreateRequestDto dto) {
 		log.info("begin controller");
 		Long userId = customUserDetails.getId();
 		String imgUrl = s3Service.upload(image);
@@ -72,7 +71,7 @@ public class GameController {
 	// 게임 수정
 	@PatchMapping("/admin/games/{gameId}")
 	public ApiResponse<GameResponseDto> updateGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@PathVariable Long gameId, @RequestBody UpdateGameRequestDto dto) {
+		@PathVariable Long gameId, @RequestBody GameUpdateRequestDto dto) {
 		Long userId = customUserDetails.getId();
 		GameEntity game = gameService.updateGame(userId, gameId, dto);
 

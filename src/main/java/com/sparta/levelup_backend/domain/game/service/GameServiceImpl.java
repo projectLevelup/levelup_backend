@@ -7,7 +7,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
+import com.sparta.levelup_backend.domain.game.dto.requestDto.GameUpdateRequestDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
@@ -55,7 +55,7 @@ public class GameServiceImpl implements GameService {
 
 	@Transactional
 	@Override
-	public GameEntity updateGame(Long userId, Long gameId, UpdateGameRequestDto dto) {
+	public GameEntity updateGame(Long userId, Long gameId, GameUpdateRequestDto dto) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		checkAdminAuth(user);
 

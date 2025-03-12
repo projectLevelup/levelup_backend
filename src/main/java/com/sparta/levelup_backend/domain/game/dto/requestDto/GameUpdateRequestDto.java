@@ -3,9 +3,9 @@ package com.sparta.levelup_backend.domain.game.dto.requestDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Getter
-public class CreateGameRequestDto {
+@RequiredArgsConstructor
+public class GameUpdateRequestDto {
 	private final String name;
 	private final String imgUrl;
 	private final String genre;
