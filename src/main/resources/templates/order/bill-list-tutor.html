@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 결제 내역</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .order-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .order-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .order-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .order-detail {
+            margin: 4px 0;
+        }
+        .no-orders {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <h2>내 주문 내역</h2>
+        <div class="order-container" id="orderListContainer">
+            <!-- 주문 데이터가 동적으로 삽입됩니다 -->
+        </div>
+    </div>
+</div>
+<script>
+    // 페이지 로드시 결제 내역 로드
+    window.onload = function() {
+        loadPaymentHistory();
+    };
+
+    function loadPaymentHistory() {
+        fetch('/bills/tutor', { credentials: 'include' })
+            .then(response => response.json())
+            .then(result => {
+                // API 응답에서 결제 내역 데이터는 result.data.content 배열에 있음
+                if (result && result.data && result.data.content) {
+                    displayPayments(result.data.content);
+                } else {
+                    console.error('결제 내역을 불러오지 못했습니다.', result);
+                    displayNoPayments();
+                }
+            })
+            .catch(error => {
+                console.error('결제 내역 로드 중 오류:', error);
+                displayNoPayments();
+            });
+    }
+
+    function displayPayments(bills) {
+        const container = document.getElementById('orderListContainer');
+        container.innerHTML = '';
+        if (bills.length === 0) {
+            container.innerHTML = `<div class="no-orders">결제 내역이 없습니다.</div>`;
+            return;
+        }
+        bills.forEach(bill => {
+            const billDiv = document.createElement('div');
+            billDiv.className = 'order-item';
+            // 클릭 시 결제 상세 페이지로 이동 (orderId 대신 billId 사용)
+            billDiv.innerHTML = `
+        <div class="order-title">결제번호: ${bill.billId}</div>
+        <div class="order-detail">상품명: ${bill.billHistory}</div>
+        <div class="order-detail">가격: ${bill.price}원</div>
+        <div class="order-detail">상태: ${bill.status}</div>
+        <div class="order-detail">학생: ${bill.studentName}</div>
+        <div class="order-detail">결제일: ${bill.paymentDate}</div>
+      `;
+            container.appendChild(billDiv);
+        });
+    }
+
+    function displayNoPayments() {
+        const container = document.getElementById('orderListContainer');
+        container.innerHTML = `<div class="no-orders">결제 내역이 없습니다.</div>`;
+    }
+</script>
+</body>
+</html>

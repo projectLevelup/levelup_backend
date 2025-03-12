@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>주문 상세 내역</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .detail-item {
+            margin: 10px 0;
+        }
+        .detail-item span {
+            font-weight: bold;
+        }
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .action-button {
+            width: 100%;
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <h2>주문 상세 내역</h2>
+        <div id="orderDetail">
+            <!-- 주문 상세 정보가 동적으로 삽입됩니다. -->
+        </div>
+        <div id="buttonGroup" class="button-group"></div>
+        <a href="/profile/order/student" class="back-button">주문 목록으로 돌아가기</a>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Thymeleaf가 컨트롤러에서 전달한 orderId를 주입합니다.
+    const orderId = /*[[${orderId}]]*/ 0;
+    window.onload = function() {
+        if (!orderId) {
+            alert("주문 ID가 없습니다.");
+            return;
+        }
+        loadOrderDetail(orderId);
+    };
+
+    function loadOrderDetail(id) {
+        fetch(`/orders/${id}`, { credentials: 'include' })
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayOrderDetail(result.data);
+                    setupActionButtons(result.data);
+                } else {
+                    document.getElementById('orderDetail').innerHTML = '<p>주문 상세 정보를 불러올 수 없습니다.</p>';
+                }
+            })
+            .catch(error => {
+                console.error("주문 상세 정보 로드 오류:", error);
+                document.getElementById('orderDetail').innerHTML = '<p>주문 상세 정보를 불러올 수 없습니다.</p>';
+            });
+    }
+
+    function displayOrderDetail(order) {
+        const detailDiv = document.getElementById('orderDetail');
+        detailDiv.innerHTML = `
+            <div class="detail-item"><span>주문번호:</span> ${order.orderId}</div>
+            <div class="detail-item"><span>상품명:</span> ${order.productName}</div>
+            <div class="detail-item"><span>가격:</span> ${order.price}원</div>
+            <div class="detail-item"><span>상태:</span> ${order.status}</div>
+            <div class="detail-item"><span>학생:</span> ${order.student}</div>
+        `;
+    }
+
+    function setupActionButtons(order) {
+        const btnGroup = document.getElementById('buttonGroup');
+        btnGroup.innerHTML = '';
+
+        if (order.status === "CANCELED") {
+            return;
+        }
+
+        // 버튼 생성 조건에 따라 동적으로 추가
+        if (order.status === "PENDING") {
+            // 결제하기 버튼: 체크아웃 페이지로 이동 (orderId 전달)
+            const payBtn = document.createElement('a');
+            payBtn.className = 'action-button';
+            payBtn.href = `/checkout?orderId=${order.orderId}`;
+            payBtn.textContent = "결제하기";
+            btnGroup.appendChild(payBtn);
+        } else if (order.status === "TRADING") {
+            // 거래 완료 버튼: completeOrder 호출
+            const completeBtn = document.createElement('button');
+            completeBtn.className = 'action-button';
+            completeBtn.textContent = "거래 완료";
+            completeBtn.onclick = () => completeOrder(order.orderId);
+            btnGroup.appendChild(completeBtn);
+        }
+        // 취소하기 버튼 (공통): 주문 상태에 따라 API 엔드포인트가 달라짐
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'action-button';
+        cancelBtn.textContent = "취소하기";
+        cancelBtn.onclick = () => cancelOrder(order.orderId, order.status);
+        btnGroup.appendChild(cancelBtn);
+    }
+
+    function completeOrder(orderId) {
+        // 거래 완료 API: /orders/student/{orderId} PATCH 요청
+        fetch(`/orders/student/${orderId}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(response => response.json())
+            .then(result => {
+                if(result && result.data) {
+                    alert("거래 완료 처리되었습니다.");
+                    // 주문 상세 정보 재조회
+                    loadOrderDetail(orderId);
+                } else {
+                    alert("거래 완료 처리 실패: " + (result.message || "알 수 없는 오류"));
+                }
+            })
+            .catch(error => {
+                console.error("거래 완료 처리 중 오류:", error);
+                alert("거래 완료 처리 중 오류가 발생했습니다.");
+            });
+    }
+
+    function cancelOrder(orderId, status) {
+        let url = "";
+        if (status === "PENDING") {
+            url = `/orders/${orderId}`;
+        } else if (status === "TRADING") {
+            url = `/orders/${orderId}`;
+        } else {
+            alert("취소할 수 없는 주문 상태입니다.");
+            return;
+        }
+        if(!confirm("정말 취소하시겠습니까?")) return;
+        fetch(url, {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then(response => response.json())
+            .then(result => {
+                if(result) {
+                    alert("주문이 취소되었습니다.");
+                    window.location.href = "/profile/order/student";
+                } else {
+                    alert("주문 취소 실패: " + (result.message || "알 수 없는 오류"));
+                }
+            })
+            .catch(error => {
+                console.error("주문 취소 중 오류:", error);
+                alert("주문 취소 중 오류가 발생했습니다.");
+            });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

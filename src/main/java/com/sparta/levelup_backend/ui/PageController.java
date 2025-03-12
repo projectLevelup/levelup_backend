@@ -10,6 +10,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.chat.repository.ChatroomMongoRepository;
 import com.sparta.levelup_backend.domain.chat.service.ChatroomService;
+import com.sparta.levelup_backend.domain.order.dto.response.OrderResponseDto;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -86,6 +87,12 @@ public class PageController {
 		return "productDetail";
 	}
 
+	@GetMapping("/community-detail")
+	public String communityDetail(@RequestParam("communityId") Long communityId, Model model) {
+		model.addAttribute("communityId", communityId);
+		return "community/community-detail";
+	}
+
 	@GetMapping("/resetPassword")
 	public String resetPassword() {
 		return "resetPassword";
@@ -126,6 +133,63 @@ public class PageController {
 							 Model model) {
 		model.addAttribute("productName", productName);
 		return "product/product-list"; // search.html 템플릿을 렌더링
+	}
+
+	@GetMapping("/profile/order/student")
+	public String orderStudentPage() {
+		return "order/order-list";
+	}
+
+	@GetMapping("/profile/order/tutor")
+	public String orderTutorPage() {
+		return "order/order-list-tutor";
+	}
+
+	@GetMapping("/profile/order/student/order-detail")
+	public String orderDetailPage(@RequestParam Long orderId, Model model) {
+		model.addAttribute("orderId", orderId);
+		return "order/order-detail"; // src/main/resources/templates/order-detail.html
+	}
+
+	@GetMapping("/profile/order/tutor/order-detail")
+	public String orderDetailTutorPage(@RequestParam Long orderId, Model model) {
+		model.addAttribute("orderId", orderId);
+		return "order/order-detail-tutor"; // src/main/resources/templates/order-detail.html
+	}
+
+
+	@GetMapping("/checkout")
+	public String checkoutPage(@RequestParam Long orderId, Model model) {
+		model.addAttribute("orderId", orderId);
+		return "payment/checkout";
+	}
+
+	@GetMapping("/profile/bills/student")
+	public String billsPage() {
+		return "order/bill-list";
+	}
+
+	@GetMapping("/profile/bills/tutor")
+	public String billsTutorPage() {
+		return "order/bill-list-tutor";
+	}
+
+	@GetMapping("/profile/update")
+	public String updatePage() {
+		return "user/update";
+	}
+
+	@GetMapping("/review/write")
+	public String reviewWritePage(@RequestParam Long productId,
+								  Model model) {
+
+		model.addAttribute("productId", productId);
+		return "review/create"; // review/write.html 템플릿 렌더링
+	}
+
+	@GetMapping("/community")
+	public String communityPage() {
+		return "community/community";
 	}
 
 }
