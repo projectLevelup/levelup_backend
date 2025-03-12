@@ -16,6 +16,8 @@ public interface ProductService {
 
 	List<ProductResponseDto> getAllProducts();
 
+	List<ProductResponseDto> getAllProductsByUser(Long userId);
+
 	ProductResponseDto getProductById(Long id, Long userId);
 
 	ProductCreateResponseDto saveProduct(Long id, ProductCreateRequestDto dto);

@@ -56,6 +56,11 @@ public class ProductController {
 		return success(OK, PRODUCT_READ, productService.getAllProducts());
 	}
 
+	@GetMapping("/mine/{userId}")
+	public ApiResponse<List<ProductResponseDto>> findAllProductsByUser(@PathVariable Long userId) {
+		return success(OK, PRODUCT_READ, productService.getAllProductsByUser(userId));
+	}
+
 	// 상품 ID로 상품 조회 → findProductById
 	@GetMapping("/{id}")
 	public ApiResponse<ProductResponseDto> findProductById(

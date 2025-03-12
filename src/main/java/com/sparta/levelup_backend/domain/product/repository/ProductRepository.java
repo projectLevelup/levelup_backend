@@ -5,6 +5,7 @@ import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.redisson.api.RScoredSortedSet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -40,4 +41,5 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 			.orElseThrow(() -> new ProductException(PRODUCT_NOT_FOUND));
 	}
 
+	List<ProductEntity> findAllByUserIdAndIsDeletedFalse(Long userId);
 }

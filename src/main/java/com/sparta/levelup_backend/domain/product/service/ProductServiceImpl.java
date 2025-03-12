@@ -38,6 +38,7 @@ import com.sparta.levelup_backend.domain.review.document.ReviewDocument;
 import com.sparta.levelup_backend.domain.review.repositoryES.ReviewESRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
+import com.sparta.levelup_backend.enums.ProductStatus;
 import com.sparta.levelup_backend.enums.UserRole;
 import com.sparta.levelup_backend.exception.product.ProductException;
 
@@ -86,6 +87,13 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public List<ProductResponseDto> getAllProducts() {
 		return productRepository.findAllByIsDeletedFalseAndStatus(ACTIVE)
+			.stream()
+			.map(ProductResponseDto::new)
+			.collect(Collectors.toList());
+	}
+
+	public List<ProductResponseDto> getAllProductsByUser(Long userId) {
+		return productRepository.findAllByUserIdAndIsDeletedFalse(userId)
 			.stream()
 			.map(ProductResponseDto::new)
 			.collect(Collectors.toList());
