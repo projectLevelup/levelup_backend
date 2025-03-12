@@ -164,6 +164,11 @@ public class PageController {
 		return "payment/checkout";
 	}
 
+	@GetMapping("/profile/my-products")
+	public String myProducts() {
+		return "product/my-product-list";
+	}
+
 	@GetMapping("/profile/bills/student")
 	public String billsPage() {
 		return "order/bill-list";
@@ -197,10 +202,18 @@ public class PageController {
 		return "community/write";
 	}
 
+	@GetMapping("/community/search")
+	public String searchCommunityPage(@RequestParam String keyword, Model model) {
+		model.addAttribute("keyword", keyword);
+		return "community/search";
+	}
+
 	@GetMapping("/admin/dashboard/game/update")
 	public String updateGamePage(@RequestParam Long gameId, Model model) {
 		model.addAttribute("gameId", gameId);
 		return "admin/update-game";
 	}
+
+
 
 }

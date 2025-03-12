@@ -257,8 +257,8 @@
         fetch('/products/aggregations/popular')
             .then(response => response.json())
             .then(result => {
-                if (result && result.data) {
-                    displayProducts(result.data);
+                if (result && result.data && result.data.content) {
+                    displayProducts(result.data.content);
                 } else {
                     console.error('인기 상품 목록 불러오기 실패', result);
                 }

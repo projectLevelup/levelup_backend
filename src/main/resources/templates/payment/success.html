@@ -6,36 +6,42 @@
     <link rel="stylesheet" type="text/css" href="/style.css" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     <title>결제 성공</title>
 </head>
 
 <body>
-<div class="box_section" style="width: 600px">
-    <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" />
-    <h2 style="color: green;">결제를 완료했어요</h2>
+<div class="container">
+    <div class="inner-con">
+        <div class="box_section" style="width: 600px">
+            <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png" />
+            <h2 style="color: green;">결제를 완료했어요</h2>
 
-    <div class="p-grid typography--p" style="margin-top: 50px">
-        <div class="p-grid-col text--left"><b>결제금액</b></div>
-        <div class="p-grid-col text--right" id="amount"></div>
-    </div>
-    <div class="p-grid typography--p" style="margin-top: 10px">
-        <div class="p-grid-col text--left"><b>주문번호</b></div>
-        <div class="p-grid-col text--right" id="orderId"></div>
-    </div>
-    <div class="p-grid typography--p" style="margin-top: 10px">
-        <div class="p-grid-col text--left"><b>결제 수단</b></div>
-        <div class="p-grid-col text--right" id="method"></div>
-    </div>
-    <div class="p-grid typography--p" style="margin-top: 10px">
-        <div class="p-grid-col text--left"><b>승인 시간</b></div>
-        <div class="p-grid-col text--right" id="approvedAt"></div>
-    </div>
+            <div class="p-grid typography--p" style="margin-top: 50px">
+                <div class="p-grid-col text--left"><b>결제금액</b></div>
+                <div class="p-grid-col text--right" id="amount"></div>
+            </div>
+            <div class="p-grid typography--p" style="margin-top: 10px">
+                <div class="p-grid-col text--left"><b>주문번호</b></div>
+                <div class="p-grid-col text--right" id="orderId"></div>
+            </div>
+            <div class="p-grid typography--p" style="margin-top: 10px">
+                <div class="p-grid-col text--left"><b>결제 수단</b></div>
+                <div class="p-grid-col text--right" id="method"></div>
+            </div>
+            <div class="p-grid typography--p" style="margin-top: 10px">
+                <div class="p-grid-col text--left"><b>승인 시간</b></div>
+                <div class="p-grid-col text--right" id="approvedAt"></div>
+            </div>
 
-    <div class="p-grid" style="margin-top: 30px">
-        <button class="button p-grid-col5" onclick="location.href='https://docs.tosspayments.com/guides/v2/payment-widget/integration';">연동 문서</button>
-        <button class="button p-grid-col5" onclick="location.href='https://discord.gg/A4fRFXQhRu';" style="background-color: #e8f3ff; color: #1b64da">실시간 문의</button>
+            <div class="p-grid" style="margin-top: 30px">
+                <button class="button p-grid-col5" onclick="location.href='https://docs.tosspayments.com/guides/v2/payment-widget/integration';">연동 문서</button>
+                <button class="button p-grid-col5" onclick="location.href='https://discord.gg/A4fRFXQhRu';" style="background-color: #e8f3ff; color: #1b64da">실시간 문의</button>
+            </div>
+        </div>
     </div>
 </div>
+
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -75,6 +81,11 @@
             amountElement.innerText = data.totalAmount.toLocaleString() + "원";
             methodElement.innerText = data.method || "정보 없음";
             approvedAtElement.innerText = data.approvedAt || "정보 없음";
+
+            // 성공 후 2초 뒤 페이지 이동
+            setTimeout(() => {
+                window.location.href = `/profile/order/student/order-detail?orderId=${data.orderId}`;
+            }, 2000);
         })
         .catch((err) => {
             console.error("결제 승인 실패:", err.message, "코드:", err.code);

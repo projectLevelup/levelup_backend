@@ -6,24 +6,30 @@
         <link rel="stylesheet" type="text/css" href="/style.css" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" th:href="@{/css/common.css}">
         <title>Level UP</title>
         <script src="http://js.tosspayments.com/v2/standard"></script>
 </head>
 
 <body>
 <!--주문서 영역-->
-<div class="wrapper">
-     <div class="box_section" style="padding: 40px 30px 50px 30px; margin-top: 30px; margin-bottom: 50px">
-         <h1>일반 결제</h1>
-         <!--결제 UI-->
-         <div id = "payment-method" style="display: flex">
-             <button id = "CARD" class="button2" onclick="selectPaymentMethod('CARD')">카드</button>
-             <button id = "TRANSFER" class="button2" onclick="selectPaymentMethod('TRANSFER')">계좌이체</button>
-         </div>
-         <!--결제하기 버튼-->
-         <button class="button" style="margin-top: 30px" onclick="requestPayment(orderId)">결제하기</button>
-     </div>
+<div class="container">
+    <div class="inner-con">
+        <div class="wrapper">
+            <div class="box_section" style="padding: 40px 30px 50px 30px; margin-top: 30px; margin-bottom: 50px">
+                <h1>일반 결제</h1>
+                <!--결제 UI-->
+                <div id = "payment-method" style="display: flex">
+                    <button id = "CARD" class="button2" onclick="selectPaymentMethod('CARD')">카드</button>
+                    <button id = "TRANSFER" class="button2" onclick="selectPaymentMethod('TRANSFER')">계좌이체</button>
+                </div>
+                <!--결제하기 버튼-->
+                <button class="button" style="margin-top: 30px" onclick="requestPayment(orderId)">결제하기</button>
+            </div>
+        </div>
+    </div>
 </div>
+
 <script th:inline="javascript">
     /*<![CDATA[*/
     var orderId = /*[[${orderId}]]*/ 0;

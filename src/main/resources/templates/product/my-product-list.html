@@ -64,6 +64,10 @@
             border-radius: 10px;
         }
 
+        .product-right {
+            width: 100%;
+        }
+
         .product-right strong {
             font-size: 18px;
         }
@@ -99,6 +103,18 @@
             background-color: #357ae8;
         }
 
+        .product-btn {
+            padding: 5px 16px;
+        }
+
+        .btn-wrap {
+            display: flex;
+            margin-top: 15px;
+            gap: 8px;
+            flex-direction: row;
+            justify-content: flex-end;
+        }
+
     </style>
 </head>
 <body>
@@ -107,15 +123,7 @@
 
 <div class="container">
     <div class="inner-con">
-        <img th:src="@{/img/levelup-logo.png}" alt="Levelup 로고" class="logo">
-        <header>
-            <input type="text" id="searchInput" placeholder="검색어를 입력하세요" />
-            <button class="btn search-icon" onclick="searchProducts()">
-                <i class="material-icons">search</i>
-            </button>
-
-        </header>
-
+        <h2>내 상품 목록</h2>
         <!-- 상품 목록 영역 -->
         <div id="productContainer">
             <!-- /v1/products API로 받아온 상품 목록을 표시할 예정 -->
@@ -131,32 +139,23 @@
     <div th:replace="fragments :: main-nav"></div>
 </div>
 
-<button class="create-product-btn" onclick="location.href='/products/add'">강의개설</button>
 <script>
-    // URL의 query parameter에서 검색어를 가져오는 함수
-    function getQueryParam(param) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(param);
-    }
 
     // 검색 결과 페이지 로드시 검색어에 해당하는 상품을 불러옴
     window.onload = function() {
-        const keyword = getQueryParam('productName');
-        if (keyword) {
-            document.getElementById('searchInput').value = keyword;
-            fetch(`/products/productName?productName=${encodeURIComponent(keyword)}`)
-                .then(response => response.json())
-                .then(result => {
-                    if (result && result.data) {
-                        displayProducts(result.data);
-                    } else {
-                        document.getElementById('productContainer').innerHTML = '<p>검색 결과가 없습니다.</p>';
-                    }
-                })
-                .catch(error => console.error('검색 API 호출 에러:', error));
-        } else {
-            document.getElementById('productContainer').innerHTML = '<p>검색어가 없습니다.</p>';
-        }
+        fetch('/products/user', { credentials: 'include' })
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data && result.data.content) {
+                    displayProducts(result.data.content);
+                } else {
+                    document.getElementById('productContainer').innerHTML = '<p>등록한 상품이 없습니다.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('상품 조회 오류:', error);
+                document.getElementById('productContainer').innerHTML = '<p>상품을 불러오는 중 오류가 발생했습니다.</p>';
+            });
     };
 
     // 검색 결과를 화면에 렌더링하는 함수
@@ -166,10 +165,6 @@
         productList.forEach(product => {
             const item = document.createElement('div');
             item.className = 'product-item';
-            // 클릭 시 상품 상세 페이지로 이동
-            item.onclick = () => {
-                window.location.href = `/product-detail?productId=${product.productId}`;
-            };
             item.innerHTML = `
                     <div class="product-left">
                         <img src="${product.imgUrl || '/img/default-img.png'}" alt="${product.productName}" />
@@ -177,21 +172,36 @@
                     <div class="product-right">
                         <div><strong>${product.productName}</strong></div>
                         <div class="price">${product.price}원</div>
+                        <div class="btn-wrap">
+                            <button class="product-btn">수정</button>
+                            <button class="product-btn" onclick="deleteProduct(event, ${product.productId})">삭제</button>
+                        </div>
                     </div>
                 `;
             container.appendChild(item);
         });
     }
 
-    // 검색 버튼 클릭 시, 현재 입력된 검색어로 페이지를 다시 로드
-    function searchProducts() {
-        const keyword = document.getElementById('searchInput').value.trim();
-        if (!keyword) {
-            alert("검색어를 입력하세요.");
-            return;
-        }
-        window.location.href = `/search?productName=${encodeURIComponent(keyword)}`;
+    function deleteProduct(event, productId) {
+        event.stopPropagation();
+        if (!confirm("정말 삭제하시겠습니까?")) return;
+
+        fetch(`/products/${productId}`, { method: 'DELETE', credentials: 'include' })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'OK') {
+                    alert("상품이 삭제되었습니다.");
+                    location.reload();
+                } else {
+                    alert("상품 삭제 실패: " + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('상품 삭제 오류:', error);
+                alert("상품 삭제 중 오류가 발생했습니다.");
+            });
     }
+
 
 </script>
 </body>

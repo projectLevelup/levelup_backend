@@ -99,6 +99,23 @@
             background-color: #357ae8;
         }
 
+        .top3-banner {
+            width: 100%;
+            display: inline-block;
+            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
+            text-align: center;
+            font-weight: 600;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .top3-item {
+            padding: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -115,7 +132,7 @@
             </button>
 
         </header>
-
+        <div class="top3-banner" onclick="loadTop3Products()">유저들이 뽑은 TOP3 강의</div>
         <!-- 상품 목록 영역 -->
         <div id="productContainer">
             <!-- /v1/products API로 받아온 상품 목록을 표시할 예정 -->
@@ -147,8 +164,8 @@
             fetch(`/products/productName?productName=${encodeURIComponent(keyword)}`)
                 .then(response => response.json())
                 .then(result => {
-                    if (result && result.data) {
-                        displayProducts(result.data);
+                    if (result && result.data && result.data.content) {
+                        displayProducts(result.data.content);
                     } else {
                         document.getElementById('productContainer').innerHTML = '<p>검색 결과가 없습니다.</p>';
                     }
@@ -191,6 +208,36 @@
             return;
         }
         window.location.href = `/search?productName=${encodeURIComponent(keyword)}`;
+    }
+
+    function loadTop3Products() {
+        fetch('/products/sentimentanalysis/top3')
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data && result.data.content) {
+                    displayTop3(result.data.content);
+                } else {
+                    document.getElementById('top3Container').innerHTML = '<p>TOP3 강의를 불러올 수 없습니다.</p>';
+                }
+            })
+            .catch(err => {
+                console.error('TOP3 강의 에러:', err);
+                document.getElementById('top3Container').innerHTML = '<p>TOP3 강의 로드 중 오류 발생</p>';
+            });
+    }
+
+    function displayTop3(products) {
+        const container = document.getElementById('top3Container');
+        container.innerHTML = '';
+        products.forEach(product => {
+            const item = document.createElement('div');
+            item.className = 'top3-item';
+            item.innerHTML = `
+                <div><strong>${product.productName}</strong></div>
+                <div>가격: ${product.price}원</div>
+            `;
+            container.appendChild(item);
+        });
     }
 
 </script>

@@ -236,3 +236,23 @@ h2 {
     padding: 20px;
     color: #666;
 }
+
+.product-item img {
+    border-radius: 10px;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.community-item:last-child {
+    border-bottom: none;
+}
+
+.community-author {
+    font-size: 14px;
+}
+
+.community-title {
+    padding-bottom: 5px;
+}
