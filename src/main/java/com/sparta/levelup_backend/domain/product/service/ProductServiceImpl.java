@@ -18,6 +18,9 @@ import org.openkoreantext.processor.tokenizer.KoreanTokenizer;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +41,8 @@ import com.sparta.levelup_backend.domain.review.document.ReviewDocument;
 import com.sparta.levelup_backend.domain.review.repositoryES.ReviewESRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import com.sparta.levelup_backend.enums.ProductStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.sparta.levelup_backend.enums.UserRole;
 import com.sparta.levelup_backend.exception.product.ProductException;
 
@@ -85,18 +89,20 @@ public class ProductServiceImpl implements ProductService {
 	 * @return 활성화된 상품들의 리스트(ProductResponseDto)
 	 */
 	@Override
-	public List<ProductResponseDto> getAllProducts() {
-		return productRepository.findAllByIsDeletedFalseAndStatus(ACTIVE)
-			.stream()
-			.map(ProductResponseDto::new)
-			.collect(Collectors.toList());
+	public Page<ProductResponseDto> getAllProducts(Pageable pageable) {
+		Page<ProductEntity> productPage = productRepository.findAllByIsDeletedFalseAndStatus(ACTIVE, pageable);
+		return productPage.map(ProductResponseDto::new);
 	}
 
-	public List<ProductResponseDto> getAllProductsByUser(Long userId) {
-		return productRepository.findAllByUserIdAndIsDeletedFalse(userId)
-			.stream()
+	@Override
+	public Page<ProductResponseDto> getAllProductsByUser(Long userId, Pageable pageable) {
+		Page<ProductEntity> productPage = productRepository.findAllByUserIdAndIsDeletedFalse(userId, pageable);
+
+		List<ProductResponseDto> productDtoList = productPage.getContent().stream()
 			.map(ProductResponseDto::new)
 			.collect(Collectors.toList());
+
+		return new PageImpl<>(productDtoList, pageable, productPage.getTotalElements());
 	}
 
 	/**
@@ -212,7 +218,7 @@ public class ProductServiceImpl implements ProductService {
 		productESRepository.save(document);
 
 		product.deleteProduct();
-		
+
 		return new ProductDeleteResponseDto(document);
 	}
 
@@ -233,8 +239,9 @@ public class ProductServiceImpl implements ProductService {
 	 * @return 활성화된 상품의 Elasticsearch 문서 목록(List<ProductDocument>)
 	 */
 	@Cacheable(value = "product")
-	public List<ProductDocument> getAllProductsES() {
-		return productESRepository.findByIsDeletedFalseAndStatus(ACTIVE);
+	public Page<ProductDocument> getAllProductsES(Pageable pageable) {
+		List<ProductDocument> list = productESRepository.findByIsDeletedFalseAndStatus(ACTIVE);
+		return new PageImpl<>(list, pageable, list.size());
 	}
 
 	/**
@@ -242,7 +249,8 @@ public class ProductServiceImpl implements ProductService {
 	 * @param productName 검색할 상품명
 	 * @return 검색된 상품 문서 목록(List<ProductDocument>)
 	 */
-	public List<ProductDocument> searchByProductNameES(String productName) {
+	@Override
+	public Page<ProductDocument> searchByProductNameES(String productName, Pageable pageable) {
 		SearchRequest request = SearchRequest.of(s -> s
 			.index("product")
 			.query(q -> q
@@ -259,8 +267,16 @@ public class ProductServiceImpl implements ProductService {
 							.value(false)
 						)
 					)
+					.filter(f -> f
+						.term(t -> t
+							.field("status")
+							.value("ACTIVE")
+						)
+					)
 				)
 			)
+			.from((int) pageable.getOffset())
+			.size(pageable.getPageSize())
 		);
 
 		SearchResponse<ProductDocument> response;
@@ -270,10 +286,13 @@ public class ProductServiceImpl implements ProductService {
 			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}
 
-		return response.hits().hits().stream()
+		List<ProductDocument> list = response.hits().hits().stream()
 			.map(Hit::source)
 			.collect(Collectors.toList());
+
+		return new PageImpl<>(list, pageable, response.hits().total().value());
 	}
+
 
 
 	/**
@@ -283,8 +302,9 @@ public class ProductServiceImpl implements ProductService {
 	 * @return 해당 게임의 상품 문서 목록(List<ProductDocument>)
 	 */
 	@Cacheable(value = "product", key = "#gameId")
-	public List<ProductDocument> searchByGameIdES(Long gameId) {
-		return productESRepository.findByGameIdAndIsDeletedFalseAndStatus(gameId,ACTIVE);
+	public Page<ProductDocument> searchByGameIdES(Long gameId, Pageable pageable) {
+		List<ProductDocument> list = productESRepository.findByGameIdAndIsDeletedFalseAndStatus(gameId, ACTIVE);
+		return new PageImpl<>(list, pageable, list.size());
 	}
 
 	/**
@@ -294,8 +314,9 @@ public class ProductServiceImpl implements ProductService {
 	 * @return 해당 상태의 상품 문서 목록(List<ProductDocument>)
 	 */
 	@Cacheable(value = "product", key = "#status")
-	public List<ProductDocument> searchByStatusES(String status) {
-		return productESRepository.findByStatusAndIsDeletedFalse(status,ACTIVE);
+	public Page<ProductDocument> searchByStatusES(String status, Pageable pageable) {
+		List<ProductDocument> list = productESRepository.findByStatusAndIsDeletedFalse(status, ACTIVE);
+		return new PageImpl<>(list, pageable, list.size());
 	}
 
 	/**
@@ -305,8 +326,9 @@ public class ProductServiceImpl implements ProductService {
 	 * @return 해당 사용자가 등록한 활성화된 상품 목록(List<ProductDocument>)
 	 */
 	@Cacheable(value = "product", key = "#userId")
-	public List<ProductDocument> searchByUserIdES(Long userId) {
-		return productESRepository.findByUserIdAndIsDeletedFalseAndStatus(userId,ACTIVE);
+	public Page<ProductDocument> searchByUserIdES(Long userId, Pageable pageable) {
+		List<ProductDocument> list = productESRepository.findByUserIdAndIsDeletedFalseAndStatus(userId, ACTIVE);
+		return new PageImpl<>(list, pageable, list.size());
 	}
 
 	/**
@@ -327,6 +349,12 @@ public class ProductServiceImpl implements ProductService {
 							.term(t -> t
 								.field("isDeleted")
 								.value(false)
+							)
+						)
+						.filter(f -> f
+							.term(t -> t
+								.field("status")
+								.value("ACTIVE") // ✅ status가 ACTIVE인 데이터만 포함
 							)
 						)
 					)
@@ -362,7 +390,7 @@ public class ProductServiceImpl implements ProductService {
 	 * @return 인기 상품 상위 10개(List<ProductDocument>)
 	 */
 	@Override
-	public List<ProductDocument> getTop10PopularProductsES() {
+	public Page<ProductDocument> getTop10PopularProductsES(Pageable pageable) {
 		Map<String, Double> keywords = extractImportantKeywords(10);
 		BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
@@ -378,7 +406,6 @@ public class ProductServiceImpl implements ProductService {
 			);
 		}
 
-		// isDeleted 필터 추가
 		boolQueryBuilder.filter(f -> f
 			.term(t -> t
 				.field("isDeleted")
@@ -386,11 +413,18 @@ public class ProductServiceImpl implements ProductService {
 			)
 		);
 
+		boolQueryBuilder.filter(f -> f
+			.term(t -> t
+				.field("status")
+				.value("ACTIVE")
+			)
+		);
+
 		SearchRequest searchRequest = new SearchRequest.Builder()
 			.index("product")
 			.query(q -> q.bool(boolQueryBuilder.build()))
-			.from(0)
-			.size(10)
+			.from((int) pageable.getOffset())
+			.size(pageable.getPageSize())
 			.build();
 
 		log.info("검색결과: {}", searchRequest);
@@ -398,13 +432,18 @@ public class ProductServiceImpl implements ProductService {
 		try {
 			SearchResponse<ProductDocument> searchResponse =
 				elasticsearchClient.search(searchRequest, ProductDocument.class);
-			return searchResponse.hits().hits().stream()
+
+			List<ProductDocument> productList = searchResponse.hits().hits().stream()
 				.map(Hit::source)
 				.collect(Collectors.toList());
+
+			return new PageImpl<>(productList, pageable, searchResponse.hits().total().value());
 		} catch (IOException e) {
 			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}
 	}
+
+
 
 
 	/**
@@ -503,16 +542,19 @@ public class ProductServiceImpl implements ProductService {
 	/**
 	 * 감성 점수 TOP 3 제품 반환
 	 */
-	public List<ProductRequestAllDto> getTop3Products() {
+	@Override
+	public Page<ProductRequestAllDto> getTop3Products(Pageable pageable) {
 		updateProductSentimentScores();
 
 		List<ProductDocument> productList = productESRepository.findAllByIsDeletedFalseAndStatus(ACTIVE);
 
-		return productList.stream()
+		List<ProductRequestAllDto> top3Products = productList.stream()
 			.sorted(Comparator.comparingDouble(ProductDocument::getSentimentScore).reversed())
 			.limit(3)
 			.map(ProductRequestAllDto::fromDocument)
-			.toList();
+			.collect(Collectors.toList());
+
+		return new PageImpl<>(top3Products, pageable, top3Products.size());
 	}
 
 	/**
