@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.s3.service;
 
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,12 +19,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.util.IOUtils;
-import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.s3.S3Exception;
 
 import lombok.RequiredArgsConstructor;
@@ -39,9 +39,12 @@ public class S3Service {
 	private String bucketName;
 
 	public String upload(MultipartFile image) {
+
 		if (image.isEmpty() || Objects.isNull(image.getOriginalFilename())) {
-			throw new S3Exception(ErrorCode.EMPTY_FILE_EXCEPTION);
+			throw new S3Exception(EMPTY_FILE_EXCEPTION);
 		}
+
+		checkFileSize(image);
 		return this.uploadImage(image);
 	}
 
@@ -50,21 +53,22 @@ public class S3Service {
 		try {
 			return this.uploadImageToS3(image);
 		} catch (IOException e) {
-			throw new S3Exception(ErrorCode.IO_EXCEPTION_ON_IMAGE_UPLOAD);
+			throw new S3Exception(IO_EXCEPTION_ON_IMAGE_UPLOAD);
 		}
 	}
 
+	// 확장자 확인
 	private void validateImageFileExtention(String filename) {
 		int lastDotIndex = filename.lastIndexOf(".");
 		if (lastDotIndex == -1) {
-			throw new S3Exception(ErrorCode.NO_FILE_EXTENTION);
+			throw new S3Exception(NO_FILE_EXTENTION);
 		}
 
 		String extention = filename.substring(lastDotIndex + 1).toLowerCase();
-		List<String> allowedExtentionList = Arrays.asList("jpg", "jpeg", "png", "gif");
+		List<String> allowedExtentionList = Arrays.asList("jpg", "jpeg", "png");
 
 		if (!allowedExtentionList.contains(extention)) {
-			throw new S3Exception(ErrorCode.INVALID_FILE_EXTENTION);
+			throw new S3Exception(INVALID_FILE_EXTENTION);
 		}
 	}
 
@@ -78,17 +82,17 @@ public class S3Service {
 		byte[] bytes = IOUtils.toByteArray(is);
 
 		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentType("image/" + extention);
+		metadata.setContentType("image" + extention);
 		metadata.setContentLength(bytes.length);
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
 
 		try {
 			PutObjectRequest putObjectRequest =
-				new PutObjectRequest(bucketName, s3FileName, byteArrayInputStream, metadata)
-					.withCannedAcl(CannedAccessControlList.PublicRead);
+				new PutObjectRequest(bucketName, s3FileName, byteArrayInputStream, metadata);
 			amazonS3.putObject(putObjectRequest); // put image to S3
 		} catch (Exception e) {
-			throw new S3Exception(ErrorCode.PUT_OBJECT_EXCEPTION);
+			log.warn("s3 사진 업로드중 예외 발생: {}", e.getMessage());
+			throw new S3Exception(PUT_OBJECT_EXCEPTION);
 		} finally {
 			byteArrayInputStream.close();
 			is.close();
@@ -102,7 +106,8 @@ public class S3Service {
 		try {
 			amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
 		} catch (Exception e) {
-			throw new S3Exception(ErrorCode.IO_EXCEPTION_ON_IMAGE_DELETE);
+			log.error("error from delete Image: {}", e.getMessage());
+			throw new S3Exception(IO_EXCEPTION_ON_IMAGE_DELETE);
 		}
 	}
 
@@ -112,7 +117,16 @@ public class S3Service {
 			String decodingKey = URLDecoder.decode(url.getPath(), "UTF-8");
 			return decodingKey.substring(1); // 맨 앞의 '/' 제거
 		} catch (MalformedURLException | UnsupportedEncodingException e) {
-			throw new S3Exception(ErrorCode.IO_EXCEPTION_ON_IMAGE_DELETE);
+			log.error("new error from getKeyFromImageAddress: {}", e.getMessage());
+			throw new S3Exception(INVALID_IMAGE_URL);
+		}
+	}
+
+	private void checkFileSize(MultipartFile image){
+		// 5MB
+		long MAX_FILE_SIZE = 5 * 1024 * 1024;
+		if (image.getSize() > MAX_FILE_SIZE){
+			throw new S3Exception(FILE_TOO_LARGE);
 		}
 	}
 }
