@@ -546,15 +546,17 @@ public class ProductServiceImpl implements ProductService {
 	public Page<ProductRequestAllDto> getTop3Products(Pageable pageable) {
 		updateProductSentimentScores();
 
-		List<ProductDocument> productList = productESRepository.findAllByIsDeletedFalseAndStatus(ACTIVE);
-
-		List<ProductRequestAllDto> top3Products = productList.stream()
+		List<ProductRequestAllDto> sortedList = productESRepository.findAllByIsDeletedFalseAndStatus(ACTIVE).stream()
 			.sorted(Comparator.comparingDouble(ProductDocument::getSentimentScore).reversed())
-			.limit(3)
 			.map(ProductRequestAllDto::fromDocument)
 			.collect(Collectors.toList());
 
-		return new PageImpl<>(top3Products, pageable, top3Products.size());
+		// `Pageable` 적용하여 페이징 처리
+		int start = (int) pageable.getOffset();
+		int end = Math.min(start + pageable.getPageSize(), sortedList.size());
+		List<ProductRequestAllDto> pagedList = sortedList.subList(start, end);
+
+		return new PageImpl<>(pagedList, pageable, sortedList.size());
 	}
 
 	/**
