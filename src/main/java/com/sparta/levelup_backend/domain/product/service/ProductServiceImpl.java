@@ -495,12 +495,17 @@ public class ProductServiceImpl implements ProductService {
 			.map(ProductRequestAllDto::fromDocument)
 			.collect(Collectors.toList());
 
+		List<ProductRequestAllDto> top3List = sortedList.stream()
+			.limit(3)
+			.collect(Collectors.toList());
+		
 		int start = (int) pageable.getOffset();
-		int end = Math.min(start + pageable.getPageSize(), sortedList.size());
-		List<ProductRequestAllDto> pagedList = sortedList.subList(start, end);
+		int end = Math.min(start + pageable.getPageSize(), top3List.size());
+		List<ProductRequestAllDto> pagedList = top3List.subList(start, end);
 
-		return new PageImpl<>(pagedList, pageable, sortedList.size());
+		return new PageImpl<>(pagedList, pageable, top3List.size());
 	}
+
 
 	/**
 	 * 간단한 감성 분석을 수행합니다.
