@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sparta.levelup_backend.domain.product.document.ProductDocument;
 import com.sparta.levelup_backend.domain.product.dto.request.ProductCreateRequestDto;
@@ -24,9 +25,9 @@ public interface ProductService {
 
 	ProductResponseDto getProductById(Long id, Long userId);
 
-	ProductCreateResponseDto saveProduct(Long id, ProductCreateRequestDto dto);
+	ProductCreateResponseDto saveProduct(Long id, ProductCreateRequestDto dto, MultipartFile image);
 
-	ProductUpdateResponseDto updateProduct(Long id, Long userId, ProductUpdateRequestDto requestDto);
+	ProductUpdateResponseDto updateProduct(Long id, Long userId, ProductUpdateRequestDto requestDto, MultipartFile image);
 
 	ProductDeleteResponseDto deleteProduct(Long id, Long userId);
 

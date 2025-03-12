@@ -41,16 +41,13 @@ import com.sparta.levelup_backend.domain.review.document.ReviewDocument;
 import com.sparta.levelup_backend.domain.review.repositoryES.ReviewESRepository;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.sparta.levelup_backend.domain.s3.service.S3Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.sparta.levelup_backend.enums.UserRole;
 import com.sparta.levelup_backend.exception.product.ProductException;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
-import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.MultiBucketBase;
 import co.elastic.clients.elasticsearch._types.aggregations.SignificantStringTermsAggregate;
 import co.elastic.clients.elasticsearch._types.aggregations.SignificantStringTermsBucket;
@@ -78,13 +75,13 @@ public class ProductServiceImpl implements ProductService {
 	private final ElasticsearchClient elasticsearchClient;
 	private final RedissonClient redissonClient;
 	private final ReviewESRepository reviewESRepository;
+	private final S3Service s3Service;
 
 	// 감성 분석 가중치 설정
 	private static final List<String> POSITIVE_WORDS = Arrays.asList("좋다", "최고", "만족", "훌륭", "감사");
 	private static final List<String> NEGATIVE_WORDS = Arrays.asList("나쁘다", "별로", "실망", "최악", "불만");
 	private static final List<String> NEGATION_WORDS = Arrays.asList("안", "못", "전혀");
 	private static final List<String> INTENSIFIERS = Arrays.asList("매우", "아주", "정말");
-
 
 	/**
 	 * 모든 활성화된 상품 정보를 조회합니다.
@@ -119,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
 		ProductEntity product = productRepository.findByIdOrElseThrow(id);
 
 		if (product.getIsDeleted()) {
-			throw new ProductException(PRODUCT_NOT_FOUND);
+			throw new ProductException(PRODUCT_ISDELETED);
 		}
 
 		if (isOwner(product, userId) || isAdmin(userId)) {
@@ -149,6 +146,7 @@ public class ProductServiceImpl implements ProductService {
 
 		ProductEntity product = new ProductEntity(dto, user, game, imgUrl);
 		ProductEntity savedProduct = productRepository.save(product);
+
 		ProductDocument document = ProductDocument.fromEntity(savedProduct);
 		productESRepository.save(document);
 		return new ProductCreateResponseDto(document);
@@ -164,13 +162,12 @@ public class ProductServiceImpl implements ProductService {
 	 */
 	@Transactional
 	@Override
-	public ProductUpdateResponseDto updateProduct(Long id, Long userId, ProductUpdateRequestDto requestDto) {
+	public ProductUpdateResponseDto updateProduct(Long id, Long userId, ProductUpdateRequestDto requestDto, MultipartFile image) {
 		RLock lock = redissonClient.getLock("stock_lock_" + id);
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		ProductEntity saveProduct = null;
-		deleteImageFromS3(String imageAddress)
-		uploadeImageFromS3(saveProduct.getImgUrl())
 		ProductDocument updatedDocument = null;
+
 		try {
 			boolean available = lock.tryLock(1, 10, TimeUnit.SECONDS);
 
@@ -184,7 +181,18 @@ public class ProductServiceImpl implements ProductService {
 				throw new ProductException(FORBIDDEN_ACCESS);
 			}
 
-			product.update(requestDto);
+			if (product.getStatus() != ACTIVE) {
+				throw new ProductException(PRODUCT_NOT_FOUND);
+			}
+
+			if (product.getIsDeleted()) {
+				throw new ProductException(PRODUCT_ISDELETED);
+			}
+
+			s3Service.deleteImageFromS3(product.getImgUrl());
+			String imgUrl = s3Service.upload(image);
+
+			product.update(requestDto,imgUrl);
 			saveProduct = productRepository.save(product);
 			updatedDocument = ProductDocument.fromEntity(saveProduct);
 			productESRepository.save(updatedDocument);
@@ -260,28 +268,11 @@ public class ProductServiceImpl implements ProductService {
 	public Page<ProductDocument> searchByProductNameES(String productName, Pageable pageable) {
 		SearchRequest request = SearchRequest.of(s -> s
 			.index("product")
-			.query(q -> q
-				.bool(b -> b
-					.must(m -> m
-						.matchPhrasePrefix(mp -> mp
-							.field("productName")
-							.query(productName)
-						)
-					)
-					.filter(f -> f
-						.term(t -> t
-							.field("isDeleted")
-							.value(false)
-						)
-					)
-					.filter(f -> f
-						.term(t -> t
-							.field("status")
-							.value("ACTIVE")
-						)
-					)
-				)
-			)
+			.query(q -> q.bool(b -> b
+				.must(m -> m.matchPhrasePrefix(mp -> mp.field("productName").query(productName)))
+				.filter(f -> f.term(t -> t.field("isDeleted").value(false)))
+				.filter(f -> f.term(t -> t.field("status").value("ACTIVE")))
+			))
 			.from((int) pageable.getOffset())
 			.size(pageable.getPageSize())
 		);
@@ -299,8 +290,6 @@ public class ProductServiceImpl implements ProductService {
 
 		return new PageImpl<>(list, pageable, response.hits().total().value());
 	}
-
-
 
 	/**
 	 * Elasticsearch에서 특정 게임 ID에 해당하는 활성화된 상품을 조회합니다.
@@ -348,22 +337,12 @@ public class ProductServiceImpl implements ProductService {
 		try {
 			SearchRequest request = SearchRequest.of(s -> s
 				.index("product")
-				.size(0)
+				.size(0)  // 집계만 수행하므로 결과 문서는 필요 없음
 				.requestCache(true)
 				.query(q -> q
 					.bool(b -> b
-						.filter(f -> f
-							.term(t -> t
-								.field("isDeleted")
-								.value(false)
-							)
-						)
-						.filter(f -> f
-							.term(t -> t
-								.field("status")
-								.value("ACTIVE") // ✅ status가 ACTIVE인 데이터만 포함
-							)
-						)
+						.filter(f -> f.term(t -> t.field("isDeleted").value(false)))
+						.filter(f -> f.term(t -> t.field("status").value("ACTIVE")))
 					)
 				)
 				.aggregations("genre_counts", a -> a
@@ -390,7 +369,6 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
-
 	/**
 	 * 특정 키워드를 기반으로 인기 상품 Top 10을 Elasticsearch에서 조회합니다.
 	 * 의미 있는 키워드를 추출해 검색 가중치로 사용합니다.
@@ -399,32 +377,13 @@ public class ProductServiceImpl implements ProductService {
 	@Override
 	public Page<ProductDocument> getTop10PopularProductsES(Pageable pageable) {
 		Map<String, Double> keywords = extractImportantKeywords(10);
-		BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder();
 
-		for (Map.Entry<String, Double> entry : keywords.entrySet()) {
-			String keyword = entry.getKey();
-			float boost = entry.getValue().floatValue();
-			boolQueryBuilder.should(q -> q
-				.match(m -> m
-					.field("contents")
-					.query(keyword)
-					.boost(boost)
-				)
-			);
-		}
+		BoolQuery.Builder boolQueryBuilder = new BoolQuery.Builder()
+			.filter(f -> f.term(t -> t.field("isDeleted").value(false)))
+			.filter(f -> f.term(t -> t.field("status").value("ACTIVE")));
 
-		boolQueryBuilder.filter(f -> f
-			.term(t -> t
-				.field("isDeleted")
-				.value(false)
-			)
-		);
-
-		boolQueryBuilder.filter(f -> f
-			.term(t -> t
-				.field("status")
-				.value("ACTIVE")
-			)
+		keywords.forEach((keyword, boost) ->
+			boolQueryBuilder.should(q -> q.match(m -> m.field("contents").query(keyword).boost(boost.floatValue())))
 		);
 
 		SearchRequest searchRequest = new SearchRequest.Builder()
@@ -434,24 +393,16 @@ public class ProductServiceImpl implements ProductService {
 			.size(pageable.getPageSize())
 			.build();
 
-		log.info("검색결과: {}", searchRequest);
+		log.info("검색 요청: {}", searchRequest);
 
 		try {
-			SearchResponse<ProductDocument> searchResponse =
-				elasticsearchClient.search(searchRequest, ProductDocument.class);
-
-			List<ProductDocument> productList = searchResponse.hits().hits().stream()
-				.map(Hit::source)
-				.collect(Collectors.toList());
-
-			return new PageImpl<>(productList, pageable, searchResponse.hits().total().value());
+			SearchResponse<ProductDocument> response = elasticsearchClient.search(searchRequest, ProductDocument.class);
+			List<ProductDocument> productList = response.hits().hits().stream().map(Hit::source).collect(Collectors.toList());
+			return new PageImpl<>(productList, pageable, response.hits().total().value());
 		} catch (IOException e) {
 			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}
 	}
-
-
-
 
 	/**
 	 * Elasticsearch를 이용해 중요 키워드를 추출합니다.
@@ -459,13 +410,6 @@ public class ProductServiceImpl implements ProductService {
 	 * @return 키워드와 가중치를 담은 Map<String, Double>
 	 */
 	private Map<String, Double> extractImportantKeywords(int topN) {
-		Aggregation significantTermsAgg = Aggregation.of(a -> a
-			.significantTerms(st -> st
-				.field("contents.keyword")
-				.size(topN)
-			)
-		);
-
 		SearchRequest searchRequest = new SearchRequest.Builder()
 			.index("product")
 			.query(q -> q.bool(b -> b
@@ -473,34 +417,27 @@ public class ProductServiceImpl implements ProductService {
 				.filter(f -> f.term(t -> t.field("status").value(ACTIVE.name())))
 				.filter(f -> f.term(t -> t.field("isDeleted").value(false)))
 			))
-			.aggregations("important_keywords", significantTermsAgg)
+			.aggregations("important_keywords", a -> a
+				.significantTerms(st -> st.field("contents.keyword").size(topN))
+			)
 			.size(0)
 			.build();
 
 		try {
-			SearchResponse<Void> searchResponse = elasticsearchClient.search(searchRequest, Void.class);
-			Aggregate aggregate = searchResponse.aggregations().get("important_keywords");
+			SearchResponse<Void> response = elasticsearchClient.search(searchRequest, Void.class);
+			SignificantStringTermsAggregate termsAgg = response.aggregations()
+				.get("important_keywords")
+				.sigsterms();
 
-			if (aggregate.isSigsterms()) {
-				SignificantStringTermsAggregate significantTermsAggResult = aggregate.sigsterms();
-
-				if (significantTermsAggResult == null) {
-					throw new ProductException(PRODUCT_AGGRIGATION_NULL);
-				}
-
-				Map<String, Double> keywordMap = new LinkedHashMap<>();
-				if (significantTermsAggResult.buckets() != null) {
-					List<SignificantStringTermsBucket> buckets = significantTermsAggResult.buckets().array();
-					for (SignificantStringTermsBucket bucket : buckets) {
-						keywordMap.put(bucket.key(), bucket.score());
-					}
-
-				}
-				log.info("검색결과: {}", keywordMap);
-				return keywordMap;
-			} else {
-				throw new ProductException(PRODUCT_AGGRIGATION_TYPE_ERROR);
+			if (termsAgg == null || termsAgg.buckets() == null) {
+				throw new ProductException(PRODUCT_AGGRIGATION_NULL);
 			}
+
+			Map<String, Double> keywordMap = termsAgg.buckets().array().stream()
+				.collect(Collectors.toMap(SignificantStringTermsBucket::key, SignificantStringTermsBucket::score, (a, b) -> b, LinkedHashMap::new));
+
+			log.info("검색결과: {}", keywordMap);
+			return keywordMap;
 		} catch (IOException e) {
 			throw new ProductException(ELASTIC_CONNECTION_ERROR);
 		}

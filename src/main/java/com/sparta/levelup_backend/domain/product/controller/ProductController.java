@@ -71,11 +71,12 @@ public class ProductController {
 	@PatchMapping("/{id}")
 	public ApiResponse<ProductUpdateResponseDto> updateProduct(
 		@PathVariable Long id,
-		@Valid @RequestBody ProductUpdateRequestDto requestDto,
-		@AuthenticationPrincipal CustomUserDetails userDetails
+		@Valid @RequestPart ProductUpdateRequestDto requestDto,
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestPart("image") MultipartFile image
 	) {
 		Long userId = userDetails.getId();
-		return success(OK, PRODUCT_UPDATE, productService.updateProduct(id, userId, requestDto));
+		return success(OK, PRODUCT_UPDATE, productService.updateProduct(id, userId, requestDto, image));
 	}
 
 	// 상품 삭제
