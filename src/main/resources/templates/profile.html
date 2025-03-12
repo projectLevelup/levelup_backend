@@ -95,6 +95,7 @@
                 <li onclick="goMyLectures()">내 강의목록</li>
                 <li onclick="goLectureApply()">강의 신청 관리</li>
                 <li onclick="goHistory()">내 거래내역</li>
+                <li onclick="goHistory()">내 주문내역</li>
             </ul>
         </div>
     </div>
@@ -112,7 +113,7 @@
      * 현재 로그인한 사용자 정보 불러오기 (GET /v1/users)
      */
     function loadUserProfile() {
-        fetch('/v1/users', {
+        fetch('/users', {
             method: 'GET',
             credentials: 'include' // 인증이 필요하다면
         })

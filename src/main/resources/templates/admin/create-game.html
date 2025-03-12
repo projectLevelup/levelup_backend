@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>관리자 - 게임 추가</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; }
+        header, main { padding: 10px; }
+        .form-container {
+            max-width: 400px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .form-group { margin-bottom: 15px; }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .submit-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .submit-button:hover {
+            background-color: #005bb5;
+        }
+        .cancel-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #ccc;
+            border: none;
+            color: #333;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .cancel-button:hover {
+            background-color: #aaa;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <header>
+            <h2>게임 추가</h2>
+        </header>
+        <main>
+            <div class="form-container">
+                <form id="addGameForm">
+                    <div class="form-group">
+                        <label for="name">게임 이름</label>
+                        <input type="text" id="name" name="name" placeholder="게임 이름을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="imgUrl">이미지 URL</label>
+                        <input type="text" id="imgUrl" name="imgUrl" placeholder="이미지 URL을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="genre">장르</label>
+                        <input type="text" id="genre" name="genre" placeholder="게임 장르를 입력하세요" required>
+                    </div>
+                    <button type="submit" class="submit-button">게임 추가</button>
+                    <button type="button" class="cancel-button" onclick="location.href='/admin/dashboard/game'">취소</button>
+                </form>
+            </div>
+        </main>
+    </div>
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
+</div>
+
+<script>
+    document.getElementById('addGameForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const imgUrl = document.getElementById('imgUrl').value;
+        const genre = document.getElementById('genre').value;
+
+        fetch('/admin/games', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, imgUrl, genre })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === "OK") {
+                    alert("게임 추가 성공");
+                    location.href = '/admin/dashboard/game';
+                } else {
+                    alert("게임 추가 실패: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("게임 추가 오류: ", error);
+                alert("게임 추가 중 오류가 발생했습니다.");
+            });
+    });
+</script>
+</body>
+</html>

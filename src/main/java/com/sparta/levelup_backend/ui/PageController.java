@@ -41,12 +41,6 @@ public class PageController {
 		return "oauth2signup";
 	}
 
-	@GetMapping("/v2/home")
-	public String homePage() {
-
-		return "home";
-	}
-
 	@GetMapping("/login")
 	public String loginPage() {
 		return "login";
@@ -101,4 +95,37 @@ public class PageController {
 	public String resetPasswordConfirm() {
 		return "resetPasswordConfirm";
 	}
+
+	@GetMapping("/admin/dashboard")
+	public String adminPage() {
+		return "admin";
+	}
+
+	@GetMapping("/admin/dashboard/game")
+	public String gamePage() {
+		return "admin/game";
+	}
+
+	@GetMapping("/admin/dashboard/game/add")
+	public String gameAddPage() {
+		return "admin/create-game";
+	}
+
+	@GetMapping("/products/add")
+	public String addProductPage() {
+		return "productCreate";
+	}
+
+	@GetMapping("/profile")
+	public String profilePage() {
+		return "profile";
+	}
+
+	@GetMapping("/search")
+	public String searchPage(@RequestParam(value = "productName", required = false) String productName,
+							 Model model) {
+		model.addAttribute("productName", productName);
+		return "product/product-list"; // search.html 템플릿을 렌더링
+	}
+
 }

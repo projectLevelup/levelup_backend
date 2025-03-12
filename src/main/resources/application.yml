@@ -37,6 +37,7 @@ spring:
       hibernate:
         format_sql: true
 
+
   data:
     mongodb:
       uri: ${LOCAL_MONGODB_URI}
