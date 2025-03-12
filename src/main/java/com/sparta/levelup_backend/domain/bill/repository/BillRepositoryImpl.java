@@ -39,17 +39,14 @@ public class BillRepositoryImpl implements BillRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        long totalCount = Optional.ofNullable(
-                        queryFactory
-                                .select(billEntity.count())
-                                .from(billEntity)
-                                .where(
-                                        billEntity.tutor.id.eq(tutorId),
-                                        billEntity.tutorIsDeleted.eq(false)
-                                )
-                                .fetchOne())
-                .orElse(0L);
-        return new PageImpl<>(results, pageable, totalCount);
+        JPAQuery<Long> totalCount = queryFactory
+                .select(billEntity.count())
+                .from(billEntity)
+                .where(
+                        billEntity.tutor.id.eq(tutorId),
+                        billEntity.tutorIsDeleted.eq(false)
+                );
+        return PageableExecutionUtils.getPage(results, pageable, totalCount::fetchOne);
     }
 
     // 결제내역 조회 (student 전용)

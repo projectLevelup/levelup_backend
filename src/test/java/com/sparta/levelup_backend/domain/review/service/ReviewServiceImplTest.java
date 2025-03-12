@@ -1,5 +1,6 @@
 package com.sparta.levelup_backend.domain.review.service;
 
+import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -19,6 +20,8 @@ import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.common.ForbiddenException;
 import com.sparta.levelup_backend.enums.OrderStatus;
 import com.sparta.levelup_backend.enums.UserRole;
+import com.sparta.levelup_backend.exception.review.ReviewException;
+
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -87,13 +90,13 @@ class ReviewServiceImplTest {
             .build();
 
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(normalUser));
+        when(userRepository.findByIdOrElseThrow(userId)).thenReturn(normalUser);
 
         //then
         assertThatThrownBy(() -> {
                 reviewService.deleteReview(userId, productId, reviewId);
-            }).isInstanceOf(BusinessException.class)
-            .hasMessageContaining(ErrorCode.FORBIDDEN_ACCESS.getMessage());
+            }).isInstanceOf(ReviewException.class)
+            .hasMessageContaining(FORBIDDEN_ACCESS.getMessage());
 
     }
 
@@ -115,14 +118,14 @@ class ReviewServiceImplTest {
             .build();
 
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
+        when(userRepository.findByIdOrElseThrow(userId)).thenReturn(adminUser);
         when(reviewRepository.findByIdOrElseThrow(reviewId)).thenReturn(review);
 
         //then
         assertThatThrownBy(() -> {
             reviewService.deleteReview(userId, productId, reviewId);
-        }).isInstanceOf(BusinessException.class)
-            .hasMessageContaining(ErrorCode.MISMATCH_REVIEW_PRODUCT.getMessage());
+        }).isInstanceOf(ReviewException.class)
+            .hasMessageContaining(MISMATCH_REVIEW_PRODUCT.getMessage());
     }
 
     @Test
@@ -138,7 +141,7 @@ class ReviewServiceImplTest {
             .build();
 
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
+        when(userRepository.findByIdOrElseThrow(userId)).thenReturn(adminUser);
         when(reviewRepository.findByIdOrElseThrow(reviewId)).thenReturn(review);
         reviewService.deleteReview(userId, productId, reviewId);
 
@@ -154,8 +157,8 @@ class ReviewServiceImplTest {
         //then
         assertThatThrownBy(() -> {
             reviewService.saveReview(new ReviewRequestDto("리뷰 테스트", 5), userId, productId);
-        }).isInstanceOf(ForbiddenException.class)
-            .hasMessageContaining(ErrorCode.COMPLETED_ORDER_REQUIRED.getMessage());
+        }).isInstanceOf(ReviewException.class)
+            .hasMessageContaining(COMPLETED_ORDER_REQUIRED.getMessage());
     }
 
     @Test
@@ -167,8 +170,8 @@ class ReviewServiceImplTest {
         //then
         assertThatThrownBy(() -> {
             reviewService.saveReview(new ReviewRequestDto("리뷰 테스트", 5), userId, productId);
-        }).isInstanceOf(DuplicateException.class)
-            .hasMessageContaining(ErrorCode.DUPLICATE_REVIEW.getMessage());
+        }).isInstanceOf(ReviewException.class)
+            .hasMessageContaining(DUPLICATE_REVIEW.getMessage());
 
     }
 
@@ -186,14 +189,14 @@ class ReviewServiceImplTest {
         review.deleteReview();
 
         //when
-        when(userRepository.findById(userId)).thenReturn(Optional.of(adminUser));
+        when(userRepository.findByIdOrElseThrow(userId)).thenReturn(adminUser);
         when(reviewRepository.findByIdOrElseThrow(reviewId)).thenReturn(review);
 
         //then
         assertThatThrownBy(() -> {
             reviewService.deleteReview(userId, productId, reviewId);
-        }).isInstanceOf(DuplicateException.class)
-            .hasMessageContaining(ErrorCode.REVIEW_ISDELETED.getMessage());
+        }).isInstanceOf(ReviewException.class)
+            .hasMessageContaining(REVIEW_ISDELETED.getMessage());
     }
 
 }
