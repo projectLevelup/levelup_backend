@@ -36,6 +36,16 @@ public class ProductRequestAllDto {
 
 	private final Double sentimentScore;
 
+	private final Long productId;
+
+	private final Long userId;
+
+	private final Long gameId;
+
+	private final String gameGenre;
+
+	private final Boolean isDeleted;
+
 	public static ProductRequestAllDto fromDocument(ProductDocument document) {
 		return new ProductRequestAllDto(
 			document.getProductName(),
@@ -44,8 +54,12 @@ public class ProductRequestAllDto {
 			document.getAmount(),
 			document.getStatus().name(),
 			document.getImgUrl(),
-			document.getSentimentScore()
+			document.getSentimentScore(),
+			document.getProductId(),
+			document.getUserId(),
+			document.getGameId(),
+			document.getGameGenre(),
+			document.getIsDeleted()
 		);
 	}
 }
-
