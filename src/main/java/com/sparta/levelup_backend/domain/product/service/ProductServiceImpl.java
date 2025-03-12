@@ -476,14 +476,6 @@ public class ProductServiceImpl implements ProductService {
 	}
 
 	/**
-	 * 30분마다 상품 감성 분석 점수 업데이트 (자동 실행)
-	 */
-	@Scheduled(cron = "0 */30 * * * *") // 30분마다 실행
-	public void scheduledUpdateProductSentimentScores() {
-		updateProductSentimentScores();
-	}
-
-	/**
 	 * 감성 점수 TOP 3 제품 반환
 	 */
 	@Override
@@ -498,7 +490,7 @@ public class ProductServiceImpl implements ProductService {
 		List<ProductRequestAllDto> top3List = sortedList.stream()
 			.limit(3)
 			.collect(Collectors.toList());
-		
+
 		int start = (int) pageable.getOffset();
 		int end = Math.min(start + pageable.getPageSize(), top3List.size());
 		List<ProductRequestAllDto> pagedList = top3List.subList(start, end);
