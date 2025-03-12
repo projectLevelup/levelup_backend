@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>리뷰 작성</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <!-- Material Icons CDN (이미 포함되어 있을 수도 있습니다) -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .review-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            font-size: 32px;
+            cursor: pointer;
+        }
+        .star-rating .star {
+            color: #ccc;
+            transition: color 0.3s;
+        }
+        .star-rating .star.selected {
+            color: darkorange;
+        }
+        button {
+            padding: 12px;
+            background-color: #007aff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <h2>리뷰 작성</h2>
+        <form id="reviewForm">
+            <div class="form-group">
+                <label for="contents">리뷰 내용</label>
+                <textarea id="contents" name="contents" placeholder="리뷰 내용을 입력하세요 (최대 100자)" maxlength="100" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>별점 (1 ~ 5)</label>
+                <div id="starRating" class="star-rating">
+                    <i class="material-icons star" data-value="1">star_border</i>
+                    <i class="material-icons star" data-value="2">star_border</i>
+                    <i class="material-icons star" data-value="3">star_border</i>
+                    <i class="material-icons star" data-value="4">star_border</i>
+                    <i class="material-icons star" data-value="5">star_border</i>
+                </div>
+            </div>
+            <button type="submit">작성 완료</button>
+        </form>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Thymeleaf가 컨트롤러에서 전달한 productId를 주입합니다.
+    const productId = /*[[${productId}]]*/ 0;
+    let selectedStar = 0;
+
+    // 별점 선택 처리
+    const stars = document.querySelectorAll("#starRating .star");
+    stars.forEach(star => {
+        star.addEventListener("click", function() {
+            selectedStar = parseInt(this.getAttribute("data-value"), 10);
+            updateStars(selectedStar);
+        });
+    });
+
+    function updateStars(rating) {
+        stars.forEach(star => {
+            if (parseInt(star.getAttribute("data-value"), 10) <= rating) {
+                star.classList.add("selected");
+                star.textContent = "star"; // 채워진 별
+            } else {
+                star.classList.remove("selected");
+                star.textContent = "star_border"; // 빈 별
+            }
+        });
+    }
+
+    // 리뷰 작성 폼 제출 처리
+    document.getElementById("reviewForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const contents = document.getElementById("contents").value;
+        if(selectedStar < 1 || selectedStar > 5) {
+            alert("별점을 선택해주세요.");
+            return;
+        }
+        const payload = { contents, starScore: selectedStar };
+
+        fetch(`/products/${productId}/reviews`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === "OK" && result.data) {
+                    alert("리뷰가 성공적으로 작성되었습니다.");
+                    // 작성 후 상품 상세 페이지로 이동
+                    window.location.href = `/product-detail?productId=${productId}`;
+                } else {
+                    alert("리뷰 작성 실패: " + (result.errorMessage || result.detail || result.message));
+                }
+            })
+            .catch(error => {
+                console.error("리뷰 작성 중 오류:", error);
+                alert("리뷰 작성 중 오류가 발생했습니다.");
+            });
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

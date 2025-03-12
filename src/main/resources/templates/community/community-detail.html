@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>글 상세</title>
+    <style>
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .detail-item {
+            margin-bottom: 15px;
+        }
+        .detail-item strong {
+            display: inline-block;
+            width: 100px;
+        }
+        .detail-content {
+            padding: 15px 0;
+        }
+        .detail-title {
+            font-weight: 600;
+        }
+        .community-game {
+            background-color: #f0f0f0;
+            padding: 5px;
+            border-radius: 5px;
+            color: gray;
+            font-size: 14px;
+        }
+        /* 댓글 작성폼 스타일 */
+        .comment-form-container {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .comment-form-container textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .comment-form-container button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .comment-form-container button:hover {
+            background-color: #357ae8;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="top-nav">
+        <h3 id="communityTitle">글 제목</h3>
+    </div>
+    <div class="inner-con">
+        <div class="detail-container" id="communityDetail">
+            <!-- 커뮤니티 글 상세 정보가 여기에 표시됩니다. -->
+        </div>
+        <!-- 댓글 작성폼 영역 -->
+        <div id="commentFormContainer" class="comment-form-container">
+            <textarea id="commentText" placeholder="댓글을 입력하세요" required></textarea>
+            <button type="button" onclick="submitComment()">작성 완료</button>
+        </div>
+    </div>
+    <!-- 하단 공통 메뉴 -->
+    <div th:replace="fragments :: main-nav"></div>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // 컨트롤러에서 전달한 communityId가 주입됩니다.
+    const communityId = /*[[${communityId}]]*/ 0;
+
+    window.onload = function() {
+        if (!communityId) {
+            alert("커뮤니티 ID가 없습니다.");
+            return;
+        }
+        loadCommunityDetail(communityId);
+    };
+
+    function loadCommunityDetail(id) {
+        fetch(`/communities/${id}`, { credentials: 'include' })
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayCommunityDetail(result.data);
+                } else {
+                    document.getElementById('communityDetail').innerHTML = '<p>글 상세 정보를 불러올 수 없습니다.</p>';
+                }
+            })
+            .catch(error => {
+                console.error("글 상세 정보 로드 오류:", error);
+                document.getElementById('communityDetail').innerHTML = '<p>글 상세 정보를 불러올 수 없습니다.</p>';
+            });
+    }
+
+    function displayCommunityDetail(community) {
+        // 상단 제목 업데이트
+        document.getElementById("communityTitle").textContent = community.title;
+        const container = document.getElementById("communityDetail");
+        container.innerHTML = `
+        <div class="detail-item"><span class="community-game">${community.game}</span></div>
+        <div class="profile-info">
+            <img id="profileImg" src="/img/default-img.png" alt="프로필 이미지" class="profile-img" />
+            <div>
+                <div>${community.author}</div>
+            </div>
+        </div>
+        <div class="detail-content">
+            <div class="detail-title">${community.title}</div>
+            <div class="detail-item">${community.content}</div>
+        </div>
+      `;
+        // 댓글 표시
+        if (community.comments && community.comments.length > 0) {
+            let commentsHtml = `<div class="detail-item"><strong>댓글:</strong></div>`;
+            community.comments.forEach(comment => {
+                commentsHtml += `<div class="detail-item" style="margin-left:20px;"><strong>${comment.author}:</strong> ${comment.text}</div>`;
+            });
+            container.innerHTML += commentsHtml;
+        }
+    }
+
+    function submitComment() {
+        const commentText = document.getElementById("commentText").value.trim();
+        if (!commentText) {
+            alert("댓글 내용을 입력하세요.");
+            return;
+        }
+        // POST /communities/{communityId}/comments API 호출 (예시 엔드포인트)
+        fetch(`/communities/${communityId}/comments`, {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: commentText })
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === "OK") {
+                    alert("댓글이 작성되었습니다.");
+                    // 댓글 입력창 초기화
+                    document.getElementById("commentText").value = "";
+                    // 댓글 목록 갱신
+                    loadCommunityDetail(communityId);
+                } else {
+                    alert("댓글 작성 실패: " + (result.errorMessage || result.detail || result.message));
+                }
+            })
+            .catch(error => {
+                console.error("댓글 작성 중 오류:", error);
+                alert("댓글 작성 중 오류가 발생했습니다.");
+            });
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

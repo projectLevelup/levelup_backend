@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원정보 수정</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+        h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="url"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        input:focus {
+            border-color: #007aff;
+            outline: none;
+        }
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: #007aff;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <div class="py-4 text-center">
+            <h2>정보 수정</h2>
+        </div>
+        <form id="updateForm">
+            <div class="form-group">
+                <input type="email" id="email" placeholder="이메일 입력" name="email" th:value="${email}" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="nickName" placeholder="닉네임 입력" name="nickName" th:value="${nickName}" required>
+            </div>
+            <div class="form-group">
+                <input type="url" id="profileUrl" placeholder="프로필 URL 입력" name="profileUrl" th:value="${profileUrl}" required>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="phoneNumber" placeholder="전화번호 입력" name="phoneNumber" th:value="${phoneNumber}" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">정보 수정</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    // 폼 제출 시 JSON 형식으로 PATCH 요청
+    document.getElementById("updateForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const nickName = document.getElementById("nickName").value;
+        const profileUrl = document.getElementById("profileUrl").value;
+        const phoneNumber = document.getElementById("phoneNumber").value;
+
+        const payload = { email, nickName, profileUrl, phoneNumber };
+
+        fetch("/users", {
+            method: "PATCH",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === "OK") {
+                    alert("회원정보가 성공적으로 수정되었습니다.");
+                    window.location.href = "/profile";
+                } else {
+                    alert("회원정보 수정 실패: " + (result.errorMessage || result.detail || result.message));
+                }
+            })
+            .catch(error => {
+                console.error("회원정보 수정 중 오류:", error);
+                alert("회원정보 수정 중 오류가 발생했습니다.");
+            });
+    });
+
+    // 전화번호 입력 시 하이픈 자동 추가
+    document.getElementById("phoneNumber").oninput = function() {
+        let number = /^-?\d+$/;
+        let phone = document.getElementById("phoneNumber");
+        if(number.test(phone.value.toString())){
+            if(phone.value.toString().length == 11){
+                phone.value = phone.value.substring(0,3) + "-" + phone.value.substring(3,7) + "-" + phone.value.substring(7,11);
+            }
+        }
+    }
+</script>
+</body>
+</html>

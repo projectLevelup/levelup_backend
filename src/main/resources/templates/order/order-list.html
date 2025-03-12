@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>내 주문 내역</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <style>
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .order-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .order-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .order-title {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .order-detail {
+            margin: 4px 0;
+        }
+        .no-orders {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <h2>내 주문 내역</h2>
+        <div class="order-container" id="orderListContainer">
+            <!-- 주문 데이터가 동적으로 삽입됩니다 -->
+        </div>
+    </div>
+</div>
+<script>
+    // 페이지 로드시 주문 목록 로드
+    window.onload = function() {
+        loadStudentOrders();
+    };
+
+    function loadStudentOrders() {
+        fetch('/orders/student', { credentials: 'include' })
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    displayOrders(result.data);
+                } else {
+                    console.error('주문 내역을 불러오지 못했습니다.', result);
+                    displayNoOrders();
+                }
+            })
+            .catch(error => {
+                console.error('주문 내역 로드 중 오류:', error);
+                displayNoOrders();
+            });
+    }
+
+    function displayOrders(orders) {
+        const container = document.getElementById('orderListContainer');
+        container.innerHTML = '';
+        if (orders.length === 0) {
+            container.innerHTML = `<div class="no-orders">주문 내역이 없습니다.</div>`;
+            return;
+        }
+        orders.forEach(order => {
+            // 주문 상태에 따른 색상 지정
+            let statusColor = "";
+            switch (order.status) {
+                case "CANCELED":
+                    statusColor = "gray";
+                    break;
+                case "PENDING":
+                    statusColor = "orange";
+                    break;
+                case "TRADING":
+                    statusColor = "blue";
+                    break;
+                case "COMPLETED":
+                    statusColor = "green";
+                    break;
+                default:
+                    statusColor = "black";
+            }
+
+            const orderDiv = document.createElement('div');
+            orderDiv.className = 'order-item';
+            // 클릭 시 주문 상세 페이지로 이동 (query parameter로 orderId 전달)
+            orderDiv.onclick = () => {
+                window.location.href = `/profile/order/student/order-detail?orderId=${order.orderId}`;
+            };
+            orderDiv.innerHTML = `
+                <div class="order-title">
+                    <span>주문번호: ${order.orderId}</span>
+                    <span class="order-status" style="color: ${statusColor};"> ${order.status}</span>
+                </div>
+                <div class="order-detail">${order.student}</div>
+                <div class="order-detail">${order.productName}</div>
+            `;
+            container.appendChild(orderDiv);
+        });
+    }
+
+    function displayNoOrders() {
+        const container = document.getElementById('orderListContainer');
+        container.innerHTML = `<div class="no-orders">주문 내역이 없습니다.</div>`;
+    }
+</script>
+</body>
+</html>
