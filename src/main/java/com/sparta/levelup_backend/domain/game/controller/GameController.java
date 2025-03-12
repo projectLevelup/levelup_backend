@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +24,7 @@ import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.service.GameService;
 import com.sparta.levelup_backend.domain.s3.service.S3Service;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +39,7 @@ public class GameController {
 	// 게임 생성
 	@PostMapping("/admin/games")
 	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestPart MultipartFile image, @RequestPart GameCreateRequestDto dto) {
+		@RequestPart MultipartFile image, @Valid @RequestPart GameCreateRequestDto dto) {
 		Long userId = customUserDetails.getId();
 		String imgUrl = s3Service.upload(image);
 		GameEntity game = gameService.saveGame(dto.getName(), imgUrl, dto.getGenre(), userId);
