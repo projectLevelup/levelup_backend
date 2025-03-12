@@ -31,11 +31,15 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
+    @Value("${spring.data.redis.password}")
+    private String redisPassword;
+
     // 포트 설정 (설정 안해도 Spring 기본 제공 포트인 127.0.0.1 6379로 접속)
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisConfiguration = new RedisStandaloneConfiguration(host);
         redisConfiguration.setPort(port);
+        redisConfiguration.setPassword(redisPassword);
         return new LettuceConnectionFactory(redisConfiguration);
     }
 
