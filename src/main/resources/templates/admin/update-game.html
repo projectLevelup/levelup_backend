@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>관리자 - 게임 수정</title>
@@ -69,8 +69,7 @@
         <main>
             <div class="form-container">
                 <form id="updateGameForm">
-                    <!-- 수정할 게임 ID (서버에서 모델로 전달받은 값) -->
-                    <input type="hidden" id="gameId" name="gameId" value="[[${gameId}]]">
+                    <input type="hidden" id="gameId" th:value="${gameId}">
                     <div class="form-group">
                         <label for="name">게임 이름</label>
                         <input type="text" id="name" name="name" placeholder="게임 이름을 입력하세요" required>
@@ -93,28 +92,26 @@
     <div th:replace="fragments :: main-nav"></div>
 </div>
 
-<script>
-    // 페이지 로딩 시 현재 게임 정보를 가져와 폼에 채워줍니다.
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const gameId = /*[[${gameId}]]*/ 0;
+
     document.addEventListener('DOMContentLoaded', function() {
-        const gameId = document.getElementById('gameId').value;
         fetch('/admin/games/' + gameId)
             .then(response => response.json())
             .then(data => {
-                if (data && data.data) {
+                if (data.status === "OK") {
                     const game = data.data;
                     document.getElementById('name').value = game.name;
                     document.getElementById('genre').value = game.genre;
-                    // 이미지 파일은 보안 상 pre-populate할 수 없으므로, 필요하다면 썸네일 등을 별도로 표시할 수 있습니다.
                 } else {
-                    console.error('게임 정보를 불러오지 못했습니다.', data);
+                    alert("게임 정보를 불러오지 못했습니다: " + data.message);
                 }
             })
-            .catch(error => {
-                console.error('게임 정보 요청 중 오류 발생:', error);
-            });
+            .catch(error => console.error('게임 정보 요청 중 오류 발생:', error));
     });
 
-    document.getElementById('updateGameForm').addEventListener('submit', function(e) {
+    document.getElementById('updateGameForm').addEventListener('submit', function (e) {
         e.preventDefault();
 
         const gameId = document.getElementById('gameId').value;
@@ -124,30 +121,22 @@
         const imageFile = fileInput.files[0];
 
         const formData = new FormData();
-        // 새 이미지가 선택된 경우에만 파일 추가 (선택하지 않으면 기존 이미지 유지)
-        if(imageFile) {
-            formData.append("image", imageFile);
-        }
+        if (imageFile) formData.append("image", imageFile);
         formData.append("dto", new Blob([JSON.stringify({ name, genre })], { type: "application/json" }));
 
-        fetch('/admin/games/' + gameId, {
-            method: 'PATCH',
-            body: formData
-        })
+        fetch('/admin/games/' + gameId, { method: 'PATCH', body: formData })
             .then(response => response.json())
             .then(data => {
-                if(data.status === "OK") {
+                if (data.status === "OK") {
                     alert("게임 수정 성공");
                     location.href = '/admin/dashboard/game';
                 } else {
                     alert("게임 수정 실패: " + data.message);
                 }
             })
-            .catch(error => {
-                console.error("게임 수정 오류:", error);
-                alert("게임 수정 중 오류가 발생했습니다.");
-            });
+            .catch(error => alert("게임 수정 중 오류가 발생했습니다."));
     });
+
 </script>
 </body>
 </html>

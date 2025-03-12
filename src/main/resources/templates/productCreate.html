@@ -11,6 +11,20 @@
             padding: 5px;
             margin-top: 5px;
         }
+
+        #productForm p {
+            font-weight: 600;
+        }
+
+        #productForm input[type="text"],
+        #productForm input[type="number"],
+        #productForm select,
+        #productForm textarea {
+            min-height: 36px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
         /* 게임 목록을 이미지 박스로 가로 정렬 */
         .game-box-container {
             display: flex;
@@ -59,16 +73,17 @@
         }
 
         #contents {
-            height: 250px;
+            height: 200px;
         }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="inner-con">
-        <h1>상품 생성</h1>
+        <h2>상품 생성</h2>
         <form id="productForm">
             <label>
+                <p>게임 선택</p>
                 <div id="gameContainer" class="game-box-container">
                     <!-- loadGames() 함수가 API 호출 후 게임 박스를 동적으로 추가 -->
                 </div>
@@ -87,11 +102,11 @@
             </label>
             <label>
                 <p>자세한 설명</p>
-                <input type="text" id="contents" required maxlength="1000" />
+                <textarea type="text" id="contents" required maxlength="1000"></textarea>
             </label>
             <label>
                 <p>인원 제한</p>
-                <input type="text" id="amount" required />
+                <input type="number" id="amount" required />
             </label>
             <label>
                 <p>상태</p>

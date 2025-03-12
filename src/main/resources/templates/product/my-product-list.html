@@ -139,8 +139,7 @@
     <div th:replace="fragments :: main-nav"></div>
 </div>
 
-<script>
-
+<script th:inline="javascript">
     // 검색 결과 페이지 로드시 검색어에 해당하는 상품을 불러옴
     window.onload = function() {
         fetch('/products/user', { credentials: 'include' })
@@ -173,13 +172,17 @@
                         <div><strong>${product.productName}</strong></div>
                         <div class="price">${product.price}원</div>
                         <div class="btn-wrap">
-                            <button class="product-btn">수정</button>
+                            <button class="product-btn" onclick="goToUpdatePage(event, ${product.productId})">수정</button>
                             <button class="product-btn" onclick="deleteProduct(event, ${product.productId})">삭제</button>
                         </div>
                     </div>
                 `;
             container.appendChild(item);
         });
+    }
+    function goToUpdatePage(event, productId) {
+        event.stopPropagation(); // 명시적으로 이벤트 버블링을 방지
+        window.location.href = `/profile/my-products/update?productId=${productId}`;
     }
 
     function deleteProduct(event, productId) {

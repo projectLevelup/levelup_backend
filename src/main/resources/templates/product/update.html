@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset=\"UTF-8\">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>상품 수정</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="number"] {
+            padding: 5px;
+            margin-top: 5px;
+        }
+        .btn, .cancel-btn {
+            padding: 8px 16px;
+            margin-top: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+        }
+        #productForm p {
+            font-weight: 600;
+        }
+
+        #productForm input[type="text"],
+        #productForm input[type="number"],
+        #productForm select,
+        #productForm textarea {
+            min-height: 36px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        .btn {
+            width: 100%;
+            margin-top: 20px;
+            background-color: #4285F4;
+            color: #fff;
+        }
+        .btn:hover {
+            background-color: #357ae8;
+        }
+        .cancel-btn {
+            background-color: #aaa;
+        }
+        #contents { height: 250px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <h1>상품 수정</h1>
+        <form id="productForm">
+            <label>
+                <p>제목</p>
+                <input type="text" id="productName" required maxlength="255" />
+            </label>
+            <label>
+                <p>썸네일</p>
+                <input type="file" id="imageFile" class="file-input" accept="image/*" />
+            </label>
+            <label>
+                <p>가격</p>
+                <input type="number" id="price" required />
+            </label>
+            <label>
+                <p>자세한 설명</p>
+                <textarea type="text" id="contents" required maxlength="1000"></textarea>
+            </label>
+            <label>
+                <p>인원 제한</p>
+                <input type="number" id="amount" required />
+            </label>
+            <label>
+                <p>상태</p>
+                <select id="status" required>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
+                </select>
+            </label>
+
+            <button type="button" class="btn" onclick="updateProduct()">상품 수정</button>
+            <button type="button" class="btn cancel-btn" onclick="cancel()">취소</button>
+        </form>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const productId = /*[[${productId}]]*/ 0;
+
+    window.onload = function() {
+        fetch(`/products/${productId}`, { credentials: 'include' })
+            .then(res => res.json())
+            .then(result => {
+                const product = result.data;
+                document.getElementById('productName').value = product.productName;
+                document.getElementById('price').value = product.price;
+                document.getElementById('contents').value = product.contents;
+                document.getElementById('amount').value = product.amount;
+                document.getElementById('status').value = product.status;
+            })
+            .catch(error => console.error('상품 조회 실패:', error));
+    };
+
+    function updateProduct() {
+        const productName = document.getElementById('productName').value;
+        const price = document.getElementById('price').value;
+        const contents = document.getElementById('contents').value;
+        const amount = document.getElementById('amount').value;
+        const status = document.getElementById('status').value;
+        const imageFile = document.getElementById('imageFile').files[0];
+
+        const formData = new FormData();
+        const dto = {
+            productName: productName,
+            contents: contents,
+            price: Number(price),
+            amount: Number(amount),
+            status: status,
+            imgUrl: ""
+        };
+        formData.append("requestDto", new Blob([JSON.stringify(dto)], { type: "application/json" }));
+
+        if (imageFile) formData.append("image", imageFile);
+
+        fetch(`/products/${productId}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            body: formData
+        })
+            .then(res => res.json())
+            .then(result => {
+                alert('상품 수정 성공');
+                window.location.href = "/profile/my-products";
+            })
+            .catch(error => {
+                console.error('상품 수정 중 오류 발생:', error);
+                alert('상품 수정 중 오류 발생');
+            });
+    }
+
+    function cancel() {
+        window.location.href = "/profile/my-products";
+    }
+</script>
+</body>
+</html>
