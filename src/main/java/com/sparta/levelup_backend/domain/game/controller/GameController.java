@@ -37,6 +37,7 @@ public class GameController {
 	private final GameService gameService;
 	private final S3Service s3Service;
 
+	// 게임 생성
 	@PostMapping("/admin/games")
 	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@RequestBody CreateGameRequestDto dto) {
@@ -58,6 +59,7 @@ public class GameController {
 		return success(OK, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
 	}
 
+	// gameId를 통한 게임 조회
 	@GetMapping("/admin/games/{gameId}")
 	public ApiResponse<GameResponseDto> findGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Long gameId) {
@@ -67,6 +69,7 @@ public class GameController {
 		return success(OK, GAME_FOUND_SUCCESS, GameResponseDto.from(game));
 	}
 
+	// 게임 수정
 	@PatchMapping("/admin/games/{gameId}")
 	public ApiResponse<GameResponseDto> updateGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Long gameId, @RequestBody UpdateGameRequestDto dto) {
@@ -76,6 +79,7 @@ public class GameController {
 		return success(OK, GAME_UPDATE_SUCCESS, GameResponseDto.from(game));
 	}
 
+	// 게임 삭제
 	@DeleteMapping("/admin/games/{gameId}")
 	public ApiResponse<Void> deleteGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@PathVariable Long gameId) {
@@ -85,6 +89,7 @@ public class GameController {
 		return success(OK, GAME_DELETE_SUCCESS);
 	}
 
+	// 모든 게임 조회
 	@GetMapping("/games")
 	public ApiResponse<GameListResponseDto> findGames(){
 
