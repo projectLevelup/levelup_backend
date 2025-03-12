@@ -4,20 +4,14 @@ import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
 import static com.sparta.levelup_backend.common.apiresponse.ApiResponse.*;
 import static org.springframework.http.HttpStatus.*;
 
-import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
@@ -43,20 +37,27 @@ public class ProductController {
 
 	@PostMapping
 	public ApiResponse<ProductCreateResponseDto> saveProduct(
-		@Valid @RequestBody ProductCreateRequestDto dto,
-		@AuthenticationPrincipal CustomUserDetails userDetails
+		@Valid @RequestPart ProductCreateRequestDto dto,
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestPart("image") MultipartFile image
 	) {
 		Long userId = userDetails.getId();
-		return success(OK, PRODUCT_CREATE, productService.saveProduct(userId, dto));
+		return success(OK, PRODUCT_CREATE, productService.saveProduct(userId, dto, image));
 	}
 
-	// 전체 상품 조회 → findAllProducts
+	// 전체 상품 조회 (페이징)
 	@GetMapping
-	public ApiResponse<List<ProductResponseDto>> findAllProducts() {
-		return success(OK, PRODUCT_READ, productService.getAllProducts());
+	public ApiResponse<Page<ProductResponseDto>> findAllProducts(Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.getAllProducts(pageable));
 	}
 
-	// 상품 ID로 상품 조회 → findProductById
+	// 특정 사용자가 등록한 상품 조회 (페이징)
+	@GetMapping("/mine/{userId}")
+	public ApiResponse<Page<ProductResponseDto>> findAllProductsByUser(@PathVariable Long userId, Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.getAllProductsByUser(userId, pageable));
+	}
+
+	// 상품 ID로 조회
 	@GetMapping("/{id}")
 	public ApiResponse<ProductResponseDto> findProductById(
 		@PathVariable Long id,
@@ -70,11 +71,12 @@ public class ProductController {
 	@PatchMapping("/{id}")
 	public ApiResponse<ProductUpdateResponseDto> updateProduct(
 		@PathVariable Long id,
-		@Valid @RequestBody ProductUpdateRequestDto requestDto,
-		@AuthenticationPrincipal CustomUserDetails userDetails
+		@Valid @RequestPart ProductUpdateRequestDto requestDto,
+		@AuthenticationPrincipal CustomUserDetails userDetails,
+		@RequestPart("image") MultipartFile image
 	) {
 		Long userId = userDetails.getId();
-		return success(OK, PRODUCT_UPDATE, productService.updateProduct(id, userId, requestDto));
+		return success(OK, PRODUCT_UPDATE, productService.updateProduct(id, userId, requestDto, image));
 	}
 
 	// 상품 삭제
@@ -87,78 +89,60 @@ public class ProductController {
 		return success(OK, PRODUCT_DELETE, productService.deleteProduct(id, userId));
 	}
 
-	// Elasticsearch를 활용한 전체 상품 검색 (ES)
+	// Elasticsearch - 전체 상품 검색 (페이징)
 	@GetMapping("/all")
-	public ApiResponse<List<ProductDocument>> findAllProductsES() {
-		return success(OK, PRODUCT_READ, productService.getAllProductsES());
+	public ApiResponse<Page<ProductDocument>> findAllProductsES(Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.getAllProductsES(pageable));
 	}
 
-	// Elasticsearch를 활용한 상품 ID로 상품 조회 (ES)
+	// Elasticsearch - 상품 ID 조회
 	@GetMapping("/es/{id}")
 	public ApiResponse<ProductDocument> findProductByIdES(@PathVariable Long id) {
 		return success(OK, PRODUCT_READ, productService.getProductByIdES(id));
 	}
 
-	/**
-	 * 상품명으로 상품 부분 검색 (ES)
-	 * GET /products/productName?productName=...
-	 */
+	// Elasticsearch - 상품명 검색 (페이징)
 	@GetMapping("/productName")
-	public ApiResponse<List<ProductDocument>> findProductsByName(@RequestParam String productName) {
-		return success(OK, PRODUCT_READ,productService.searchByProductNameES(productName));
+	public ApiResponse<Page<ProductDocument>> findProductsByName(
+		@RequestParam String productName,
+		Pageable pageable
+	) {
+		return success(OK, PRODUCT_READ, productService.searchByProductNameES(productName, pageable));
 	}
 
-	/**
-	 * 특정 게임에 속한 상품 조회 (ES)
-	 * GET /products/game/{gameId}
-	 */
+	// Elasticsearch - 특정 게임에 속한 상품 조회 (페이징)
 	@GetMapping("/game/{gameId}")
-	public ApiResponse<List<ProductDocument>> findProductsByGameId(@PathVariable Long gameId) {
-		return success(OK, PRODUCT_READ, productService.searchByGameIdES(gameId));
+	public ApiResponse<Page<ProductDocument>> findProductsByGameId(@PathVariable Long gameId, Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.searchByGameIdES(gameId, pageable));
 	}
 
-	/**
-	 * 특정 상태의 상품 조회 (ES)
-	 * GET /products/status/{productStatus}
-	 */
+	// Elasticsearch - 특정 상태의 상품 조회 (페이징)
 	@GetMapping("/status/{productStatus}")
-	public ApiResponse<List<ProductDocument>> findProductsByStatus(@PathVariable String productStatus) {
-		return success(OK, PRODUCT_READ, productService.searchByStatusES(productStatus));
+	public ApiResponse<Page<ProductDocument>> findProductsByStatus(@PathVariable String productStatus, Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.searchByStatusES(productStatus, pageable));
 	}
 
-	/**
-	 * 특정 사용자가 등록한 상품 조회 (ES)
-	 * GET /products/user/{userId}
-	 */
+	// Elasticsearch - 특정 사용자가 등록한 상품 조회 (페이징)
 	@GetMapping("/user/{userId}")
-	public ApiResponse<List<ProductDocument>> findProductsByUserId(@PathVariable Long userId) {
-		return success(OK, PRODUCT_READ, productService.searchByUserIdES(userId));
+	public ApiResponse<Page<ProductDocument>> findProductsByUserId(@PathVariable Long userId, Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.searchByUserIdES(userId, pageable));
 	}
 
-	/**
-	 * 카테고리별 상품 개수 집계 (ES)
-	 * GET /products/aggregations/category
-	 */
+	// Elasticsearch - 카테고리별 상품 개수 집계
 	@GetMapping("/aggregations/category")
 	public ApiResponse<Map<String, Long>> findCategoryAggregations() {
 		return success(OK, PRODUCT_READ, productService.getGenreAggregationsES());
 	}
 
-	/**
-	 * 감성 분석 결과 상위 3개 상품 조회 (ES)
-	 * GET /products/sentimentanalysis/top3
-	 */
+	// Elasticsearch - 감성 분석 결과 상위 3개 상품 조회 (페이징)
 	@GetMapping("/sentimentanalysis/top3")
-	public ApiResponse<List<ProductRequestAllDto>> findTop3Products() {
-		return success(OK, PRODUCT_READ, productService.getTop3Products());
+	public ApiResponse<Page<ProductRequestAllDto>> findTop3Products(Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.getTop3Products(pageable));
 	}
 
-	/**
-	 * 인기 상품 Top 10 조회 (ES)
-	 * GET /products/aggregations/popular
-	 */
+	// Elasticsearch - 인기 상품 Top 10 조회 (페이징)
 	@GetMapping("/aggregations/popular")
-	public ApiResponse<List<ProductDocument>> findTop10PopularProducts() {
-		return success(OK, PRODUCT_READ, productService.getTop10PopularProductsES());
+	public ApiResponse<Page<ProductDocument>> findTop10PopularProducts(Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.getTop10PopularProductsES(pageable));
 	}
 }
