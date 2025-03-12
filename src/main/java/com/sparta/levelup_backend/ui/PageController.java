@@ -118,6 +118,13 @@ public class PageController {
 		return "admin/create-game";
 	}
 
+
+	@GetMapping("/admin/dashboard/game/update")
+	public String updateGamePage(@RequestParam Long gameId, Model model) {
+		model.addAttribute("gameId", gameId);
+		return "admin/update-game";
+	}
+
 	@GetMapping("/products/add")
 	public String addProductPage() {
 		return "productCreate";
@@ -164,6 +171,17 @@ public class PageController {
 		return "payment/checkout";
 	}
 
+	@GetMapping("/profile/my-products")
+	public String myProducts() {
+		return "product/my-product-list";
+	}
+
+	@GetMapping("/profile/my-products/update")
+	public String myProductsUpdatePage(@RequestParam Long productId, Model model) {
+		model.addAttribute("productId", productId);
+		return "product/update";
+	}
+
 	@GetMapping("/profile/bills/student")
 	public String billsPage() {
 		return "order/bill-list";
@@ -191,5 +209,19 @@ public class PageController {
 	public String communityPage() {
 		return "community/community";
 	}
+
+	@GetMapping("/community/add")
+	public String addCommunityPage() {
+		return "community/write";
+	}
+
+	@GetMapping("/community/search")
+	public String searchCommunityPage(@RequestParam String keyword, Model model) {
+		model.addAttribute("keyword", keyword);
+		return "community/search";
+	}
+
+
+
 
 }

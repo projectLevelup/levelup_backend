@@ -28,6 +28,7 @@
         }
         .detail-content {
             padding: 15px 0;
+            min-height: 300px;
         }
         .detail-title {
             font-weight: 600;
@@ -68,6 +69,25 @@
         .comment-form-container button:hover {
             background-color: #357ae8;
         }
+        /* 댓글 목록 컨테이너 스타일 */
+        .comments-container {
+            margin-top: 20px;
+        }
+        .comment-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        .no-comments {
+            text-align: center;
+            color: #999;
+            font-size: 14px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -84,10 +104,15 @@
             <textarea id="commentText" placeholder="댓글을 입력하세요" required></textarea>
             <button type="button" onclick="submitComment()">작성 완료</button>
         </div>
+        <!-- 댓글 목록 컨테이너 (댓글 작성폼 아래에 위치) -->
+        <div id="commentsContainer" class="comments-container">
+            <!-- 댓글 목록이 동적으로 삽입됩니다. -->
+        </div>
     </div>
     <!-- 하단 공통 메뉴 -->
     <div th:replace="fragments :: main-nav"></div>
 </div>
+
 <script th:inline="javascript">
     /*<![CDATA[*/
     // 컨트롤러에서 전달한 communityId가 주입됩니다.
@@ -134,14 +159,26 @@
             <div class="detail-item">${community.content}</div>
         </div>
       `;
-        // 댓글 표시
-        if (community.comments && community.comments.length > 0) {
-            let commentsHtml = `<div class="detail-item"><strong>댓글:</strong></div>`;
-            community.comments.forEach(comment => {
-                commentsHtml += `<div class="detail-item" style="margin-left:20px;"><strong>${comment.author}:</strong> ${comment.text}</div>`;
-            });
-            container.innerHTML += commentsHtml;
+        // 댓글 목록을 별도의 컨테이너에 표시
+        displayComments(community.comments);
+    }
+
+    function displayComments(comments) {
+        const container = document.getElementById("commentsContainer");
+        container.innerHTML = "";
+        if (!comments || comments.length === 0) {
+            container.innerHTML = `<p class="no-comments">댓글이 없습니다.</p>`;
+            return;
         }
+        comments.forEach(comment => {
+            const commentDiv = document.createElement("div");
+            commentDiv.className = "comment-item";
+            commentDiv.innerHTML = `
+          <strong>${comment.nickname}:</strong> ${comment.content}
+          <div style="font-size:12px;color:#999;">${new Date(comment.createdAt).toLocaleString()}</div>
+        `;
+            container.appendChild(commentDiv);
+        });
     }
 
     function submitComment() {
@@ -150,20 +187,19 @@
             alert("댓글 내용을 입력하세요.");
             return;
         }
-        // POST /communities/{communityId}/comments API 호출 (예시 엔드포인트)
-        fetch(`/communities/${communityId}/comments`, {
+        // 댓글 생성 API 호출: communityId와 content 필드 포함
+        fetch(`/comments`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: commentText })
+            body: JSON.stringify({ communityId: communityId, content: commentText })
         })
             .then(response => response.json())
             .then(result => {
                 if (result.status === "OK") {
                     alert("댓글이 작성되었습니다.");
-                    // 댓글 입력창 초기화
                     document.getElementById("commentText").value = "";
-                    // 댓글 목록 갱신
+                    // 댓글 목록 갱신: 커뮤니티 상세 정보를 다시 불러와 댓글 영역 업데이트
                     loadCommunityDetail(communityId);
                 } else {
                     alert("댓글 작성 실패: " + (result.errorMessage || result.detail || result.message));

@@ -22,15 +22,31 @@
             margin-bottom: 30px;
             border-radius: 10px;
         }
+
+        .create-product-btn {
+            position: fixed;
+            bottom: 75px; /* 네비게이션 바(50px) 위에 10px 여유 */
+            right: calc((100% - 400px) / 2 + 25px); /* 중앙 컨테이너의 오른쪽 끝에서 10px 안쪽 */
+            padding: 10px 20px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            z-index: 1100; /* 네비게이션보다 위에 표시 */
+        }
         .game-item img {
             width: 100%;
             height: 100px;
             object-fit: cover;
             margin-bottom: 5px;
+            border-radius: 10px;
         }
         .add-button {
+            width:100%;
             margin-bottom: 10px;
-            padding: 5px 10px;
+            padding: 10px 30px;
             background-color: #007bff;
             color: #fff;
             border: none;
@@ -38,13 +54,13 @@
         }
         .action-buttons {
             display: flex;
-            gap: 5px;
+            gap: 8px;
             justify-content: center;
         }
 
         .action-buttons button {
             margin-top: 5px;
-            padding: 5px;
+            padding: 8px 12px;
             font-size: 0.9rem;
             cursor: pointer;
         }
@@ -59,7 +75,6 @@
             <h2>게임 관리</h2>
         </header>
         <main>
-            <button class="add-button" onclick="goAddGamePage()">게임 추가</button>
             <!-- 게임 목록이 출력될 영역 -->
             <div class="game-list" id="gameList"></div>
         </main>
@@ -68,6 +83,7 @@
     <div th:replace="fragments :: main-nav"></div>
 </div>
 
+<button class="create-product-btn" onclick="goAddGamePage()">게임 추가</button>
 <script>
     $(document).ready(function(){
         fetchGames();
@@ -99,7 +115,6 @@
         $gameList.empty();
 
         $.each(games, function(index, game) {
-            // 게임 아이템 HTML 생성 (수정/삭제 버튼 포함)
             const gameHTML = `
       <div class="game-item">
         <img src="${game.imgUrl}" alt="${game.name}">
@@ -111,18 +126,17 @@
         </div>
       </div>
     `;
-
             const $gameItem = $(gameHTML);
 
-            // 수정 버튼 이벤트 바인딩
+            // 수정 버튼 클릭 시 수정 페이지로 이동
             $gameItem.find('.edit-btn').click(function(){
-                updateGame(game);
+                window.location.href = '/admin/dashboard/game/update?gameId=' + game.gameId;
             });
 
-            // 삭제 버튼 이벤트 바인딩
+            // 삭제 버튼 클릭 시 삭제 API 호출
             $gameItem.find('.delete-btn').click(function(){
                 if(confirm('정말 삭제하시겠습니까?')) {
-                    deleteGame(game.id);
+                    deleteGame(game.gameId);
                 }
             });
 
@@ -138,7 +152,7 @@
             contentType: 'application/json',
             dataType: 'json',
             success: function(response) {
-                if(response.status === 200) {
+                if(response.status === "OK") {
                     alert('삭제 성공');
                     fetchGames();
                 } else {
@@ -185,7 +199,7 @@
 
     /* 게임 추가 페이지로 이동 */
     function goAddGamePage(){
-        window.location.href = '/admin/games/add';
+        window.location.href = '/admin/dashboard/game/add';
     }
 </script>
 </body>

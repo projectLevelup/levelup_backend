@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>관리자 - 게임 수정</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
-    <title>관리자 - 게임 추가</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body { font-family: sans-serif; margin: 0; padding: 0; }
         header, main { padding: 10px; }
@@ -64,24 +64,25 @@
 <div class="container">
     <div class="inner-con">
         <header>
-            <h2>게임 추가</h2>
+            <h2>게임 수정</h2>
         </header>
         <main>
             <div class="form-container">
-                <form id="addGameForm">
+                <form id="updateGameForm">
+                    <input type="hidden" id="gameId" th:value="${gameId}">
                     <div class="form-group">
                         <label for="name">게임 이름</label>
                         <input type="text" id="name" name="name" placeholder="게임 이름을 입력하세요" required>
                     </div>
                     <div class="form-group">
                         <label for="image">이미지 파일</label>
-                        <input type="file" id="image" name="image" accept="image/*" required>
+                        <input type="file" id="image" name="image" accept="image/*">
                     </div>
                     <div class="form-group">
                         <label for="genre">장르</label>
                         <input type="text" id="genre" name="genre" placeholder="게임 장르를 입력하세요" required>
                     </div>
-                    <button type="submit" class="submit-button">게임 추가</button>
+                    <button type="submit" class="submit-button">게임 수정</button>
                     <button type="button" class="cancel-button" onclick="location.href='/admin/dashboard/game'">취소</button>
                 </form>
             </div>
@@ -91,43 +92,51 @@
     <div th:replace="fragments :: main-nav"></div>
 </div>
 
-<script>
-    document.getElementById('addGameForm').addEventListener('submit', function(e) {
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const gameId = /*[[${gameId}]]*/ 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/admin/games/' + gameId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "OK") {
+                    const game = data.data;
+                    document.getElementById('name').value = game.name;
+                    document.getElementById('genre').value = game.genre;
+                } else {
+                    alert("게임 정보를 불러오지 못했습니다: " + data.message);
+                }
+            })
+            .catch(error => console.error('게임 정보 요청 중 오류 발생:', error));
+    });
+
+    document.getElementById('updateGameForm').addEventListener('submit', function (e) {
         e.preventDefault();
 
+        const gameId = document.getElementById('gameId').value;
         const name = document.getElementById('name').value;
         const genre = document.getElementById('genre').value;
         const fileInput = document.getElementById('image');
         const imageFile = fileInput.files[0];
 
-        if (!imageFile) {
-            alert("이미지 파일을 선택해주세요.");
-            return;
-        }
-
-        // FormData를 사용하여 파일과 dto 정보를 함께 전송
         const formData = new FormData();
-        formData.append("image", imageFile);
+        if (imageFile) formData.append("image", imageFile);
         formData.append("dto", new Blob([JSON.stringify({ name, genre })], { type: "application/json" }));
 
-        fetch('/admin/games', {
-            method: 'POST',
-            body: formData
-        })
+        fetch('/admin/games/' + gameId, { method: 'PATCH', body: formData })
             .then(response => response.json())
             .then(data => {
                 if (data.status === "OK") {
-                    alert("게임 추가 성공");
+                    alert("게임 수정 성공");
                     location.href = '/admin/dashboard/game';
                 } else {
-                    alert("게임 추가 실패: " + data.message);
+                    alert("게임 수정 실패: " + data.message);
                 }
             })
-            .catch(error => {
-                console.error("게임 추가 오류: ", error);
-                alert("게임 추가 중 오류가 발생했습니다.");
-            });
+            .catch(error => alert("게임 수정 중 오류가 발생했습니다."));
     });
+
 </script>
 </body>
 </html>

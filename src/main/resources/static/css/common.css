@@ -18,7 +18,7 @@ body {
     margin: 0 auto;
     background: #fff;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -235,4 +235,28 @@ h2 {
     text-align: center;
     padding: 20px;
     color: #666;
+}
+
+.product-item img {
+    border-radius: 10px;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+.community-item:last-child {
+    border-bottom: none;
+}
+
+.community-author {
+    font-size: 14px;
+}
+
+.community-title {
+    padding-bottom: 5px;
+}
+
+.category-item img {
+    border-radius: 10px;
 }

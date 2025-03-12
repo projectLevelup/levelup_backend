@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <title>커뮤니티 글 작성</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 0; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; }
+        input[type="text"], textarea, select {
+            width: 100%; padding: 10px; margin-top: 5px;
+            border: 1px solid #ccc; border-radius: 5px; font-size: 14px;
+        }
+        textarea { height: 200px; resize: vertical; }
+        .btn {
+            width: 100%; margin-top: 20px; padding: 12px;
+            background-color: #4285F4; color: #fff; border: none;
+            cursor: pointer; border-radius: 5px; font-size: 16px;
+        }
+        .btn:hover { background-color: #357ae8; }
+        .cancel-btn { background-color: #aaa; }
+        /* 게임 목록을 이미지 박스로 가로 정렬 */
+        .game-box-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 15px;
+            margin-top: 10px;
+            padding-bottom: 10px;
+        }
+        .game-box {
+            flex: 0 0 auto;
+            width: 70px;
+            height: 70px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .game-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .game-box.selected {
+            border-color: #4285F4;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="inner-con">
+        <h2>커뮤니티 글 작성</h2>
+        <form id="communityForm">
+            <!-- 게임 선택: 게임 박스 컨테이너 사용 -->
+            <label for="gameSelection">게임 선택</label>
+            <div id="gameContainer" class="game-box-container">
+                <!-- loadGames() 함수가 API 호출 후 게임 박스를 동적으로 추가 -->
+            </div>
+            <!-- 제목 입력 -->
+            <label for="title">제목</label>
+            <input type="text" id="title" placeholder="제목을 입력하세요" required maxlength="255">
+            <!-- 내용 입력 -->
+            <label for="content">내용</label>
+            <textarea id="content" placeholder="내용을 입력하세요" required></textarea>
+            <!-- 버튼 -->
+            <button type="button" class="btn" onclick="createCommunity()">글 작성</button>
+            <button type="button" class="btn cancel-btn" onclick="cancel()">취소</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // 전역 변수: 선택된 게임 ID
+    let selectedGameId = null;
+
+    // 페이지 로드 시 게임 목록 불러오기
+    window.onload = function() {
+        loadGames();
+    };
+
+    /**
+     * 게임 목록 불러오기 (GET /games)
+     * API 응답 예시:
+     * {
+     *   status: "OK",
+     *   message: "...",
+     *   data: { gameList: [ { gameId, name, imgUrl, ... }, ... ] }
+     * }
+     */
+    function loadGames() {
+        fetch('/games')
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data && result.data.gameList) {
+                    displayGameBoxes(result.data.gameList);
+                } else {
+                    console.error('게임 목록 데이터 형식 확인 필요', result);
+                }
+            })
+            .catch(error => {
+                console.error('게임 목록 불러오기 실패:', error);
+            });
+    }
+
+    /**
+     * 게임 목록을 이미지 박스로 가로로 표시
+     */
+    function displayGameBoxes(gameList) {
+        const container = document.getElementById('gameContainer');
+        container.innerHTML = ''; // 기존 내용 초기화
+
+        gameList.forEach(game => {
+            const box = document.createElement('div');
+            box.className = 'game-box';
+            box.innerHTML = `<img src="${game.imgUrl}" alt="${game.name}" title="${game.name}">`;
+
+            // 클릭 시 선택 처리
+            box.onclick = function() {
+                // 모든 박스에서 'selected' 클래스 제거
+                document.querySelectorAll('.game-box').forEach(b => b.classList.remove('selected'));
+                // 클릭한 박스에 'selected' 클래스 추가
+                box.classList.add('selected');
+                // 선택된 게임 ID 저장 (API 응답에 gameId 필드가 있다고 가정)
+                selectedGameId = game.gameId;
+                console.log("선택된 게임 ID:", selectedGameId);
+            };
+
+            container.appendChild(box);
+        });
+    }
+
+    /**
+     * 커뮤니티 글 작성 요청 (POST /communities)
+     */
+    function createCommunity() {
+        if (!selectedGameId) {
+            alert("게임을 선택해주세요.");
+            return;
+        }
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+
+        if (!title || !content) {
+            alert("모든 필드를 입력해주세요.");
+            return;
+        }
+
+        const requestData = {
+            gameId: Number(selectedGameId),
+            title: title,
+            content: content
+        };
+
+        fetch('/communities', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.data) {
+                    alert("글이 작성되었습니다!");
+                    window.location.href = "/community";
+                } else {
+                    alert("글 작성 실패: " + (result.message || "알 수 없는 오류"));
+                }
+            })
+            .catch(error => {
+                console.error('글 작성 중 에러:', error);
+                alert("글 작성 중 오류가 발생했습니다.");
+            });
+    }
+
+    /**
+     * 취소 버튼 클릭 시
+     */
+    function cancel() {
+        window.location.href = "/community";
+    }
+</script>
+</body>
+</html>
+

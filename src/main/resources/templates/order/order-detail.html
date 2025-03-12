@@ -104,40 +104,40 @@
         const btnGroup = document.getElementById('buttonGroup');
         btnGroup.innerHTML = '';
 
-        if (order.status === "CANCELED") {
-            return;
-        }
-
-        // 버튼 생성 조건에 따라 동적으로 추가
         if (order.status === "PENDING") {
-            // 결제하기 버튼: 체크아웃 페이지로 이동 (orderId 전달)
             const payBtn = document.createElement('a');
             payBtn.className = 'action-button';
             payBtn.href = `/checkout?orderId=${order.orderId}`;
             payBtn.textContent = "결제하기";
             btnGroup.appendChild(payBtn);
-        } else if (order.status === "TRADING") {
-            // 거래 완료 버튼: completeOrder 호출
+        }
+
+        if (order.status === "TRADING") {
             const completeBtn = document.createElement('button');
             completeBtn.className = 'action-button';
             completeBtn.textContent = "거래 완료";
             completeBtn.onclick = () => completeOrder(order.orderId);
             btnGroup.appendChild(completeBtn);
-        } else if (order.status === "COMPLETED") {
-            // 거래 완료 버튼: completeOrder 호출
+        }
+
+        if (order.status === "COMPLETED") {
             const reviewBtn = document.createElement('a');
             reviewBtn.className = 'action-button review-button';
             reviewBtn.href = `/review/write?productId=${order.productId}`;
             reviewBtn.textContent = "리뷰 작성하기";
             btnGroup.appendChild(reviewBtn);
         }
-        // 취소하기 버튼 (공통): 주문 상태에 따라 API 엔드포인트가 달라짐
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'action-button';
-        cancelBtn.textContent = "취소하기";
-        cancelBtn.onclick = () => cancelOrder(order.orderId, order.status);
-        btnGroup.appendChild(cancelBtn);
+
+        // 상태가 COMPLETED 또는 CANCELED일 경우 취소 버튼 미표시
+        if (order.status !== "COMPLETED" && order.status !== "CANCELED") {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'action-button';
+            cancelBtn.textContent = "취소하기";
+            cancelBtn.onclick = () => cancelOrder(order.orderId, order.status);
+            btnGroup.appendChild(cancelBtn);
+        }
     }
+
 
     function completeOrder(orderId) {
         // 거래 완료 API: /orders/student/{orderId} PATCH 요청

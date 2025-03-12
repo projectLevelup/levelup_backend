@@ -5,126 +5,117 @@
     <title>회원정보 수정</title>
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <style>
-        h2 {
-            text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        label {
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            color: #555;
-        }
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        input[type="url"] {
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease;
-        }
-        input:focus {
-            border-color: #007aff;
-            outline: none;
+        body { font-family: sans-serif; margin: 0; padding: 0; }
+        h2 { text-align: center; margin-bottom: 20px; }
+        .form-container { max-width: 400px; margin: 20px auto; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 0.5rem; color: #555; }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="url"], input[type="password"] {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
         }
         button {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            background-color: #007aff;
-            color: #fff;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            width: 100%;
+            width: 100%; padding: 10px; border: none; border-radius: 4px; background-color: #007aff; color: #fff; cursor: pointer;
         }
-        button:hover {
-            background-color: #005bb5;
+        button:hover { background-color: #005bb5; }
+        .cancel-button { margin-top: 20px; background-color: #aaa; }
+        .cancel-button:hover { background-color: #888; }
+
+        .space-bar {
+            margin-bottom: 30px;
         }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="inner-con">
-        <div class="py-4 text-center">
-            <h2>정보 수정</h2>
-        </div>
+        <h2>회원정보 수정</h2>
         <form id="updateForm">
             <div class="form-group">
-                <input type="email" id="email" placeholder="이메일 입력" name="email" th:value="${email}" required>
+                <input type="email" id="email" placeholder="이메일" th:value="${email}" required>
             </div>
             <div class="form-group">
-                <input type="text" id="nickName" placeholder="닉네임 입력" name="nickName" th:value="${nickName}" required>
+                <input type="text" id="nickName" placeholder="닉네임" th:value="${nickName}" required>
             </div>
             <div class="form-group">
-                <input type="url" id="profileUrl" placeholder="프로필 URL 입력" name="profileUrl" th:value="${profileUrl}" required>
+                <input type="url" id="profileUrl" placeholder="프로필 URL" th:value="${profileUrl}" required>
             </div>
             <div class="form-group">
-                <input type="tel" id="phoneNumber" placeholder="전화번호 입력" name="phoneNumber" th:value="${phoneNumber}" required>
+                <input type="tel" id="phoneNumber" placeholder="전화번호" th:value="${phoneNumber}" required>
             </div>
-            <div class="form-group">
-                <button type="submit">정보 수정</button>
-            </div>
+            <button type="submit">기본정보 수정</button>
         </form>
+
+        <hr class="space-bar">
+
+        <h2>비밀번호 수정</h2>
+        <form id="passwordForm">
+            <div class="form-group">
+                <input type="password" id="currentPassword" placeholder="현재 비밀번호" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="newPassword" placeholder="새 비밀번호" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="passwordConfirm" placeholder="새 비밀번호 확인" required>
+            </div>
+            <button type="submit" class="submit-button">비밀번호 변경</button>
+        </form>
+
+        <button type="button" class="cancel-button" onclick="location.href='/';">취소</button>
     </div>
 </div>
+
 <script>
-    // 폼 제출 시 JSON 형식으로 PATCH 요청
     document.getElementById("updateForm").addEventListener("submit", function(e) {
         e.preventDefault();
-        const email = document.getElementById("email").value;
-        const nickName = document.getElementById("nickName").value;
-        const profileUrl = document.getElementById("profileUrl").value;
-        const phoneNumber = document.getElementById("phoneNumber").value;
+        const payload = {
+            email: document.getElementById("email").value,
+            nickName: document.getElementById("nickName").value,
+            profileUrl: document.getElementById("profileUrl").value,
+            phoneNumber: document.getElementById("phoneNumber").value
+        };
+        fetch('/user', { method: 'PATCH', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+            .then(response => response.json())
+            .then(result => {
+                alert(result.message || "회원정보 수정 성공");
+                location.reload();
+            })
+            .catch(error => alert('수정 중 오류 발생'));
+    });
 
-        const payload = { email, nickName, profileUrl, phoneNumber };
+    document.getElementById("passwordForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const currentPassword = document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+        const passwordConfirm = document.getElementById("passwordConfirm").value;
 
-        fetch("/users", {
-            method: "PATCH",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
+        if (newPassword !== passwordConfirm) {
+            alert("새 비밀번호와 확인 비밀번호가 일치하지 않습니다.");
+            return;
+        }
+
+        const payload = { currentPassword, newPassword, passwordConfirm };
+        fetch('/users/changingPassword', {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
             .then(response => response.json())
             .then(result => {
-                if(result.status === "OK") {
-                    alert("회원정보가 성공적으로 수정되었습니다.");
-                    window.location.href = "/profile";
+                if (result.status === "OK") {
+                    alert("비밀번호가 성공적으로 변경되었습니다.");
+                    location.reload();
                 } else {
-                    alert("회원정보 수정 실패: " + (result.errorMessage || result.detail || result.message));
+                    alert("비밀번호 변경 실패: " + result.message);
                 }
             })
             .catch(error => {
-                console.error("회원정보 수정 중 오류:", error);
-                alert("회원정보 수정 중 오류가 발생했습니다.");
+                console.error('비밀번호 변경 오류:', error);
+                alert("비밀번호 변경 중 오류가 발생했습니다.");
             });
     });
-
-    // 전화번호 입력 시 하이픈 자동 추가
-    document.getElementById("phoneNumber").oninput = function() {
-        let number = /^-?\d+$/;
-        let phone = document.getElementById("phoneNumber");
-        if(number.test(phone.value.toString())){
-            if(phone.value.toString().length == 11){
-                phone.value = phone.value.substring(0,3) + "-" + phone.value.substring(3,7) + "-" + phone.value.substring(7,11);
-            }
-        }
-    }
 </script>
 </body>
 </html>
+

@@ -128,6 +128,11 @@ public class ProductController {
 		return success(OK, PRODUCT_READ, productService.searchByUserIdES(userId, pageable));
 	}
 
+	@GetMapping("/user")
+	public ApiResponse<Page<ProductDocument>> findProductsByAuth(@AuthenticationPrincipal CustomUserDetails userDetails, Pageable pageable) {
+		return success(OK, PRODUCT_READ, productService.searchByUserIdES(userDetails.getId(), pageable));
+	}
+
 	// Elasticsearch - 카테고리별 상품 개수 집계
 	@GetMapping("/aggregations/category")
 	public ApiResponse<Map<String, Long>> findCategoryAggregations() {
