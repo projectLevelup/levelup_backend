@@ -4,11 +4,14 @@ import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
 import com.sparta.levelup_backend.domain.order.dto.request.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.response.OrderResponseDto;
+import com.sparta.levelup_backend.domain.order.service.OrderService;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.*;
 import static com.sparta.levelup_backend.common.apiresponse.ApiResMessage.ORDER_CANCLED;
@@ -21,7 +24,7 @@ import static org.springframework.http.HttpStatus.OK;
 @RequiredArgsConstructor
 public class OrderController {
 
-    private final OrderServiceImpl orderService;
+    private final OrderService orderService;
 
     @PostMapping
     public ApiResponse<OrderResponseDto> createOrder(
@@ -83,5 +86,31 @@ public class OrderController {
         Long userId = authUser.getId();
         orderService.deleteOrderByTrading(userId, orderId);
         return success(OK, ORDER_CANCLED);
+    }
+
+    /**
+     * 학생 주문목록 조회
+     *
+     * @param authUser student
+     * @return List
+     */
+    @GetMapping("/student")
+    public ApiResponse<List<OrderResponseDto>> studentOrders(
+            @AuthenticationPrincipal CustomUserDetails authUser) {
+        Long userId = authUser.getId();
+        return success(OK, ORDER_FIND, orderService.findStudentOrders(userId));
+    }
+
+    /**
+     * 튜터 주문목록 조회
+     * @param authUser tutor
+     * @return List
+     */
+    @GetMapping("/tutor")
+    public ApiResponse<List<OrderResponseDto>> tutorOrders(
+            @AuthenticationPrincipal CustomUserDetails authUser
+    ) {
+        Long tutorId = authUser.getId();
+        return success(OK, ORDER_FIND, orderService.findTutorOrders(tutorId));
     }
 }
