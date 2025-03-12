@@ -29,6 +29,9 @@ public enum ErrorCode {
 	INVALID_NICKNAME(HttpStatus.BAD_REQUEST, "ERR017", "유저이름이 일치하지 않습니다."),
 	INVALID_RESETCODE(HttpStatus.BAD_REQUEST, "ERR018", "인증코드가 만료되었거나 일치하지 않습니다."),
 	AUTH_TYPE_NOT_GENERAL(HttpStatus.BAD_REQUEST, "ERR019", "소셜로그인은 비밀번호 초기화가 불가능합니다."),
+	NO_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "ERR020", "파일 확장자가 없습니다."),
+	INVALID_FILE_EXTENTION(HttpStatus.BAD_REQUEST, "ERR021", "유효하지 않은 파일 확장자입니다."),
+	INVALID_IMAGE_URL(HttpStatus.BAD_REQUEST,"ERR022","잘못된 이미지 URL 형식입니다."),
 
 	// 401 UNAUTHORIZED
 	UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "ERR101", "로그인이 필요합니다."),
@@ -53,6 +56,7 @@ public enum ErrorCode {
 	COMMUNITY_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR310", "커뮤니티를 찾을 수 없습니다."),
 	PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR311", "결제정보를 찾을 수 없습니다."),
 	COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "ERR314", "댓글을 찾을 수 없습니다."),
+	EMPTY_FILE_EXCEPTION(HttpStatus.NOT_FOUND,"ERR315","파일이 존재하지 않습니다."),
 
 	// 409 CONFLICT
 	DUPLICATE_EMAIL(HttpStatus.CONFLICT, "ERR401", "이미 사용 중인 이메일입니다."),
@@ -81,10 +85,17 @@ public enum ErrorCode {
 	// 500 INTERNAL_SERVER_ERROR
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR501", "서버 내부 오류가 발생했습니다."),
 	ELASTIC_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "ERR502","엘라스틱 서치 오류가 발생했습니다."),
+	IO_EXCEPTION_ON_IMAGE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "ERR503", "이미지 업로드 중 오류가 발생했습니다."),
+	PUT_OBJECT_EXCEPTION(HttpStatus.INTERNAL_SERVER_ERROR, "ERR504", "파일 저장 중 오류가 발생했습니다."),
+	IO_EXCEPTION_ON_IMAGE_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "ERR505", "이미지 삭제 중 오류가 발생했습니다."),
 
 	// 424 FAIL
 	PAYMENT_FAILED_RETRY(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 반복적으로 실패했습니다."),
-	PAYMENT_FAILED(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 실패했습니다.");
+	PAYMENT_FAILED(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 실패했습니다."),
+
+	// 413 PAYLOAD_TOO_LARGE
+	FILE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "ERR701", "파일 크기가 너무 큽니다. 최대 크기는 5MB입니다.");
+
 
 	private final HttpStatus status;
 	private final String code;

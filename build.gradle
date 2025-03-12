@@ -96,6 +96,9 @@ dependencies {
     // Logback
     implementation 'org.codehaus.janino:janino:3.1.10'
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+
+    //AWS S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {

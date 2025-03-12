@@ -89,3 +89,14 @@ toss:
 jwt:
   secret:
     key: ${JWT_SECRET}
+cloud:
+  aws:
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+    region:
+      static: ${REGION}
+    stack:
+      auto: false
+    s3:
+      bucket-name: ${BUCKET_NAME}
