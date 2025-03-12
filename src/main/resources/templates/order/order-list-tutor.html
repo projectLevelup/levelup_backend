@@ -21,6 +21,7 @@
         .order-item {
             border-bottom: 1px solid #eee;
             padding: 15px 0;
+            cursor: pointer;
         }
         .order-item:last-child {
             border-bottom: none;
@@ -59,8 +60,8 @@
         fetch('/orders/tutor', { credentials: 'include' })
             .then(response => response.json())
             .then(result => {
-                if (result && result.data) {
-                    displayOrders(result.data);
+                if (result && result.data && result.data.content) {
+                    displayOrders(result.data.content);
                 } else {
                     console.error('주문 내역을 불러오지 못했습니다.', result);
                     displayNoOrders();
@@ -103,7 +104,7 @@
             orderDiv.className = 'order-item';
             // 클릭 시 주문 상세 페이지로 이동 (query parameter로 orderId 전달)
             orderDiv.onclick = () => {
-                window.location.href = `/profile/order/student/order-detail?orderId=${order.orderId}`;
+                window.location.href = `/profile/order/tutor/order-detail?orderId=${order.orderId}`;
             };
             orderDiv.innerHTML = `
                 <div class="order-title">

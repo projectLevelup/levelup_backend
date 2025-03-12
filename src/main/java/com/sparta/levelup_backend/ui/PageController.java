@@ -197,4 +197,10 @@ public class PageController {
 		return "community/write";
 	}
 
+	@GetMapping("/admin/dashboard/game/update")
+	public String updateGamePage(@RequestParam Long gameId, Model model) {
+		model.addAttribute("gameId", gameId);
+		return "admin/update-game";
+	}
+
 }

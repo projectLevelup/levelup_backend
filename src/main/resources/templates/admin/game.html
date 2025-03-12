@@ -39,13 +39,13 @@
         }
         .action-buttons {
             display: flex;
-            gap: 5px;
+            gap: 8px;
             justify-content: center;
         }
 
         .action-buttons button {
             margin-top: 5px;
-            padding: 5px;
+            padding: 8px 12px;
             font-size: 0.9rem;
             cursor: pointer;
         }
@@ -100,7 +100,6 @@
         $gameList.empty();
 
         $.each(games, function(index, game) {
-            // 게임 아이템 HTML 생성 (수정/삭제 버튼 포함)
             const gameHTML = `
       <div class="game-item">
         <img src="${game.imgUrl}" alt="${game.name}">
@@ -112,18 +111,17 @@
         </div>
       </div>
     `;
-
             const $gameItem = $(gameHTML);
 
-            // 수정 버튼 이벤트 바인딩
+            // 수정 버튼 클릭 시 수정 페이지로 이동
             $gameItem.find('.edit-btn').click(function(){
-                updateGame(game);
+                window.location.href = '/admin/dashboard/game/update?gameId=' + game.gameId;
             });
 
-            // 삭제 버튼 이벤트 바인딩
+            // 삭제 버튼 클릭 시 삭제 API 호출
             $gameItem.find('.delete-btn').click(function(){
                 if(confirm('정말 삭제하시겠습니까?')) {
-                    deleteGame(game.id);
+                    deleteGame(game.gameId);
                 }
             });
 
@@ -139,7 +137,7 @@
             contentType: 'application/json',
             dataType: 'json',
             success: function(response) {
-                if(response.status === 200) {
+                if(response.status === "OK") {
                     alert('삭제 성공');
                     fetchGames();
                 } else {

@@ -169,7 +169,7 @@
         gameList.forEach(game => {
             const item = document.createElement('div');
             item.className = 'category-item';
-            item.innerHTML = `<img src="/img/default-img.png" alt="${game.name}" />`;
+            item.innerHTML = `<img src="${game.imgUrl}" alt="${game.name}" />`;
             item.onclick = () => filterProductsByGame(game.name);
             container.appendChild(item);
         });
