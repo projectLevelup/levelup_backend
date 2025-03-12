@@ -12,8 +12,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor  // 기본 생성자 추가 (역직렬화 문제 해결)
-@AllArgsConstructor // 전체 필드를 초기화하는 생성자 추가
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(indexName = "reviews", createIndex = true)
 public class ReviewDocument {
 
