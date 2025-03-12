@@ -354,7 +354,7 @@ public class ProductServiceImpl implements ProductService {
 						.filter(f -> f
 							.term(t -> t
 								.field("status")
-								.value("ACTIVE") // ✅ status가 ACTIVE인 데이터만 포함
+								.value("ACTIVE")
 							)
 						)
 					)
