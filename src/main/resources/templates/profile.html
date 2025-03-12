@@ -11,38 +11,32 @@
             font-family: sans-serif;
             background-color: #f9f9f9;
         }
-
         .profile-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
-
         .profile-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
-
         .profile-img {
             width: 60px;
             height: 60px;
             border-radius: 50%;
             object-fit: cover;
         }
-
         .nickname {
             font-size: 18px;
             font-weight: bold;
         }
-
         .settings-icon {
             cursor: pointer;
             font-size: 24px;
             color: #666;
         }
-
         .role-section {
             display: flex;
             justify-content: center;
@@ -50,20 +44,37 @@
             font-size: 14px;
             color: #999;
         }
-
-        .profile-menu ul {
+        /* 탭 헤더 스타일 */
+        .tab-header {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            border-bottom: 1px solid #eee;
+        }
+        .tab-header .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+        .tab-header .tab.active {
+            color: #4285F4;
+            border-bottom: 2px solid #4285F4;
+        }
+        /* 탭 컨텐츠 스타일 */
+        .tab-content ul {
             list-style: none;
             padding: 0;
         }
-
-        .profile-menu li {
+        .tab-content li {
             padding: 12px 0;
             border-bottom: 1px solid #f0f0f0;
             cursor: pointer;
         }
-
-        .profile-menu li:hover {
-            background-color: #f8f8f8;
+        .tab-content li:hover {
+            font-weight: 600;
         }
     </style>
 </head>
@@ -79,7 +90,7 @@
                 </div>
             </div>
             <!-- 설정 아이콘 (예: 톱니바퀴) -->
-            <i class="material-icons settings-icon" onclick="goSettings()">settings</i>
+            <i class="material-icons settings-icon" onclick="location.href='/profile/update'">settings</i>
         </div>
 
         <!-- 역할(사부/제자 등) 표시할 수 있는 섹션 (옵션) -->
@@ -89,16 +100,27 @@
 
         <hr/>
 
-        <!-- 메뉴 목록 (내 강의목록, 강의 신청 관리, 내 거래내역 등) -->
+        <!-- 메뉴 탭 영역 -->
         <div class="profile-menu">
-            <ul>
-                <li onclick="goMyLectures()">내 강의목록</li>
-                <li onclick="goLectureApply()">강의 신청 관리</li>
-                <li onclick="goHistory()">내 거래내역</li>
+            <ul class="tab-header">
+                <li class="tab active" onclick="showTab('teacher')">스승</li>
+                <li class="tab" onclick="showTab('student')">제자</li>
             </ul>
+            <div id="teacherTab" class="tab-content">
+                <ul>
+                    <li onclick="goMyLectures()">내 강의목록</li>
+                    <li onclick="location.href='/profile/order/tutor'">주문 목록</li>
+                    <li onclick="location.href='/profile/bills/tutor'">내 판매내역</li>
+                </ul>
+            </div>
+            <div id="studentTab" class="tab-content" style="display: none;">
+                <ul>
+                    <li onclick="location.href='/profile/bills/student'">내 결제내역</li>
+                    <li onclick="location.href='/profile/order/student'">내 주문내역</li>
+                </ul>
+            </div>
         </div>
     </div>
-
     <!-- 하단 공통 메뉴 -->
     <div th:replace="fragments :: main-nav"></div>
 </div>
@@ -112,9 +134,9 @@
      * 현재 로그인한 사용자 정보 불러오기 (GET /v1/users)
      */
     function loadUserProfile() {
-        fetch('/v1/users', {
+        fetch('/users', {
             method: 'GET',
-            credentials: 'include' // 인증이 필요하다면
+            credentials: 'include'
         })
             .then(response => response.json())
             .then(result => {
@@ -133,19 +155,9 @@
      * 프로필 화면 표시
      */
     function displayUserProfile(user) {
-        // 프로필 이미지
-        // const img = document.getElementById("profileImg");
-        // img.src = user.imgUrl || "";
-
-        // 닉네임
         document.getElementById("nickname").textContent = user.nickName || "닉네임 없음";
-
-        // 필요한 경우, 이메일, 전화번호 등도 표시 가능
-        // console.log("Email:", user.email);
-        // console.log("PhoneNumber:", user.phoneNumber);
-
-        // roleLabel 표시 등 추가 로직
-        // document.getElementById("roleLabel").textContent = "사부" (예시)
+        // 역할에 따라 roleLabel도 설정 (예시)
+        // document.getElementById("roleLabel").textContent = "사부";
     }
 
     /**
@@ -156,16 +168,32 @@
     }
 
     /**
-     * 메뉴 항목 클릭 시
+     * 메뉴 항목 클릭 시 예시 함수
      */
     function goMyLectures() {
         alert("내 강의목록 페이지 이동 (예시)");
     }
-    function goLectureApply() {
-        alert("강의 신청 관리 페이지 이동 (예시)");
-    }
-    function goHistory() {
-        alert("내 거래내역 페이지 이동 (예시)");
+
+    /**
+     * 탭 전환 함수
+     */
+    function showTab(tabName) {
+        // 탭 헤더 active 클래스 토글
+        const tabs = document.querySelectorAll('.tab-header .tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+
+        // 모든 탭 컨텐츠 숨기기
+        document.getElementById('teacherTab').style.display = 'none';
+        document.getElementById('studentTab').style.display = 'none';
+
+        // 선택한 탭 컨텐츠 보이기 및 해당 탭 active 설정
+        if (tabName === 'teacher') {
+            document.getElementById('teacherTab').style.display = 'block';
+            tabs[0].classList.add('active');
+        } else if (tabName === 'student') {
+            document.getElementById('studentTab').style.display = 'block';
+            tabs[1].classList.add('active');
+        }
     }
 </script>
 </body>

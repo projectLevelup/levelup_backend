@@ -8,11 +8,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class GameResponseDto {
+	private final Long gameId;
 	private final String name;
 	private final String imgUrl;
 	private final String genre;
 
 	public static GameResponseDto from(GameEntity game){
-		return new GameResponseDto(game.getName(), game.getImgUrl(), game.getGenre());
+		return new GameResponseDto(game.getId(), game.getName(), game.getImgUrl(), game.getGenre());
 	}
 }

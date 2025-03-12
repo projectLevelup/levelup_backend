@@ -56,6 +56,7 @@
             padding-bottom: 20px;
             padding-top: 20px;
             border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
         }
 
         .product-left {
@@ -81,6 +82,23 @@
             z-index: 1100; /* 네비게이션보다 위에 표시 */
         }
 
+        /* 필터 버튼 영역 */
+        #filterContainer {
+            margin-bottom: 20px;
+        }
+        #filterContainer button {
+            padding: 8px 16px;
+            background-color: #4285F4;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        #filterContainer button:hover {
+            background-color: #357ae8;
+        }
+
     </style>
 </head>
 <body>
@@ -102,6 +120,14 @@
             <!-- /games API로 받아온 게임 목록을 표시할 예정 -->
         </div>
 
+        <!-- 필터 버튼 영역 -->
+        <div id="filterContainer">
+            <!-- 인기순 필터 버튼 -->
+            <button onclick="loadPopularProducts()">인기순</button>
+            <!-- 전체 상품 보기 버튼 (필요시 추가) -->
+            <button onclick="loadProducts()">전체상품</button>
+        </div>
+
         <!-- 상품 목록 영역 -->
         <div id="productContainer">
             <!-- /v1/products API로 받아온 상품 목록을 표시할 예정 -->
@@ -117,7 +143,7 @@
     <div th:replace="fragments :: main-nav"></div>
 </div>
 
-<button class="create-product-btn" onclick="location.href='/product-create'">강의개설</button>
+<button class="create-product-btn" onclick="location.href='/products/add'">강의개설</button>
 <script>
     function getCookie(name) {
         const cookies = document.cookie.split('; ');
@@ -145,17 +171,18 @@
 
     /**
      * 2. 게임 카테고리 목록 불러오기
-     * GET /games => { status, message, data: { gameListResponseDto: [ {name, imgUrl, genre}, ... ] } }
+     * GET /games => { status, message, data: { gameList: [ {name, imgUrl, genre}, ... ] } }
      */
     function loadGames() {
-        fetch('/v1/games')
+        fetch('/games')
             .then(response => response.json())
             .then(result => {
-                if (result && result.data) {
-                    const gameList = result.data.gameListResponseDto;
+                // 응답 데이터가 data.gameList 배열에 있음.
+                if (result && result.data && result.data.gameList) {
+                    const gameList = result.data.gameList;
                     displayGames(gameList);
                 } else {
-                    console.error('게임 목록 불러오기 실패');
+                    console.error('게임 목록 데이터 형식 확인 필요', result);
                 }
             })
             .catch(error => {
@@ -164,11 +191,11 @@
     }
 
     /**
-     * 3. 상품 목록 불러오기
-     * GET /v1/products => { status, message, data: [ { userId, gameId, productName, ... }, ... ] }
+     * 3. 상품 목록 불러오기 (전체 상품)
+     * GET /products => { status, message, data: [ { userId, gameId, productName, ... }, ... ] }
      */
     function loadProducts() {
-        fetch('/v1/products')
+        fetch('/products')
             .then(response => response.json())
             .then(result => {
                 if (result && result.data) {
@@ -183,29 +210,36 @@
     }
 
     /**
-     * 4. 검색 기능 (단순 예시)
-     * 실제로는 서버에서 검색 API를 구현하거나, 프론트엔드에서 필터링할 수 있음
+     * 인기 상품 Top 10 조회
+     * GET /aggregations/popular => { status, message, data: [ { id, productId, productName, ... }, ... ] }
      */
-    function searchProducts() {
-        const keyword = document.getElementById('searchInput').value;
-        if (!keyword) {
-            // 검색어가 없으면 전체 목록 재로드
-            loadProducts();
-            return;
-        }
-        // 예: /v1/products?search=keyword 와 같은 API가 있다고 가정
-        fetch(`/v1/products?search=${encodeURIComponent(keyword)}`)
+    function loadPopularProducts() {
+        fetch('/products/aggregations/popular')
             .then(response => response.json())
             .then(result => {
                 if (result && result.data) {
                     displayProducts(result.data);
                 } else {
-                    console.error('검색 실패');
+                    console.error('인기 상품 목록 불러오기 실패', result);
                 }
             })
             .catch(error => {
-                console.error('검색 에러:', error);
+                console.error('인기 상품 목록 불러오기 에러:', error);
             });
+    }
+
+    /**
+     * 4. 검색 기능 (단순 예시)
+     * 실제로는 서버에서 검색 API를 구현하거나, 프론트엔드에서 필터링할 수 있음
+     */
+    function searchProducts() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        if (!keyword) {
+            alert("검색어를 입력하세요.");
+            return;
+        }
+        // 검색 결과 페이지로 이동 (query parameter로 검색어 전달)
+        window.location.href = `/search?productName=${encodeURIComponent(keyword)}`;
     }
 
     /**
@@ -219,10 +253,10 @@
             const item = document.createElement('div');
             item.className = 'category-item';
             item.innerHTML = `
-            <img src="/img/default-img.png" alt="${game.name}" />
-        `;
-            // 클릭 시 해당 게임 카테고리의 상품만 필터링
-            item.onclick = () => filterProductsByGame(game.name); // 예시
+                <img src="/img/default-img.png" alt="${game.name}" />
+            `;
+            // 클릭 시 해당 게임 카테고리의 상품만 필터링 (예시)
+            item.onclick = () => filterProductsByGame(game.name);
             container.appendChild(item);
         });
     }
@@ -243,28 +277,26 @@
             };
 
             item.innerHTML = `
-          <div class="product-left">
-            <img src="/img/default-img.png" alt="${product.productName}" />
-          </div>
-          <div class="product-right">
-               <div><strong>${product.productName}</strong></div>
-               <div>${product.price}원</div>
-          </div>
-        `;
+                <div class="product-left">
+                    <img src="/img/default-img.png" alt="${product.productName}" />
+                </div>
+                <div class="product-right">
+                    <div><strong>${product.productName}</strong></div>
+                    <div>${product.price}원</div>
+                </div>
+            `;
             container.appendChild(item);
         });
     }
 
     /**
      * 7. 특정 게임 카테고리로 상품 필터링 (클라이언트 단 예시)
-     * 실제로는 /v1/products?gameId=xxx API 호출 등으로 서버에서 필터링할 수 있음
+     * 실제로는 /products?gameId=xxx API 호출 등으로 서버에서 필터링할 수 있음
      */
     function filterProductsByGame(gameName) {
         alert(gameName + ' 카테고리 상품 필터링 (예시)');
         // 실제로는 별도의 API를 호출하거나, productList를 로컬에서 필터링할 수 있습니다.
     }
-
-
 </script>
 </body>
 </html>

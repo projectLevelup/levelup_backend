@@ -6,12 +6,14 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.sparta.levelup_backend.domain.game.dto.requestDto.UpdateGameRequestDto;
+import com.sparta.levelup_backend.domain.game.dto.requestDto.GameUpdateRequestDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.repository.GameRepository;
+import com.sparta.levelup_backend.domain.s3.service.S3Service;
 import com.sparta.levelup_backend.domain.user.entity.UserEntity;
 import com.sparta.levelup_backend.domain.user.repository.UserRepository;
 import com.sparta.levelup_backend.exception.game.GameException;
@@ -25,6 +27,8 @@ public class GameServiceImpl implements GameService {
 
 	private final GameRepository gameRepository;
 	private final UserRepository userRepository;
+
+	private final S3Service s3Service;
 
 	@Transactional
 	@Override
@@ -55,7 +59,7 @@ public class GameServiceImpl implements GameService {
 
 	@Transactional
 	@Override
-	public GameEntity updateGame(Long userId, Long gameId, UpdateGameRequestDto dto) {
+	public GameEntity updateGame(Long userId, Long gameId, GameUpdateRequestDto dto, MultipartFile image) {
 		UserEntity user = userRepository.findByIdOrElseThrow(userId);
 		checkAdminAuth(user);
 
@@ -64,8 +68,11 @@ public class GameServiceImpl implements GameService {
 
 		if (Objects.nonNull(dto.getName()))
 			game.updateName(dto.getName());
-		if (Objects.nonNull(dto.getImgUrl()))
-			game.updateImgUrl(dto.getImgUrl());
+		if (!image.isEmpty()) {
+			String imgUrl = s3Service.upload(image);
+			s3Service.deleteImageFromS3(game.getImgUrl());
+			game.updateImgUrl(imgUrl);
+		}
 		if (Objects.nonNull(dto.getGenre()))
 			game.updateGenre(dto.getGenre());
 
@@ -78,7 +85,7 @@ public class GameServiceImpl implements GameService {
 		return new GameListResponseDto(gameRepository.findAll()
 			.stream()
 			.filter(game -> !game.getIsDeleted())
-			.map(game -> new GameResponseDto(game.getName(), game.getImgUrl(),
+			.map(game -> new GameResponseDto(game.getId(), game.getName(), game.getImgUrl(),
 				game.getGenre()))
 			.toList());
 	}
