@@ -2,8 +2,9 @@ package com.sparta.levelup_backend.domain.order.repository;
 
 import com.sparta.levelup_backend.domain.order.entity.OrderEntity;
 import com.sparta.levelup_backend.enums.OrderStatus;
-import com.sparta.levelup_backend.enums.ErrorCode;
 import com.sparta.levelup_backend.exception.order.OrderException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

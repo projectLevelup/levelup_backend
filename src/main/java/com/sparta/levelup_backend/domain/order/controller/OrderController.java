@@ -8,6 +8,11 @@ import com.sparta.levelup_backend.domain.order.service.OrderService;
 import com.sparta.levelup_backend.domain.order.service.OrderServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -95,10 +100,15 @@ public class OrderController {
      * @return List
      */
     @GetMapping("/student")
-    public ApiResponse<List<OrderResponseDto>> studentOrders(
-            @AuthenticationPrincipal CustomUserDetails authUser) {
+    public ApiResponse<Page<OrderResponseDto>> studentOrders(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            ) {
+        Pageable defaultPage = PageRequest.of(page - 1, pageable.getPageSize(), pageable.getSort());
+
         Long userId = authUser.getId();
-        return success(OK, ORDER_FIND, orderService.findStudentOrders(userId));
+        return success(OK, ORDER_FIND, orderService.findStudentOrders(userId, defaultPage));
     }
 
     /**
@@ -107,10 +117,14 @@ public class OrderController {
      * @return List
      */
     @GetMapping("/tutor")
-    public ApiResponse<List<OrderResponseDto>> tutorOrders(
-            @AuthenticationPrincipal CustomUserDetails authUser
+    public ApiResponse<Page<OrderResponseDto>> tutorOrders(
+            @AuthenticationPrincipal CustomUserDetails authUser,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
+        Pageable defaultPage = PageRequest.of(page - 1, pageable.getPageSize(), pageable.getSort());
+
         Long tutorId = authUser.getId();
-        return success(OK, ORDER_FIND, orderService.findTutorOrders(tutorId));
+        return success(OK, ORDER_FIND, orderService.findTutorOrders(tutorId, defaultPage));
     }
 }
