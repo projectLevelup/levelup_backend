@@ -41,7 +41,7 @@ public class CommunityController {
 	// community 생성
 	@PostMapping
 	public ApiResponse<CommunityResponseDto> saveCommunity(
-		@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody CommnunityCreateRequestDto dto) {
+		@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody CommnunityCreateRequestDto dto) {
 
 		Long userId = customUserDetails.getId();
 
