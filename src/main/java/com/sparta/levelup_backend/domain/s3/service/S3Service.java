@@ -1,6 +1,7 @@
 package com.sparta.levelup_backend.domain.s3.service;
 
 import static com.sparta.levelup_backend.enums.ErrorCode.*;
+import static java.nio.charset.StandardCharsets.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -114,9 +116,9 @@ public class S3Service {
 	private String getKeyFromImageAddress(String imageAddress) {
 		try {
 			URL url = new URL(imageAddress);
-			String decodingKey = URLDecoder.decode(url.getPath(), "UTF-8");
+			String decodingKey = URLDecoder.decode(url.getPath(), UTF_8);
 			return decodingKey.substring(1); // 맨 앞의 '/' 제거
-		} catch (MalformedURLException | UnsupportedEncodingException e) {
+		} catch (MalformedURLException e) {
 			log.error("new error from getKeyFromImageAddress: {}", e.getMessage());
 			throw new S3Exception(INVALID_IMAGE_URL);
 		}
