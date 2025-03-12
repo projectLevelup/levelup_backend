@@ -39,18 +39,7 @@ public class GameController {
 	// 게임 생성
 	@PostMapping("/admin/games")
 	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestBody GameCreateRequestDto dto) {
-		Long userId = customUserDetails.getId();
-		GameEntity game = gameService.saveGame(dto.getName(), dto.getImgUrl(), dto.getGenre(), userId);
-
-		return success(OK, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
-	}
-
-	//게임 이미지 업로드 테스트
-	@PostMapping("/admin/games/image")
-	public ApiResponse<GameResponseDto> saveGameWithImage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@RequestPart("image")MultipartFile image,@RequestPart GameCreateRequestDto dto) {
-		log.info("begin controller");
+		@RequestPart MultipartFile image, @RequestPart GameCreateRequestDto dto) {
 		Long userId = customUserDetails.getId();
 		String imgUrl = s3Service.upload(image);
 		GameEntity game = gameService.saveGame(dto.getName(), imgUrl, dto.getGenre(), userId);
@@ -71,9 +60,10 @@ public class GameController {
 	// 게임 수정
 	@PatchMapping("/admin/games/{gameId}")
 	public ApiResponse<GameResponseDto> updateGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-		@PathVariable Long gameId, @RequestBody GameUpdateRequestDto dto) {
+		@PathVariable Long gameId, @RequestPart(required = false) MultipartFile image,
+		@RequestPart GameUpdateRequestDto dto) {
 		Long userId = customUserDetails.getId();
-		GameEntity game = gameService.updateGame(userId, gameId, dto);
+		GameEntity game = gameService.updateGame(userId, gameId, dto, image);
 
 		return success(OK, GAME_UPDATE_SUCCESS, GameResponseDto.from(game));
 	}
@@ -90,7 +80,7 @@ public class GameController {
 
 	// 모든 게임 조회
 	@GetMapping("/games")
-	public ApiResponse<GameListResponseDto> findGames(){
+	public ApiResponse<GameListResponseDto> findGames() {
 
 		return success(OK, GAME_FOUND_SUCCESS, gameService.findGames());
 	}

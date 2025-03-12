@@ -7,6 +7,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GameUpdateRequestDto {
 	private final String name;
-	private final String imgUrl;
 	private final String genre;
 }

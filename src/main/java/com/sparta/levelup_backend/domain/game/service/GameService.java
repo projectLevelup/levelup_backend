@@ -1,5 +1,7 @@
 package com.sparta.levelup_backend.domain.game.service;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.sparta.levelup_backend.domain.game.dto.requestDto.GameUpdateRequestDto;
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
@@ -11,7 +13,7 @@ public interface GameService {
 
 	void deleteGame(Long userId, Long gameId);
 
-	GameEntity updateGame(Long userId, Long gameId, GameUpdateRequestDto dto);
+	GameEntity updateGame(Long userId, Long gameId, GameUpdateRequestDto dto, MultipartFile image);
 
 	GameListResponseDto findGames();
 }
