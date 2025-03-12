@@ -2,6 +2,8 @@ package com.sparta.levelup_backend.domain.order.service;
 
 import com.sparta.levelup_backend.domain.order.dto.request.OrderCreateRequestDto;
 import com.sparta.levelup_backend.domain.order.dto.response.OrderResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -18,7 +20,7 @@ public interface OrderService {
 
     void deleteOrderByTrading(Long userId, Long orderId);
 
-    List<OrderResponseDto> findStudentOrders(Long userId);
+    Page<OrderResponseDto> findStudentOrders(Long userId, Pageable pageable);
 
-    List<OrderResponseDto> findTutorOrders(Long tutorId);
+    Page<OrderResponseDto> findTutorOrders(Long tutorId, Pageable pageable);
 }

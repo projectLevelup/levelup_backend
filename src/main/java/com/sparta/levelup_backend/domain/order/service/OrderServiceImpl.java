@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -274,19 +277,30 @@ public class OrderServiceImpl implements OrderService {
 
     // 학생 주문목록 조회
     @Override
-    public List<OrderResponseDto> findStudentOrders(Long userId) {
+    public Page<OrderResponseDto> findStudentOrders(Long userId, Pageable pageable) {
         List<OrderEntity> orders = orderRepository.findAllByUserId(userId);
-        return orders.stream()
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), orders.size());
+        List<OrderResponseDto> responseOrders = orders.subList(start, end)
+                .stream()
                 .map(OrderResponseDto::new)
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(responseOrders, pageable, orders.size());
     }
 
     // 튜터 주문 목록 조회
     @Override
-    public List<OrderResponseDto> findTutorOrders(Long tutorId) {
+    public Page<OrderResponseDto> findTutorOrders(Long tutorId, Pageable pageable) {
         List<OrderEntity> orders = orderRepository.findAllByTutorId(tutorId);
-        return orders.stream()
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), orders.size());
+        List<OrderResponseDto> responseOrders = orders.subList(start, end)
+                .stream()
                 .map(OrderResponseDto::new)
                 .collect(Collectors.toList());
+        return new PageImpl<>(responseOrders, pageable, orders.size());
     }
 }
