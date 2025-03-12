@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sparta.levelup_backend.common.apiresponse.ApiResponse;
 import com.sparta.levelup_backend.common.security.CustomUserDetails;
@@ -21,20 +24,36 @@ import com.sparta.levelup_backend.domain.game.dto.responseDto.GameListResponseDt
 import com.sparta.levelup_backend.domain.game.dto.responseDto.GameResponseDto;
 import com.sparta.levelup_backend.domain.game.entity.GameEntity;
 import com.sparta.levelup_backend.domain.game.service.GameService;
+import com.sparta.levelup_backend.domain.s3.service.S3Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class GameController {
 
 	private final GameService gameService;
+	private final S3Service s3Service;
 
 	@PostMapping("/admin/games")
 	public ApiResponse<GameResponseDto> saveGame(@AuthenticationPrincipal CustomUserDetails customUserDetails,
 		@RequestBody CreateGameRequestDto dto) {
 		Long userId = customUserDetails.getId();
 		GameEntity game = gameService.saveGame(dto.getName(), dto.getImgUrl(), dto.getGenre(), userId);
+
+		return success(OK, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
+	}
+
+	//게임 이미지 업로드 테스트
+	@PostMapping("/admin/games/image")
+	public ApiResponse<GameResponseDto> saveGameWithImage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+		@RequestPart("image")MultipartFile image,@RequestPart CreateGameRequestDto dto) {
+		log.info("begin controller");
+		Long userId = customUserDetails.getId();
+		String imgUrl = s3Service.upload(image);
+		GameEntity game = gameService.saveGame(dto.getName(), imgUrl, dto.getGenre(), userId);
 
 		return success(OK, GAME_SAVE_SUCCESS, GameResponseDto.from(game));
 	}

@@ -84,7 +84,15 @@ public enum ErrorCode {
 
 	// 424 FAIL
 	PAYMENT_FAILED_RETRY(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 반복적으로 실패했습니다."),
-	PAYMENT_FAILED(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 실패했습니다.");
+	PAYMENT_FAILED(HttpStatus.FAILED_DEPENDENCY, "ERR601", "승인 요청을 실패했습니다."),
+
+	//test
+	EMPTY_FILE_EXCEPTION(HttpStatus.NOT_FOUND,"ERR701","파일이 존재하지 않습니다."),
+	IO_EXCEPTION_ON_IMAGE_UPLOAD(HttpStatus.NOT_FOUND,"ERR702","파일이 존재하지 않습니다."),
+	NO_FILE_EXTENTION(HttpStatus.NOT_FOUND,"ERR702","파일이 존재하지 않습니다."),
+	INVALID_FILE_EXTENTION(HttpStatus.NOT_FOUND,"ERR702","파일이 존재하지 않습니다."),
+	PUT_OBJECT_EXCEPTION(HttpStatus.NOT_FOUND,"ERR702","파일이 존재하지 않습니다."),
+	IO_EXCEPTION_ON_IMAGE_DELETE(HttpStatus.NOT_FOUND,"ERR702","파일이 존재하지 않습니다.");
 
 	private final HttpStatus status;
 	private final String code;
