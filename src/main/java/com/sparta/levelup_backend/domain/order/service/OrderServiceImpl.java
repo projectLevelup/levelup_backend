@@ -22,7 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.sparta.levelup_backend.enums.ErrorCode.*;
 import static com.sparta.levelup_backend.enums.OrderStatus.*;
@@ -268,5 +270,23 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
+    }
+
+    // 학생 주문목록 조회
+    @Override
+    public List<OrderResponseDto> findStudentOrders(Long userId) {
+        List<OrderEntity> orders = orderRepository.findAllByUserId(userId);
+        return orders.stream()
+                .map(OrderResponseDto::new)
+                .collect(Collectors.toList());
+    }
+
+    // 튜터 주문 목록 조회
+    @Override
+    public List<OrderResponseDto> findTutorOrders(Long tutorId) {
+        List<OrderEntity> orders = orderRepository.findAllByTutorId(tutorId);
+        return orders.stream()
+                .map(OrderResponseDto::new)
+                .collect(Collectors.toList());
     }
 }
