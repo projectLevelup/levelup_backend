@@ -57,7 +57,7 @@
 ![와이어프레임](https://github.com/user-attachments/assets/b01ecd9d-afa0-4b53-a06b-6e2cad4ca68f)
 
 ## 💬 **ERD**
-![ERD](https://github.com/user-attachments/assets/e36a5524-ed83-4636-9b5d-a77596d88c50)
+ERD 사진 넣기
 
 ## 🏆 **Architecture**
 ![image](https://github.com/user-attachments/assets/27a7d8be-d38d-4036-834b-57b93aa53c1b)
