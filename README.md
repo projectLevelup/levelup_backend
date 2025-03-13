@@ -1,6 +1,6 @@
 
 ## 🎮 Level_UP - 원하는 멘토를 선택하고 실력을 키우는 게임 코칭 플랫폼! 🚀
-<!--![img.png](assets/levelup-logo.png)-->
+<!--![Query1.png](assets/levelup-logo.png)-->
 <img width="500px" src="assets/levelup-logo.png">
 <br>
 <!--
@@ -100,13 +100,13 @@
       <a href="https://www.java.com/" target="_blank"><img style="margin: 10px" width="60px" src="https://profilinator.rishav.dev/skills-assets/java-original-wordmark.svg" alt="Java"/></a> 
     </td>
     <td width="80px" height="60px">
-      <a href="https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html#:~:text=The%20Spring%20Expression%20Language%20(SpEL,and%20basic%20string%20templating%20functionality." target="_blank"><img style="margin: 10px" width="60px" src="https://profilinator.rishav.dev/skills-assets/springio-icon.svg" alt="Spring"/></a>   
+      <a href="https://docs.spring.io/spring-framework/docs/3.0.x/reference/expressions.html#:~:text=The%20Spring%20Expression%20Language%20(SpEL,and%20basic%20string%20templating%20functionality." target="_blank"><img style="margin: 10px" width="60px" src="https://profilinator.rishav.dev/skills-assets/springio-icon.svg" alt="Spring"/></a>  
     </td>
     <td width="80px" height="60px">
       <a href="https://www.mysql.com/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/mysql.png" alt="mysql"/></a>  
     </td>
     <td width="80px" height="60px">
-      <a href="https://www.mongodb.com/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/stomp.png" alt="MongoDB"/></a>
+      <a href="https://www.mongodb.com/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/mongoDB.png" alt="MongoDB"/></a>
     </td>
     <td width="80px" height="60px">
       <a href="https://hibernate.org/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/hibernate.png" alt="Hibernate"/></a>
@@ -162,12 +162,16 @@
    <td width="80px" height="60px">
       <a href="http://www.jasypt.org/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/jwt.png" alt="jwt"/></a>
     </td>
+    <td width="80px" height="60px">
+      <a href="https://www.rabbitmq.com/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/rabbitmq.png" alt="jwt"/></a>
+    </td>
   </tr>
   <tr align='center'>
     <td>Logback</td>
     <td>Slf4j</td>
     <td>OAuth 2.0</td>
     <td>Jwt</td>
+    <td>RabbitMQ</td>
   </tr>
 </table>
 
@@ -202,14 +206,10 @@
     <td width="80px" height="60px">
       <a href="https://www.docker.com/" target="_blank"><img style="margin: 10px" width="60px" src="https://profilinator.rishav.dev/skills-assets/docker-original-wordmark.svg" alt="Docker"/></a> 
     </td>
-    <td width="80px" height="60px">
-      <a href="https://github.com/features/actions" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/github_actions.png" alt="GithubActions"/></a>  
-    </td>
   </tr>
   <tr align='center'>
     <td>AWS</td>
     <td>Docker</td>
-    <td>GithubActions</td>
   </tr>
 </table>
 
@@ -228,11 +228,15 @@
     <td width="80px" height="60px">
       <a href="https://slack.com/intl/ko-kr" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/slack.png" alt="Slack"/></a>  
     </td>
+    <td width="80px" height="60px">
+      <a href="https://github.com/features/actions" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/github_actions.png" alt="GithubActions"/></a>  
+    </td>
   </tr>
   <tr align='center'>
     <td>Notion</td>
     <td>Github</td>
     <td>Slack</td>
+    <td>GithubActions</td>
   </tr>
 </table>
 
@@ -308,10 +312,7 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 
 <br>
 
-### 5.
-- 
-
-### 6. 결제 서비스
+### 5. 결제 서비스
 
 ### 주요기능
 - **간편신속 결제** : 카드, 간편결제, 계좌이체 토스페이 지원
@@ -326,12 +327,12 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 - **Redis Listener** :Redis TTL발생 10분이내 결제되지않으면 HardDelete, 유저간 결제 관련 알림
 - **TossPayments API** : 토스페이먼츠 외부 API를 호출 하여 승인 및 취소
 
-### 7. 커뮤니티 서비스
+### 6. 커뮤니티 서비스
 사용자들이 자유롭게 게시글을 작성하고, 타인의 게시글을 조회하는 기능
 - Redis에 저장된 데이터를 스프링 부트에서 조회 및 관리하기 위해 RedisTemplate을 활용 
 - Redis의 Sorted Set을 활용하여 조회수를 저장 -> 글 검색시 조회수가 높은 순서대로 응답
 
-### 8.
+### 7.
 - 
 
 <br>
@@ -422,7 +423,7 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
 
 ## 🔒 **트러블슈팅**
 
-### 1. **엘라스틱 서치의 사용 이유**
+# 1. **엘라스틱 서치의 사용 이유**
 - Mysql로 기존의 30만 이상의 데이터에서 특정 단어가 포함된 데이터를 조회시 속도가 조금 느리다는 판단을 함(4.932초)
   ![image](https://github.com/user-attachments/assets/3b93d3f6-675f-492a-ba3c-88381c7cbb84)
 -  속도의 개선을 위해서 캐시를 적용하거나 페이징을 통해 카테고리화를 수행하여 속도를 올려봄
@@ -436,7 +437,7 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
 
 <br>
 
-### 2. CustomOAuth2UserService에서 발생한 Exception이 상위로 던져지지 않는 문제
+# 2. CustomOAuth2UserService에서 발생한 Exception이 상위로 던져지지 않는 문제
 
 - CustomOAuth2UserService에서 발생한 로그인 실패 관련 커스텀 Exception들이 상위로 넘어가지 못해서 postman과 웹페이지로 표시가 되지 않는 문제가 발생하였다.
   ![Image](https://github.com/user-attachments/assets/27838a73-ede1-4c6c-924e-5b96bfe5319a)
@@ -448,13 +449,145 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
 
 <br>
 
-### 3.
+# 3. PageableExecutionUtils를 활용한  count쿼리 최적화
+
+### 문제 상황
+
+프로젝트에서 페이지네이션을 적용하기 위해 `PageImpl`을 사용하고 있었다. 하지만 `PageImpl`을 사용하면 기본적으로 전체 데이터 개수를 구하기 위해 count쿼리가 실행되는데. 이로 인해 성능 저하가 발생했다.
+예를 들어, 한 페이지에 10개의 데이터를 불러올 때, 총 21개의 데이터가 있다면 아래와 같은 방식으로 쿼리가 실행 되었다.
+
+- **데이터 조회 쿼리 :** `SELECT * FROM bill WHERE ... LIMIT 10 OFFSET 0`
+- **카운트 쿼리 :** `SELECT count(*) FROM bill WHERE …`
+
+불필요한 count 쿼리가 매번 실행되면서 성능 저하가 발생했다.
+
+![img.png](assets/Query1.png)
+
+### 문제 원인
+
+- `PageImpl`을 사용할 경우, 기본적으로 전체 데이터 개수를 가져오기 위해 count 쿼리를 실행한다.
+- 일부 경우에는 정확한 총 개수를 알 필요 없이, 다음 페이지가 존재하는지만 확인하면된다.
+- count쿼리가 실행 될 경우, 데이터가 많아질수록 성능 저하가 발생할 가능성이 높다.
+
+### 해결 방법
+
+`PageableExecutionUtils.getPage()` 를 활용하여 count 쿼리를 최적화 하였다.
+
+**기존코드 (`PageImpl` 사용)**
+```
+JPAQuery<Long> totalCount = queryFactory
+.select(billEntity.count())
+.from(billEntity)
+.where(
+billEntity.tutor.id.eq(tutorId),
+billEntity.tutor.isDeleted.eq(false)
+);
+
+return new PageImpl<>(results, pageable, totalCount.fetchOne());
+```
+
+- `totalCount.fetchOne()`를 통해 count쿼리를 직접 실행함 → 성능 저하 발생.
+
+**수정 코드 (`PageableExecutionUtils` 적용)**
+```
+JPAQuery<Long> totalCount = queryFactory
+    .select(billEntity.count())
+    .from(billEntity)
+    .where(
+        billEntity.tutor.id.eq(tutorId),
+        billEntity.tutor.isDeleted.eq(false)
+    );
+
+return PageableExecutionUtils.getPage(results, pageable, totalCount::fetchOne);
+```
+
+- `PageableExcutionUtils.getPage()`를 사용하여 count 쿼리 실행을 지연
+- 필요할 때만 count쿼리가 실행 되므로 불필요한 성능 저하 방지
+
+### 결과 및 효과
+
+- **Count 쿼리 제거** : `PageableExcutionUtils.getPage()` 를 적용한 후, Count쿼리가 실행되지 않음.
+![img.png](assets/Query2.png)
+- **성능 개선** : 불필요한 쿼리 제거로 페이지네이션의 성능이 향상됨.
+- **데이터 개수 최적화** : 21개의 데이터가 있을 경우 10+10+1개가 아닌, 10+ 10개만 불러오도록 개선됨.
+
+### 결론
+
+`PageableExcutionUtils.getPage()` 를 활용하여 count쿼리 실생을 줄이면 성능을 최적화할 수 있다. 특히, 전체개수를 정확히 알 필요가 없는 경우에는 count 쿼리를 지연 실행하거나 생략하는 것이 성능 개선에 큰 도움이 된다.
 
 <br>
 
-### 4.
+# 4. RabbitMQ 메세지 변환 오류 트러블슈팅
+### 문제 상황
 
+- 기존 Redis pub/sub 방식에서 RabbitMQ로 변경하면서 메세지 유실 문제 발생
+- RabbitMQ에서 Long 타입 메세지를 전송했지만, 리스너에서 `Map<String, Object>` 타입으로 받아 변환 과정에서 오류 발생
+![img.png](assets/parse.png)
+### 기존코드
+```
+public void handleBillPaid(Map<String, Object> message)
+```
+- `Map<String, Object>` 형태로 메세지를 받아 처리
+- JSON 변환 과정에서 `ClassCastException` 발생 가능
 
+### 해결 방법
+
+1. **DTO 사용하여 명확한 데이터 구조 정의
+   기존** `Map<String, Object>` 대신, DTO 클래스를 생성하여 메시지를 받을 수 있도록 변경
+2. **MessageConverter 설정 추가**
+   RabbitMQ 설정 파일에서 Jackson 기반, JSON 변환을 위한 `messageConverter`등록
+```
+@Bean
+public MessageConverter messageConverter() {
+    return new Jackson2JsonMessageConverter();
+}
+```
+3. 리스너에서 @Payload 사용하여 DTO 맵팽
+RabbitMQ 리스너 메서드에서 `@Payload`를 활용해 JSON 데이터를 DTO로 직접 변환
+```
+@RabbitListener(queues = "bill.paid.queue")
+public void handleBillPaid(@Payload PubBillDto dto) {
+  
+}
+```
+### 기존코드 (`PageImpl` 사용)
+```
+JPAQuery<Long> totalCount = queryFactory
+    .select(billEntity.count())
+    .from(billEntity)
+    .where(
+        billEntity.tutor.id.eq(tutorId),
+        billEntity.tutor.isDeleted.eq(false)
+    );
+
+return new PageImpl<>(results, pageable, totalCount.fetchOne());
+```
+- `totalCount.fetchOne()`를 통해 count쿼리를 직접 실행함 → 성능 저하 발생.
+### 개선된 코드
+```
+public void publishBillStatusChange(BillEntity bill) {
+    String routingKey = getRoutingKey(bill.getStatus());
+
+    PubBillDto billDto = new PubBillDto();
+    billDto.setBillId(bill.getId());
+    billDto.setTutorId(bill.getTutorId());
+    billDto.setStudentId(bill.getStudentId());
+    billDto.setStatus(bill.getStatus());
+
+    log.info("변경된 bill 상태: {}", billDto);
+    rabbitTemplate.convertAndSend(exchange, routingKey, billDto);
+}
+```
+- `Map<String, Object>` 가 아닌 `pubBillDto` 객체를 RabbitMQ로 전송
+- `Jackson2JsonMessageConverter` 를 사용하여 DTO를 JSON으로 변환
+
+### 결론
+
+- DTO 사용으로 데이터 구조 명확화
+- JSON 변환 오류 방지
+- RabbitMQ 메세지 처리 안전성 증가
+
+메세지를 더 구조적으로 관리할 수 있고, 데이터 변환 과정에서 발생하는 오류를 줄일 수 있음.
 <br>
 
 ## 📈 **추가 개선 가능 점**
