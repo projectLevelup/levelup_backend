@@ -246,9 +246,9 @@
 
 <br>
 
-## 🎯 프로젝트 주요 기능
+# 🎯 프로젝트 주요 기능
 
-### 1. JWT 및 스프링 시큐리티 / OAuth 2.0 소셜 로그인
+## 1. JWT 및 스프링 시큐리티 / OAuth 2.0 소셜 로그인
 - JWT 및 Spring Security 설정을 통해 인증 및 인가 로직 구현
 - OAuth 2.0을 사용하여 소셜 로그인 기능 구현
 
@@ -265,7 +265,7 @@
 
 <br>
 
-### 2. ElasticSearch를 활용한 검색 서비스
+## 2. ElasticSearch를 활용한 검색 서비스
 
 ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 수 있는 분산형 검색 엔진입니다.  
 본 서비스에서는 ElasticSearch를 활용하여 **빠르고 정확한 검색 기능**을 제공합니다.
@@ -283,7 +283,7 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 
 <br>
 
-### 3. 모니터링 서비스
+## 3. 모니터링 서비스
 
 서비스의 원활한 운영을 위해 **실시간 모니터링 시스템**을 구축하여 장애 예방 및 성능 개선을 지원합니다.
 
@@ -298,7 +298,7 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 
 <br>
 
-### 4.알림 서비스
+## 4.알림 서비스
 
 - 회원가입 완료시 회원가입 환영메시지가 가입 이메일을 통해 발송.
 - 회원정보 변경감지시 로그인된 사용자에게 알림이 가도록 구현.
@@ -312,7 +312,7 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 
 <br>
 
-### 5. 결제 서비스
+## 5. 결제 서비스
 
 ### 주요기능
 - **간편신속 결제** : 카드, 간편결제, 계좌이체 토스페이 지원
@@ -323,23 +323,21 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 - **편리한 승인** : 결제 승인 실패 시 재시도 전략 적용
 - **정합성** : 안정적인 주문 처리 
 - **악질유저 방지** : 재고 관리에 대한 악성유저 방지
-### 결제서비스 시스템 구성
+## 결제서비스 시스템 구성
 - **Redis Listener** :Redis TTL발생 10분이내 결제되지않으면 HardDelete, 유저간 결제 관련 알림
 - **TossPayments API** : 토스페이먼츠 외부 API를 호출 하여 승인 및 취소
 
-### 6. 커뮤니티 서비스
+## 6. 커뮤니티 서비스
 사용자들이 자유롭게 게시글을 작성하고, 타인의 게시글을 조회하는 기능
 - Redis에 저장된 데이터를 스프링 부트에서 조회 및 관리하기 위해 RedisTemplate을 활용 
 - Redis의 Sorted Set을 활용하여 조회수를 저장 -> 글 검색시 조회수가 높은 순서대로 응답
 
-### 7.
-- 
 
 <br>
 
-## 🔧 **성능 개선**
+# 🔧 **성능 개선**
 
-### 1. **레디스 캐싱**: 데이터 캐싱을 통한 빠른 응답 처리
+## 1. **레디스 캐싱**: 데이터 캐싱을 통한 빠른 응답 처리
 
 **캐시 미적용**
 <img alt="스크린샷 2025-02-06 오후 5 07 38" src="https://github.com/user-attachments/assets/1869bf69-de9a-4c37-8ee8-62ef26ad23e7" />
@@ -359,7 +357,7 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 <br>
 <br>
 
-### 2. **Elasticsearch**: 엘라스틱 서치를 이용한 검색 속도 개선
+## 2. **Elasticsearch**: 엘라스틱 서치를 이용한 검색 속도 개선
 
 ![Elasticsearch 성능 비교](https://github.com/user-attachments/assets/0ee0141b-38c5-4f6b-84be-54a31de92d47)
 
@@ -379,7 +377,7 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 <br>
 <br>
 
-### 3. **Redis TTL** : 주문 후 10 분 결제 누락 시 악성재고관리 방지
+## 3. **Redis TTL** : 주문 후 10 분 결제 누락 시 악성재고관리 방지
 
 ![img.png](assets/Pendding_img.png)
 위 상황은 주문을 만들었지만 결제를 진행하지않고 PENDDING 상태로 유지중.
@@ -421,9 +419,9 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
 <br>
 <br>
 
-## 🔒 **트러블슈팅**
+# 🔒 **트러블슈팅**
 
-# 1. **엘라스틱 서치의 사용 이유**
+## 1. **엘라스틱 서치의 사용 이유**
 - Mysql로 기존의 30만 이상의 데이터에서 특정 단어가 포함된 데이터를 조회시 속도가 조금 느리다는 판단을 함(4.932초)
   ![image](https://github.com/user-attachments/assets/3b93d3f6-675f-492a-ba3c-88381c7cbb84)
 -  속도의 개선을 위해서 캐시를 적용하거나 페이징을 통해 카테고리화를 수행하여 속도를 올려봄
@@ -437,7 +435,7 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
 
 <br>
 
-# 2. CustomOAuth2UserService에서 발생한 Exception이 상위로 던져지지 않는 문제
+## 2. CustomOAuth2UserService에서 발생한 Exception이 상위로 던져지지 않는 문제
 
 - CustomOAuth2UserService에서 발생한 로그인 실패 관련 커스텀 Exception들이 상위로 넘어가지 못해서 postman과 웹페이지로 표시가 되지 않는 문제가 발생하였다.
   ![Image](https://github.com/user-attachments/assets/27838a73-ede1-4c6c-924e-5b96bfe5319a)
@@ -449,7 +447,7 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
 
 <br>
 
-# 3. PageableExecutionUtils를 활용한  count쿼리 최적화
+## 3. PageableExecutionUtils를 활용한  count쿼리 최적화
 
 ### 문제 상황
 
@@ -517,7 +515,7 @@ return PageableExecutionUtils.getPage(results, pageable, totalCount::fetchOne);
 
 <br>
 
-# 4. RabbitMQ 메세지 변환 오류 트러블슈팅
+## 4. RabbitMQ 메세지 변환 오류 트러블슈팅
 ### 문제 상황
 
 - 기존 Redis pub/sub 방식에서 RabbitMQ로 변경하면서 메세지 유실 문제 발생
