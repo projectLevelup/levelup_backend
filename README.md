@@ -61,6 +61,9 @@
 ## 📝 **와이어프레임**
 ![와이어프레임](https://github.com/user-attachments/assets/b01ecd9d-afa0-4b53-a06b-6e2cad4ca68f)
 
+![wireframe.png](https://github.com/user-attachments/assets%2Fwireframe.png)
+![wireframe2.png](https://github.com/user-attachments/assets%2Fwireframe2.png)
+
 ## 💬 **ERD**
 ![final project erd](https://github.com/user-attachments/assets/31b26eec-6820-4ae2-8d3d-e630341827b3)
 
