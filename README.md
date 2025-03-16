@@ -44,15 +44,15 @@
 
 ## 💡 주요 기능
 
-|       기능       | 내용                      |
-|:--------------:|:------------------------|
-|     소셜 로그인     | 구글, 네이버를 통한 소셜 로그인      |
-|   상품 검색 서비스    | 이것 저것 여러 방식으로 상품 검색 가능  |
-|     알림 서비스     | 회원 정보 변경시 알림이 가요        |
-|     결제 서비스     | 상품 결제 쉽고 빠르고 편리하게 결제    |
-|    커뮤니티 서비스    | 사용자들 끼리 글을 작성하고 조회가 가능  |
-|      모니터링      | ELK기반 로깅처리   |
-|       채팅       | 사용자들끼리 채팅기능을 활용하고 소통 가능~ |
+|       기능       | 내용                             |
+|:--------------:|:-------------------------------|
+|     소셜 로그인     | 구글, 네이버를 통한 소셜 로그인             |
+|   상품 검색 서비스    | 자동완성,카테고리,유저,장르등의 다양한 상품 검색 가능 |
+|     알림 서비스     | 회원 정보 변경시 알림이 가요               |
+|     결제 서비스     | 상품 결제 쉽고 빠르고 편리하게 결제           |
+|    커뮤니티 서비스    | 사용자들 끼리 글을 작성하고 조회가 가능         |
+|      모니터링      | ELK기반 로깅처리                     |
+|       채팅       | 사용자들끼리 채팅기능을 활용하고 소통 가능~       |
 
 <br>
 
@@ -63,7 +63,11 @@
 ![final project erd](https://github.com/user-attachments/assets/31b26eec-6820-4ae2-8d3d-e630341827b3)
 
 ## 🏆 **Architecture**
-![image](https://github.com/user-attachments/assets/27a7d8be-d38d-4036-834b-57b93aa53c1b)
+![Architecture](./assets/아키텍처.png)
+![Architecture](./assets/아키텍처MSA.png)
+
+## 🎯 **Flow Chart**
+![Architecture](./assets/플로우차트.drawio.png)
 
 <br>
 
@@ -189,11 +193,38 @@
     <td width="80px" height="60px">
       <a href="https://www.elastic.co/kr/logstash" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/logstash.png" alt="logstash"/></a>
     </td>
+   <td width="80px" height="60px">
+      <a href="https://grafana.com/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/grafana.jpg" alt="grafana"/></a>
+    </td>
+    <td width="80px" height="60px">
+      <a href="https://prometheus.io/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/prometheus.png" alt="prometheus"/></a>
+    </td>
   </tr>
   <tr align='center'>
     <td>elasticsearch</td>
     <td>kibana</td>
     <td>logstash</td>
+    <td>Grafana</td>
+    <td>Prometheus</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="80px" height="60px">
+      <a href="http://querydsl.com/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/QueryDSL.png" alt="QueryDSL"/></a>
+    </td>
+   <td width="80px" height="60px">
+      <a href="https://zookeeper.apache.org/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/zookeeper.png" alt="zookeeper"/></a>
+    </td>
+    <td width="80px" height="60px">
+      <a href="https://kafka.apache.org/" target="_blank"><img style="margin: 10px" width="60px" src="./assets/logo/kafka.png" alt="kafka"/></a>
+    </td>
+  </tr>
+  <tr align='center'>
+    <td>QueryDSL</td>
+    <td>Zookeeper</td>
+    <td>Kafka</td>
   </tr>
 </table>
 
