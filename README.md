@@ -436,8 +436,38 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
 
 # 🔒 **트러블슈팅**
 
-## 1. **엘라스틱 서치의 사용 이유**
+## 1. **엘라스틱 서치의 형태소 분석**
+- 엘라스틱 서치에서 검색 자동 완성을 추진할 경우 보통 한글의 경우 형태소 분석기를 nori로 사용하는 경우가 많다.
+- 다만, 실제 nori는 일반적으로 생각하는 완벽한 형태소 분석을 수행해 주지 않는다.
+  <script type="application/json" id="json-data">
+{
+  "tokens": [
+    {
+      "token": "사",
+      "start_offset": 0,
+      "end_offset": 1,
+      "type": "word",
+      "position": 0
+    },
+    {
+      "token": "천식",
+      "start_offset": 1,
+      "end_offset": 3,
+      "type": "word",
+      "position": 1
+    },
+    {
+      "token": "짜장면",
+      "start_offset": 4,
+      "end_offset": 7,
+      "type": "word",
+      "position": 2
+    }
+  ]
+}
+</script>
 
+<script>
 
 <br>
 
