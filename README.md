@@ -530,10 +530,10 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
 - CustomOAuth2UserService에서 발생한 로그인 실패 관련 커스텀 Exception들이 상위로 넘어가지 못해서 postman과 웹페이지로 표시가 되지 않는 문제가 발생하였다.
   ![Image](https://github.com/user-attachments/assets/27838a73-ede1-4c6c-924e-5b96bfe5319a)
 - 어떤 이유로 로그인에 실패했는지 명확하게 사용자에게 알려주기 위해서는 반드시 이 커스텀 Exception이 상위로 던져져야만 한다.
-- 이 문제를 해결하기 위해 **어디에서 넘어가지 못했는지 알아보다가 **OAuth2LoginAuthenticationFilter**에서는 AuthenticationException을 상속받은 Exception만 상위로 넘겨줄 수 있다는 것을 알게 되었다.**
-- AuthenticationException을 상속받은 Exception의 메시지부분에 메시지를 넣어주고, Exception을 받는 핸들러부분에서 메시지를 꺼내 리턴해주면 해결될것이라 판단하였다.
+- 이 문제를 해결하기 위해 어디에서 넘어가지 못했는지 알아보다가 `OAuth2LoginAuthenticationFilter`에서는 `AuthenticationException`을 상속받은 `Exception`만 상위로 넘겨줄 수 있다는 것을 알게 되었다.
+- `AuthenticationException`을 상속받은 `Exception`의 메시지부분에 메시지를 넣어주고, `Exception`을 받는 핸들러부분에서 메시지를 꺼내 리턴해주면 해결될것이라 판단하였다.
 - 해당 방식으로 구조를 변경한 후 정상적으로 익셉션이 상위로 리턴됨을 확인하였다.
-  ![Image](https://github.com/user-attachments/assets/71b2ef8d-f6a0-4478-a917-22865edb5326)
+- ![img.png](assets/ExceptionResult.png)
 
 <br>
 
@@ -698,23 +698,23 @@ public void publishBillStatusChange(BillEntity bill) {
 
 ### 문제 상황
 
-- 필터영역에서 발생한 오류메시지는 GlobalExceptionHandler가 오류를 캐치하는 DispatcherServlet을 통과하기 전 단계이기 때문에 GlobalExceptionHandler에서 이 오류를 처리해줄 수 없음.
+- 필터영역에서 발생한 오류메시지는 `GlobalExceptionHandler`가 오류를 캐치하는 `DispatcherServlet`을 통과하기 전 단계이기 때문에 `GlobalExceptionHandler`에서 이 오류를 처리해줄 수 없음.
 
 ### 스프링 MVC 필터에서 메시지 컨벤션 해결 방법
 
 1. 기존 오류 메시지, 성공 메시지 컨벤션과 완전하게 동일한 형태의 오류 메시지와 성공 메시지를 String값으로 선언한 필터리스폰 클래스 생성.
-2. 발생한 오류 메시지와 성공 메시지를 해당 클래스를 통해 직접 HttpServletResponse의 getWriter메소드의 write로 메시지를 HttpServletResponse에 작성.
-3. 해당 HttpServletResponse 객체를 리턴하는 것으로 동일한 컨벤션을 지키는 오류 메시지, 성공 메시지를 그대로 출력 가능.
+2. 발생한 오류 메시지와 성공 메시지를 해당 클래스를 통해 직접 `HttpServletResponse`의 `getWriter`메소드의 `write`로 메시지를 `HttpServletResponse`에 작성.
+3. 해당 `HttpServletResponse` 객체를 리턴하는 것으로 동일한 컨벤션을 지키는 오류 메시지, 성공 메시지를 그대로 출력 가능.
 
 ### 스프링 클라우드 API 게이트웨이에서 메시지 컨벤션 해결 방법
 
-1. 기존 오류 메시지, 성공 메시지 컨벤션과 완전하게 동일한 형태의 오류 메시지와 성공 메시지를 Map 형태로 선언한 필터리스폰 클래스 생성.
-2. 발생한 오류 메시지와 성공 메시지를 해당 클래스를 통해 ByteStream으로 변환한 뒤, DataStream으로 감싸고, Mono로 한번 더 감싸서 반환.
+1. 기존 오류 메시지, 성공 메시지 컨벤션과 완전하게 동일한 형태의 오류 메시지와 성공 메시지를 Map 형태로 선언한 `FilteResponse` 클래스 생성.
+2. 발생한 오류 메시지와 성공 메시지를 해당 클래스를 통해 `ByteStream`으로 변환한 뒤, `DataStream`으로 감싸고, `Mono`로 한번 더 감싸서 반환.
 3. 반환된 Mono를 게이트웨이 필터를 통해 리턴하는 것으로 동일한 컨벤션을 지키는 오류 메시지, 성공 메시지를 그대로 출력 가능.
 
 ### 두 스프링 필터에서 리턴방식에 차이가 발생한 이유
 
-- 스프링 MVC는 블로킹 방식의 구조를 가지고 있어 단 한 개의 스레드에서 오류가 발생하면 다른 작업이 진행되는 일 없이 바로 리턴되지만, 스프링 클라우드 API 게이트웨이는 논블로킹 방식의 WebFlux를 사용하고 있어서 오류가 발생해도 다른 필터의 검증 작업은 그대로 진행되기 때문에, 모든 필터가 검증이 끝난 뒤에 오류를 리턴하는 pub, sub 구조를 채택하고 있기 때문에 Mono 와 DataStream을 사용해 논블로킹 방식을 유지하며, 오류를 리턴하는 방식을 사용한다.
+- 스프링 MVC는 블로킹 방식의 구조를 가지고 있어 단 한 개의 스레드에서 오류가 발생하면 다른 작업이 진행되는 일 없이 바로 리턴되지만, 스프링 클라우드 API 게이트웨이는 논블로킹 방식의 `WebFlux`를 사용하고 있어서 오류가 발생해도 다른 필터의 검증 작업은 그대로 진행되기 때문에, 모든 필터가 검증이 끝난 뒤에 오류를 리턴하는 pub, sub 구조를 채택하고 있기 때문에 `Mono` 와 `DataStream`을 사용해 논블로킹 방식을 유지하며, 오류를 리턴하는 방식을 사용한다.
 
 ### 결론
 
