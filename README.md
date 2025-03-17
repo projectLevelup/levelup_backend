@@ -716,18 +716,18 @@ public void publishBillStatusChange(BillEntity bill) {
 
 <br>
 
-# Kafka 트러블슈팅: Exactly-Once에서 At-Least-Once로 변경하여 데이터 정합성 문제 해결
+## Kafka 트러블슈팅: Exactly-Once에서 At-Least-Once로 변경하여 데이터 정합성 문제 해결
 
-## 1. 문제 상황
+### 1. 문제 상황
 Kafka에서 **Exactly-Once(EO) 처리**를 사용하던 중 성능 문제 또는 운영 복잡성 증가로 인해 **At-Least-Once(ALO)**로 변경해야 하는 상황이 발생했습니다. 하지만 변경 후 중복 메시지 발생 또는 데이터 유실 문제가 발생하여 데이터 정합성이 깨질 가능성이 있습니다.
 
-## 2. 문제 원인
+### 2. 문제 원인
 **Exactly-Once에서 At-Least-Once로 변경할 경우 발생하는 주요 문제점**
 - **중복 메시지 발생**: ALO는 최소 한 번 메시지가 전송되므로 중복 메시지가 발생할 가능성이 높음
 - **자동 Offset Commit 사용 시 데이터 유실 가능성**: 메시지가 정상적으로 처리되지 않았음에도 Offset이 커밋될 수 있음
 - **Idempotence 비활성화로 인한 중복 전송 문제**
 
-## 3. 해결 방법
+### 3. 해결 방법
 ### 3.1 멱등한 메시지 처리 로직 구현
 ALO에서는 메시지가 중복 수신될 수 있기 때문에, **멱등성을 보장하는 방식**으로 로직을 구성해야 한다.
 
@@ -735,10 +735,10 @@ ALO에서는 메시지가 중복 수신될 수 있기 때문에, **멱등성을 
 - 예: 한 번 취소한 주문을 다시 취소하는 것은 동일한 상태를 유지하므로 멱등성을 만족함
 - **그러나 모든 비즈니스 로직에서 멱등성을 보장하기는 어려우므로, 추가적인 중복 방지 처리가 필요**
 
-### 3.2 중복 메시지 필터링 로직 구현
+#### 3.2 중복 메시지 필터링 로직 구현
 중복 메시지를 방지하기 위해 **비즈니스 로직 실행과 메시지 기록을 하나의 트랜잭션으로 묶는 방식**을 사용할 수 있다.
 
-#### **중복 메시지 필터링을 위한 redis 활용**
+##### **중복 메시지 필터링을 위한 redis 활용**
 1) Redis의 SET을 활용하여 메시지 ID저장
 2) 메시지 처리 시, 해당 메시지 ID존재 여부 확인
 3) 새로운 메시지만 처리
@@ -751,7 +751,7 @@ CREATE TABLE PROCESSED_MESSAGE (
 );
 ```
 
-#### **중복 방지 로직 적용한 Consumer 예제**
+##### **중복 방지 로직 적용한 Consumer 예제**
 ```java
 KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 consumer.subscribe(Arrays.asList("my-topic"));
@@ -781,7 +781,7 @@ while (true) {
 redisClient.close();
 ```
 
-#### **중복 메시지 확인 및 기록 함수**
+##### **중복 메시지 확인 및 기록 함수**
 ```java
 private boolean isMessageProcessed(Jedis redisClient, String messageId) {
     return redisClient.sismember("processed_messages", messageId);
