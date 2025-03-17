@@ -52,6 +52,7 @@
 | 커뮤니티 서비스  | 사용자들 끼리 글 작성 및 검색, 댓글 기능  |
 |  채팅 서비스   | 사용자들끼리 채팅기능을 활용하고 소통 |
 |   모니터링    | ELK기반 로깅처리   |
+
 상품: 특정 게임의 실력을 향상시키기 위해 제공되는 1:1 또는 그룹 단위의 교육 서비스
 
 <br>
@@ -435,7 +436,8 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
   - 아래 사진 : 타임스탬프 | sql 실행시간 | 실행된 sql작업 | 사용된 DB 커넥션 ID|DB 연결 정보
   - ![sqlLogCount.png](./assets/sqlLogCount.png)
   
-![실행 그래프(mysql).png](./assets/실행 그래프(mysql).png)
+
+![communityTestMysql.png](./assets/communityTestMysql.png)
 
 ### 2. QueryDSL을 활용한 최적화
 
@@ -452,7 +454,7 @@ TTL이 만료되면 삭제 이벤트를 감지하여 로그 기록.
   - 실행 횟수가 증가하고 성공 횟수도 증가
   - 하지만 평균 테스트 시간이 여전히 높음
 
-![실행 그래프(쿼리dsl).png](./assets/실행 그래프(쿼리dsl).png)
+![communityTestDsl.png](./assets/communityTestDsl.png)
 
 ### 3. 엘라스틱 서치 도입
 
