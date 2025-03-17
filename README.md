@@ -716,7 +716,7 @@ public void publishBillStatusChange(BillEntity bill) {
 
 <br>
 
-## Kafka 트러블슈팅: Exactly-Once에서 At-Least-Once로 변경하여 데이터 정합성 문제 해결
+## 6. Kafka 트러블슈팅: Exactly-Once에서 At-Least-Once로 변경하여 데이터 정합성 문제 해결
 
 ### 1. 문제 상황
 Kafka에서 **Exactly-Once(EO) 처리**를 사용하던 중 성능 문제 또는 운영 복잡성 증가로 인해 **At-Least-Once(ALO)**로 변경해야 하는 상황이 발생했습니다. 하지만 변경 후 중복 메시지 발생 또는 데이터 유실 문제가 발생하여 데이터 정합성이 깨질 가능성이 있습니다.
