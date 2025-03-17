@@ -7,7 +7,7 @@
 
 1. [프로젝트 소개](#-프로젝트-소개)
 2. [팀원 소개](#-팀원-소개)
-3. [주요 기능](#-주요-기능)
+3. [Flow Chart](#-flow-chart)
 4. [와이어프레임](#-와이어프레임)
 5. [ERD](#-erd)
 6. [아키텍처](#-architecture)
@@ -33,37 +33,31 @@
 
 <br>
 
-## 👤 팀원 소개
-
-
-|                                                                     김효중                                                                     |                                                                     최대현                                                                     |                                                                                             이경훈                                                                                             |                                                                                   이동건                                                                                   |                                                                   정영균                                                                   |
-| :---------------------------------------------------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------: |
-| <a href="https://github.com/rlagywnd4" target="_blank"><img width="100px" src="https://avatars.githubusercontent.com/u/71661011?s=60&v=4"/></a> | <a href="https://github.com/DeaHyun0911" target="_blank"><img width="100px" src="https://avatars.githubusercontent.com/u/107090954?v=4" /></a> |                          <a href="https://github.com/kyung412820" target="_blank"><img width="100px" src="https://avatars.githubusercontent.com/u/71320521?v=4"/> </a>                          |               <a href="https://github.com/LeeDong-gun" target="_blank"> <img width="100px" src="https://avatars.githubusercontent.com/u/186677939?v=4"/></a>               | <a href="https://github.com/lq0920084" target="_blank"><img width="100px" src="https://avatars.githubusercontent.com/u/136417479?v=4"/></a> |
-|                                                   [@rlagywnd4](https://github.com/rlagywnd4)                                                   |                                                 [@DeaHyun0911](https://github.com/DeaHyun0911)                                                 |                                                                                   [@kyung412820](https://듯)                                                                                   |                                                               [@LeeDong-gun](https://github.com/LeeDong-gun)                                                               |                                                 [@lq0920084](https://github.com/lq0920084)                                                 |
-|                                                           프로젝트 총괄<br/> 커뮤니티                                                           |                                                                   소켓, 배포                                                                   | ElasticSearch를 이용한 인기 검색어 조회 기능<br />자동완성 <br />감성분석과 집계를 통한 Top3 선정 <br /> 클러스터를 이용한 분산 데이터 처리 <br /> 카테고리별 상품 개수 검색, ELK 기반 Log 관리 | Order, Bill, Payments 테이블 관리<br /> 결제흐름 구현 <br /> 재고관리(Redis 분산락, 비관적락) <br /> 중복결제 생성 개선(Redis Listener TTL발생) <br /> 결제승인 재시도 기능 |                                                               스프링 시큐리티                                                               |
+|                                  Level_UP Team Notion                                  |                                                                                      발표 보고서                                                                                      |
+| :------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| [Notion 보러가기](https://www.notion.so/teamsparta/9-1962dc3ef51480d5b934d27f143c3c41) | [발표 보고서 보러가기](https://docs.google.com/presentation/d/1QeAYLnKef6MefFW1xK3BqIidN0l4MeFZ/edit?usp=drive_link&ouid=103470562990121621342&rtpof=true&sd=true) |
 
 <br>
 
-## 💡 주요 기능
+## 👤 팀원 소개
 
 
-|       기능       | 내용                                                 |
-| :--------------: | :--------------------------------------------------- |
-|   소셜 로그인   | 구글, 네이버를 통한 소셜 로그인                      |
-| 상품 검색 서비스 | 자동완성, 카테고리 검색, 장르, 유저등 상품 검색 가능 |
-|   알림 서비스   | 결제 완료 및 취소 시 알림                            |
-|   결제 서비스   | 상품 결제 쉽고 빠르고 편리하게 결제                  |
-| 커뮤니티 서비스 | 사용자들 끼리 글 작성 및 검색, 댓글 기능             |
-|   채팅 서비스   | 사용자들끼리 채팅기능을 활용하고 소통                |
-|     모니터링     | ELK기반 로깅처리                                     |
+|                                                                     김효중                                                                     |                                                                      최대현                                                                       |                                                                                             이경훈                                                                                             |                                                                                   이동건                                                                                   |                                                                   정영균                                                                   |
+| :---------------------------------------------------------------------------------------------------------------------------------------------: |:----------------------------------------------------------------------------------------------------------------------------------------------:| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------: |
+| <a href="https://github.com/rlagywnd4" target="_blank"><img width="100px" src="https://avatars.githubusercontent.com/u/71661011?s=60&v=4"/></a> | <a href="https://github.com/DeaHyun0911" target="_blank"><img width="100px" src="https://avatars.githubusercontent.com/u/107090954?v=4" /></a> |                          <a href="https://github.com/kyung412820" target="_blank"><img width="100px" src="https://avatars.githubusercontent.com/u/71320521?v=4"/> </a>                          |               <a href="https://github.com/LeeDong-gun" target="_blank"> <img width="100px" src="https://avatars.githubusercontent.com/u/186677939?v=4"/></a>               | <a href="https://github.com/lq0920084" target="_blank"><img width="100px" src="https://avatars.githubusercontent.com/u/136417479?v=4"/></a> |
+|                                                   [@rlagywnd4](https://github.com/rlagywnd4)                                                   |                                                 [@DeaHyun0911](https://github.com/DeaHyun0911)                                                 |                                                                                   [@kyung412820](https://듯)                                                                                   |                                                               [@LeeDong-gun](https://github.com/LeeDong-gun)                                                               |                                                 [@lq0920084](https://github.com/lq0920084)                                                 |
+|                                                           프로젝트 총괄<br/> 커뮤니티                                                           |                                                                     채팅, 배포                                                                     | ElasticSearch를 이용한 인기 검색어 조회 기능<br />자동완성 <br />감성분석과 집계를 통한 Top3 선정 <br /> 클러스터를 이용한 분산 데이터 처리 <br /> 카테고리별 상품 개수 검색, ELK 기반 Log 관리 | Order, Bill, Payments 테이블 관리<br /> 결제흐름 구현 <br /> 재고관리(Redis 분산락, 비관적락) <br /> 중복결제 생성 개선(Redis Listener TTL발생) <br /> 결제승인 재시도 기능 |                                                               스프링 시큐리티                                                               |
 
-상품: 특정 게임의 실력을 향상시키기 위해 제공되는 1:1 또는 그룹 단위의 교육 서비스
+<br>
+
 
 <br>
 
 ## 🎯 **Flow Chart**
 
 ![Architecture](./assets/플로우차트.drawio.png)
+
+상품: 특정 게임의 실력을 향상시키기 위해 제공되는 1:1 또는 그룹 단위의 교육 서비스
 
 ## 📝 **와이어프레임**
 
@@ -85,12 +79,6 @@
 ![Architecture](./assets/아키텍처MSA.png)
 
 <br>
-
-
-|                                  Level_UP Team Notion                                  |                                                                                      발표 보고서                                                                                      |
-| :------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| [Notion 보러가기](https://www.notion.so/teamsparta/9-1962dc3ef51480d5b934d27f143c3c41) | [발표 보고서 보러가기](https://www.canva.com/design/DAGaRbld9so/37ehM1xDZDsknpC-fXeebQ/edit?utm_content=DAGaRbld9so&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) |
-|                                          <br>                                          |                                                                                                                                                                                      |
 
 ## 📚 **기술 스택**
 
@@ -234,6 +222,9 @@
 
 ## 1. JWT 및 스프링 시큐리티 / OAuth 2.0 소셜 로그인
 
+<details>
+<summary></summary>
+
 - JWT 및 Spring Security 설정을 통해 인증 및 인가 로직 구현
 - OAuth 2.0을 사용하여 소셜 로그인 기능 구현
 
@@ -250,9 +241,14 @@
 - **OAUTH2**: 소셜 로그인을 위한 OAUTH2 인증 시스템
 - **MySQL**: 회원 정보 저장을 위한 RDB.
 
+</details>
+
 <br>
 
 ## 2. ElasticSearch를 활용한 검색 서비스
+
+<details>
+<summary></summary>
 
 ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 수 있는 분산형 검색 엔진입니다.
 본 서비스에서는 ElasticSearch를 활용하여 **빠르고 정확한 검색 기능**을 제공합니다.
@@ -270,9 +266,14 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 - **검색 인덱스 튜닝**: 불필요한 필드 제외 및 검색 성능 향상을 위한 캐싱 적용
 - **ElasticSearch Query DSL 활용**: 다중 필드 검색 및 적용
 
+</details>
+
 <br>
 
 ## 3. 모니터링 서비스
+
+<details>
+<summary></summary>
 
 서비스의 원활한 운영을 위해 **실시간 모니터링 시스템**을 구축하여 장애 예방 및 성능 개선을 지원합니다.
 
@@ -287,9 +288,14 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 - **Elastic Stack(ELK)**: Elasticsearch + Logstash + Kibana를 이용한 로그 분석
 - **Fleet Server**: 서버 및 애플리케이션 성능 시각화
 
+</details>
+
 <br>
 
 ## 4. 결제 서비스
+
+<details>
+<summary></summary>
 
 ### 주요기능
 
@@ -307,14 +313,20 @@ ElasticSearch는 대용량 데이터를 실시간으로 검색하고 분석할 �
 - **Redis Listener** :Redis TTL발생 10분이내 결제되지않으면 HardDelete, 유저간 결제 관련 알림
 - **TossPayments API** : 토스페이먼츠 외부 API를 호출 하여 승인 및 취소
 
+</details>
+
 ## 5. 커뮤니티 서비스
 
+<details>
+<summary></summary>
 좋아하는 게임에 대한 글을 올리고, 다른 게이머들의 이야기를 볼 수 있는 공간
 
 ### 주요 기능
 
-- 기본적인 게시글 / 댓글 기능 제공
+- 게시글 / 댓글 기능
 - 게시글 검색 기능
+
+</details>
 
 <br>
 
@@ -679,6 +691,7 @@ public void publishBillStatusChange(BillEntity bill) {
 - RabbitMQ 메세지 처리 안전성 증가
 
 메세지를 더 구조적으로 관리할 수 있고, 데이터 변환 과정에서 발생하는 오류를 줄일 수 있음.
+
 <br>
 
 ## 5. 오류, 성공 메시지 통합 컨벤션 적용 도중 필터 오류메시지 컨벤션 적용 불가 문제 트러블 슈팅
@@ -806,7 +819,5 @@ private void markMessageAsProcessed(Jedis redisClient, String messageId) {
 - 데이터의 사용 빈도에 따라 핫(Hot), 웜(Warm), 콜드(Cold) 노드를 구성하여 리소스를 효율적으로 사용해야한다.
 - 여러 클러스터로 나누어 데이터를 검색하거나 복자하여 대규모 환경에서도 안정적인 성능을 유지할 수 있도록 개발해야한다.
 - 백업을 위한 스냅샷을 정기적으로 생성하도록 설정해야한다.
-
-<br>
 
 <br>
